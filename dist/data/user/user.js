@@ -67,6 +67,7 @@ let User = User_1 = class User extends numericidentity_1.NumericIdEntity {
             user.username = registration.username;
             user.name = registration.name;
             user.email = registration.email;
+            user.stats = new userstats_1.UserStats();
             yield user.setPassword(registration.password);
             return user;
         });

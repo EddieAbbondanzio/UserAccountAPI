@@ -159,11 +159,11 @@ export class UserRepository extends AbstractRepository<User> {
             return false;
         }
 
-        //Deleted users still reserve their username since we 
-        //don't want any copy cats.
+        //Deleted users still reserve their username
         let foundCount = await this.repository.createQueryBuilder()
         .select()
-        .where('LOWER(username) = LOWER(:username)', {username: username}).getCount();
+        .where('LOWER(username) = LOWER(:username)', {username: username})
+        .getCount();
 
         return foundCount == 0;
     }

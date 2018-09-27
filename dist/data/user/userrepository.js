@@ -168,11 +168,11 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             if (!username) {
                 return false;
             }
-            //Deleted users still reserve their username since we 
-            //don't want any copy cats.
+            //Deleted users still reserve their username
             let foundCount = yield this.repository.createQueryBuilder()
                 .select()
-                .where('LOWER(username) = LOWER(:username)', { username: username }).getCount();
+                .where('LOWER(username) = LOWER(:username)', { username: username })
+                .getCount();
             return foundCount == 0;
         });
     }

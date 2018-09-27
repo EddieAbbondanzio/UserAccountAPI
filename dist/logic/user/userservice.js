@@ -32,14 +32,20 @@ class UserService extends service_1.Service {
      * Search for a user by their username.
      * @param username The username to look for
      * @param includeDeleted If we should include deleted users in the results.
-     * @returns {Promise<User>} The user if found.
+     * @returns The user if found.
      */
     findByUsername(username, includeDeleted = false) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
                 return null;
             }
-            return this.userRepo.findByUsername(username, includeDeleted);
+            try {
+                return this.userRepo.findByUsername(username, includeDeleted);
+            }
+            catch (error) {
+                console.log('UserService.findByUsername(): ', error);
+                return null;
+            }
         });
     }
     /**
@@ -54,33 +60,48 @@ class UserService extends service_1.Service {
             if (isNaN(id)) {
                 return null;
             }
-            return this.userRepo.findById(id, includeDeleted);
+            try {
+                return this.userRepo.findById(id, includeDeleted);
+            }
+            catch (error) {
+                console.log('UserService.findById(): ', error);
+                return null;
+            }
         });
     }
     /**
      * Update an existing user in the database.
      * @param user The user to update
-     * @returns {Promise<boolean>} True if no errors occured.
+     * @returns True if no errors occured.
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user) {
                 return;
             }
-            this.userRepo.update(user);
+            try {
+                this.userRepo.update(user);
+            }
+            catch (error) {
+                console.log('UserService.update(): ', error);
+            }
         });
     }
     /**
      * Delete a user from the database
      * @param user The user to delete
-     * @returns {Promise<boolean>} True if successful.
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user || isNaN(user.id)) {
                 return;
             }
-            this.userRepo.delete(user);
+            try {
+                this.userRepo.delete(user);
+            }
+            catch (error) {
+                console.log('UserService.delete(): ', error);
+            }
         });
     }
     /**
@@ -90,12 +111,18 @@ class UserService extends service_1.Service {
     register(registration) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!registration.validate()) {
-                throw new Error("Invalid registration recieved");
+                return false;
             }
             else {
-                let user = yield datamodule_1.User.FromRegistration(registration);
-                yield this.userRepo.add(user);
-                return true;
+                try {
+                    let user = yield datamodule_1.User.FromRegistration(registration);
+                    yield this.userRepo.add(user);
+                    return true;
+                }
+                catch (error) {
+                    console.log('UserService.register(): Failed to register new user: ', error);
+                    return false;
+                }
             }
         });
     }
@@ -108,7 +135,13 @@ class UserService extends service_1.Service {
             if (!username) {
                 return false;
             }
-            return this.userRepo.isUsernameAvailable(username);
+            try {
+                return this.userRepo.isUsernameAvailable(username);
+            }
+            catch (error) {
+                console.log('UserService.isUsernameAvailable(): ', error);
+                return false;
+            }
         });
     }
 }

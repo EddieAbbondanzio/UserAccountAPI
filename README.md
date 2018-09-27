@@ -1,4 +1,4 @@
-# Blurtle
+# No Mans Blocks Master Server
 
 This project is a account server for my game No Mans Blocks. It uses the following dependencies:  
 

@@ -104,6 +104,7 @@ export class User extends NumericIdEntity {
         user.username = registration.username;
         user.name     = registration.name;
         user.email    = registration.email;
+        user.stats    = new UserStats();
         await user.setPassword(registration.password);
 
         return user;

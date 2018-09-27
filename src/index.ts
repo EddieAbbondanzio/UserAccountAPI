@@ -15,21 +15,10 @@ async function initialize() {
 
     // Set up the logic layer for use.
     const serviceLocator = new ServiceLocator(connection);
-    
-    let userRegistration = new UserRegistration();
-    userRegistration.username = "bert";
-    userRegistration.password = "password";
-    userRegistration.email = "test@me.co";
-    userRegistration.name = "Bert Person";
-    await serviceLocator.userService.register(userRegistration)
-
 
     //Spin up the server. This takes and handles the 
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
-
-    //First we add a user
-   // var user = await serviceCoordinator.userService.registerNewUser('NewUser2', 'hunter2000', 'John Smith');
 
     console.log('Server ready...');
   }
