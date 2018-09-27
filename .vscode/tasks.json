@@ -1,0 +1,32 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Transpile Typescript",
+            "type": "shell",
+            "command": "npm run build",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Start Server",
+            "type": "shell",
+            "command": "npm start",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
+            "label": "Clear",
+            "type": "shell",
+            "command": "clear",
+        }
+    ]
+}

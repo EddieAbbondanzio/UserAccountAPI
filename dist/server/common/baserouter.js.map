@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/server/common/baserouter.ts"],"names":[],"mappings":";;AAAA,qCAAiC;AAEjC;;;GAGG;AACH;IAMI;;;OAGG;IACH;QACI,IAAI,CAAC,MAAM,GAAG,gBAAM,EAAE,CAAC;QACvB,IAAI,CAAC,IAAI,EAAE,CAAC;IAChB,CAAC;IAQD;;;OAGG;IACI,SAAS;QACZ,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACvB,CAAC;CACJ;AA5BD,gCA4BC","file":"baserouter.js","sourceRoot":"../../"}

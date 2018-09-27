@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/logic/security/tokenpayload.ts"],"names":[],"mappings":";;AACA;;GAEG;AACH;IAOI;;;OAGG;IACH,YAAY,MAAe;QACvB,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACzB,CAAC;CACJ;AAdD,oCAcC","file":"tokenpayload.js","sourceRoot":"../../"}
