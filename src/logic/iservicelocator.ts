@@ -1,4 +1,5 @@
 import {UserService, AuthenticationService} from './servicemodule';
+import { IEmailService } from './email/iemailservice';
 
 /**
  * A service locator is responsible for providing
@@ -17,4 +18,9 @@ export interface IServiceLocator {
      * and handling JWTs being sent in.
      */
     authService: AuthenticationService;
+
+    /**
+     * The service for sending out emails.
+     */
+    emailService: IEmailService;
 }

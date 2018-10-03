@@ -20,11 +20,12 @@ class AuthenticationService extends service_1.Service {
     /**
      * Get a new LoginService up and running.
      * @param connection The underlying database connection.
+     * @param tokenKey The secret encryption key for JWTs.
      */
-    constructor(connection) {
+    constructor(connection, tokenKey) {
         super(connection);
         this.passwordHasher = new passwordhasher_1.PasswordHasher();
-        this.tokenManager = new tokenmanager_1.TokenManager();
+        this.tokenManager = new tokenmanager_1.TokenManager(tokenKey);
         this.userRepository = connection.getCustomRepository(datamodule_1.UserRepository);
         this.loginRepository = connection.getCustomRepository(datamodule_1.UserLoginRepository);
     }

@@ -1,6 +1,6 @@
 import {Router, Request, Response, NextFunction } from 'express';
 import { Server } from '../server';
-import { BaseRouter } from '../common/baserouter';
+import { BaseController } from '../common/baserouter';
 import * as HttpStatus from 'http-status-codes';
 import { UserLogin } from '../../data/datamodule';
 import { AuthenticationService } from '../../logic/security/authenticationservice';
@@ -12,7 +12,7 @@ import { IServiceLocator } from '../../logic/iservicelocator';
  * checking incoming requests for a json web token
  * attached to them.
  */
-export class AuthenticationRouter extends BaseRouter {
+export class AuthenticationController extends BaseController {
     /**
      * Service for looking up users based off their id.
      */

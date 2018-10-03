@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const userservice_1 = require("./user/userservice");
 const authenticationservice_1 = require("./security/authenticationservice");
+const zohoemailservice_1 = require("./email/zohoemailservice");
+const secret_1 = require("../secret");
 /**
  * Service locator for providing the dependencies
  * that the server relies on. This is dependecy
@@ -14,7 +16,8 @@ class ServiceLocator {
      */
     constructor(dbConnection) {
         this.userService = new userservice_1.UserService(dbConnection);
-        this.authService = new authenticationservice_1.AuthenticationService(dbConnection);
+        this.authService = new authenticationservice_1.AuthenticationService(dbConnection, secret_1.Secret.TOKEN_SECRET_KEY);
+        this.emailService = new zohoemailservice_1.ZohoEmailService(secret_1.Secret.EMAIL_CREDENTIALS);
     }
 }
 exports.ServiceLocator = ServiceLocator;

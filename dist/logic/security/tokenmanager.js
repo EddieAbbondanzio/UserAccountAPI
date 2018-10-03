@@ -19,8 +19,9 @@ class TokenManager {
     /**
      * Create a new token manager for handing
      * out and verifying tokens.
+     * @param secretKey The secret encryption key.
      */
-    constructor() {
+    constructor(secretKey) {
         this.signOptions = {
             algorithm: 'HS256',
             expiresIn: TokenManager.TOKEN_LIFESPAN
@@ -28,6 +29,7 @@ class TokenManager {
         this.verifyOptions = {
             algorithms: ['HS256']
         };
+        this.secretKey = secretKey;
     }
     /**
      * Issue a new token for a specific user. This
@@ -45,7 +47,7 @@ class TokenManager {
                 userId: user.id
             };
             return new Promise((resolve, reject) => {
-                JWT.sign(payload, secret_1.Secrets.TOKEN_SECRET_KEY, this.signOptions, (error, token) => {
+                JWT.sign(payload, this.secretKey, this.signOptions, (error, token) => {
                     if (error) {
                         reject(error);
                     }
@@ -68,7 +70,7 @@ class TokenManager {
                 throw new Error('AuthenticationService.issueToken(): No token passed in!');
             }
             return new Promise((resolve, reject) => {
-                JWT.verify(token, secret_1.Secrets.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+                JWT.verify(token, secret_1.Secret.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
                     if (error) {
                         reject(error);
                     }

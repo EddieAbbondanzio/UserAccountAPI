@@ -15,7 +15,7 @@ const baserouter_1 = require("../common/baserouter");
  * retrieval. Usernames are case insensitive to
  * prevent URL collisions.
  */
-class UserRouter extends baserouter_1.BaseRouter {
+class UserRouter extends baserouter_1.BaseController {
     /**
      * Create a new user router to handle requests related
      * to getting user info.

@@ -1,6 +1,6 @@
 import * as JWT from 'jsonwebtoken';
 import { UserLogin, User } from '../../data/datamodule';
-import { Secrets } from '../../secret';
+import { Secret } from '../../secret';
 import { TokenPayload } from './tokenpayload';
 
 /**
@@ -26,10 +26,16 @@ export class TokenManager {
     private verifyOptions: JWT.VerifyOptions;
 
     /**
+     * The private key for encryption.
+     */
+    private secretKey: string;
+
+    /**
      * Create a new token manager for handing
      * out and verifying tokens.
+     * @param secretKey The secret encryption key.
      */
-    constructor() {
+    constructor(secretKey: string) {
         this.signOptions = {
             algorithm: 'HS256',
             expiresIn: TokenManager.TOKEN_LIFESPAN
@@ -38,6 +44,8 @@ export class TokenManager {
         this.verifyOptions = {
             algorithms: ['HS256']
         }
+
+        this.secretKey = secretKey;
     }
 
     /**
@@ -57,7 +65,7 @@ export class TokenManager {
         };
 
         return new Promise<string>((resolve, reject) => {
-            JWT.sign(payload, Secrets.TOKEN_SECRET_KEY, this.signOptions, (error, token) => {
+            JWT.sign(payload, this.secretKey, this.signOptions, (error, token) => {
                 if(error){
                     reject(error);
                 }
@@ -80,7 +88,7 @@ export class TokenManager {
         }
 
         return new Promise<any>((resolve, reject) => {
-            JWT.verify(token, Secrets.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+            JWT.verify(token, Secret.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
                 if(error){
                     reject(error);
                 }

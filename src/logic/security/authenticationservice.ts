@@ -37,13 +37,14 @@ export class AuthenticationService extends Service {
     /**
      * Get a new LoginService up and running.
      * @param connection The underlying database connection.
+     * @param tokenKey The secret encryption key for JWTs.
      */
-    constructor(connection: Connection) {
+    constructor(connection: Connection, tokenKey: string) {
         super(connection);
 
-        this.passwordHasher = new PasswordHasher();
-        this.tokenManager = new TokenManager();
-        this.userRepository = connection.getCustomRepository(UserRepository);
+        this.passwordHasher  = new PasswordHasher();
+        this.tokenManager    = new TokenManager(tokenKey);
+        this.userRepository  = connection.getCustomRepository(UserRepository);
         this.loginRepository = connection.getCustomRepository(UserLoginRepository);
     }
 

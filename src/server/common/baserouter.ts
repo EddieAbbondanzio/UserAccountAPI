@@ -4,7 +4,7 @@ import { Router } from 'express';
  * A base class for building off of that will provide some preset 
  * functionality to any service.
  */
-export abstract class BaseRouter {
+export abstract class BaseController {
     /**
      * The underlying Express Router.
      */

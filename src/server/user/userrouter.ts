@@ -2,7 +2,7 @@ import {Router, Request, Response } from 'express';
 import { UserService } from '../../logic/user/userservice';
 import { User } from '../../data/datamodule';
 import { Server } from '../server'
-import { BaseRouter } from '../common/baserouter';
+import { BaseController } from '../common/baserouter';
 import { IServiceLocator } from '../../logic/iservicelocator';
 
 /**
@@ -11,7 +11,7 @@ import { IServiceLocator } from '../../logic/iservicelocator';
  * retrieval. Usernames are case insensitive to
  * prevent URL collisions.
  */
-export class UserRouter extends BaseRouter {
+export class UserRouter extends BaseController {
     /**
      * The underlying connection to the database 
      * for user objects.

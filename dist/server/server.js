@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const Express = require("express");
-const userrouter_1 = require("./user/userrouter");
 const BodyParser = require("body-parser");
-const authenticationrouter_1 = require("./security/authenticationrouter");
+const authcontroller_1 = require("./controllers/authcontroller");
+const usercontroller_1 = require("./controllers/usercontroller");
 /**
  * Server instance of the application. Handles
  * processing HTTP Requests and more.
@@ -16,8 +16,8 @@ class Server {
      * any needed dependencies.
      */
     constructor(serviceLocator) {
-        this.userRouter = new userrouter_1.UserRouter(serviceLocator);
-        this.authRouter = new authenticationrouter_1.AuthenticationRouter(serviceLocator);
+        this.authController = new authcontroller_1.AuthController(serviceLocator);
+        this.userController = new usercontroller_1.UserController(serviceLocator);
         this.express = Express();
         this.configureMiddleware();
         this.configureRoutes();
@@ -32,15 +32,14 @@ class Server {
      */
     configureMiddleware() {
         this.express.use(BodyParser.json());
-        this.express.use(this.authRouter.processRequestForLogin);
     }
     /**
      * Set up the routes of the controllers
      * by express.
      */
     configureRoutes() {
-        this.express.use('/user/', this.userRouter.getRouter());
-        this.express.use('/auth/', this.authRouter.getRouter());
+        this.express.use('/user/', this.userController.getRouter());
+        this.express.use('/auth/', this.authController.getRouter());
     }
     /**
      * Log errors whenever they happen.

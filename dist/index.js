@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("./server/server");
 const datacontext_1 = require("./data/datacontext");
 const servicelocator_1 = require("./logic/servicelocator");
-const datamodule_1 = require("./data/datamodule");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -24,17 +23,9 @@ function initialize() {
             const connection = yield datacontext_1.DataContext.initializeDatabaseAsync();
             // Set up the logic layer for use.
             const serviceLocator = new servicelocator_1.ServiceLocator(connection);
-            let userRegistration = new datamodule_1.UserRegistration();
-            userRegistration.username = "bert";
-            userRegistration.password = "password";
-            userRegistration.email = "test@me.co";
-            userRegistration.name = "Bert Person";
-            yield serviceLocator.userService.register(userRegistration);
             //Spin up the server. This takes and handles the 
             //HTTP Requests clients make.
             const server = new server_1.Server(serviceLocator);
-            //First we add a user
-            // var user = await serviceCoordinator.userService.registerNewUser('NewUser2', 'hunter2000', 'John Smith');
             console.log('Server ready...');
         }
         catch (error) {

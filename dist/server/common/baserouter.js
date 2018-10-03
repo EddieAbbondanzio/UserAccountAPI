@@ -5,7 +5,7 @@ const express_1 = require("express");
  * A base class for building off of that will provide some preset
  * functionality to any service.
  */
-class BaseRouter {
+class BaseController {
     /**
      * Create a new base router that will handle
      * extra functionality for the server.
@@ -22,6 +22,6 @@ class BaseRouter {
         return this.router;
     }
 }
-exports.BaseRouter = BaseRouter;
+exports.BaseController = BaseController;
 
 //# sourceMappingURL=baserouter.js.map

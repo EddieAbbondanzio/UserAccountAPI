@@ -33,6 +33,12 @@ export class UserLogin {
     public guid: string;
 
     /**
+     * The JWT associated with the login. This will
+     * only be populated on the very first login.
+     */
+    public token: string;
+
+    /**
      * The date that the login occured. Not really
      * used for anything.
      */

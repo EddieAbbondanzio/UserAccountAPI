@@ -15,7 +15,7 @@ const HttpStatus = require("http-status-codes");
  * checking incoming requests for a json web token
  * attached to them.
  */
-class AuthenticationRouter extends baserouter_1.BaseRouter {
+class AuthenticationController extends baserouter_1.BaseController {
     /**
      * Create a new instance of the authentication router.
      * @param serviceLocator The service locator for finding
@@ -117,6 +117,6 @@ class AuthenticationRouter extends baserouter_1.BaseRouter {
         this.router.post('/login', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.loginUser(req, res); }));
     }
 }
-exports.AuthenticationRouter = AuthenticationRouter;
+exports.AuthenticationController = AuthenticationController;
 
-//# sourceMappingURL=authenticationrouter.js.map
+//# sourceMappingURL=authenticationcontroller.js.map
