@@ -66,18 +66,24 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             if (!username) {
                 return null;
             }
-            if (includeDeleted) {
-                return this.repository.createQueryBuilder('user')
-                    .leftJoinAndSelect('user.stats', 'stats')
-                    .where('user.username = :username', { username: username })
-                    .getOne();
+            try {
+                if (includeDeleted) {
+                    return this.repository.createQueryBuilder('user')
+                        .leftJoinAndSelect('user.stats', 'stats')
+                        .where('user.username = :username', { username: username })
+                        .getOne();
+                }
+                else {
+                    return this.repository.createQueryBuilder('user')
+                        .leftJoinAndSelect('user.stats', 'stats')
+                        .where('user.username = :username', { username: username })
+                        .andWhere('user.isDeleted = false')
+                        .getOne();
+                }
             }
-            else {
-                return this.repository.createQueryBuilder('user')
-                    .leftJoinAndSelect('user.stats', 'stats')
-                    .where('user.username = :username', { username: username })
-                    .andWhere('user.isDeleted = false')
-                    .getOne();
+            catch (error) {
+                console.log('Failed to find by username: ', username);
+                return null;
             }
         });
     }
@@ -85,30 +91,38 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
+     * @returns True if no error.
      */
     add(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (user == null) {
-                return;
+            if (!user) {
+                return false;
             }
-            //Start a transaction so we don't get orphan objects in
-            //the event of failures.
-            yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                let userRepo = manager.getRepository(user_1.User);
-                let statRepo = manager.getRepository(userstats_1.UserStats);
-                //Deleted users still reserve their username since we 
-                //don't want any copy cats.
-                let foundCount = yield userRepo.createQueryBuilder()
-                    .select()
-                    .where('LOWER(username) = LOWER(:username)', user).getCount();
-                if (foundCount > 0) {
-                    throw new Error("Username is already claimed.");
-                }
-                //We have to await the user repo insert since
-                //we need a user id for the stat insert.
-                yield userRepo.insert(user);
-                yield statRepo.insert(user.stats);
-            }));
+            try {
+                //Start a transaction so we don't get orphan objects in
+                //the event of failures.
+                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                    let userRepo = manager.getRepository(user_1.User);
+                    let statRepo = manager.getRepository(userstats_1.UserStats);
+                    //Deleted users still reserve their username since we 
+                    //don't want any copy cats.
+                    let foundCount = yield userRepo.createQueryBuilder()
+                        .select()
+                        .where('LOWER(username) = LOWER(:username)', user).getCount();
+                    if (foundCount > 0) {
+                        throw new Error("Username is already claimed.");
+                    }
+                    //We have to await the user repo insert since
+                    //we need a user id for the stat insert.
+                    yield userRepo.insert(user);
+                    yield statRepo.insert(user.stats);
+                }));
+                return true;
+            }
+            catch (error) {
+                console.log('Failed to add new user: ', error);
+                return false;
+            }
         });
     }
     /**
@@ -116,45 +130,61 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
+     * @returns True if no error.
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (user == null) {
-                return;
+            if (!user) {
+                return false;
             }
-            yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                let userRepo = manager.getRepository(user_1.User);
-                //We don't allow everything to be changed since username should NEVER change.
-                yield userRepo.createQueryBuilder()
-                    .update(user_1.User)
-                    .set({
-                    passwordHash: user.passwordHash,
-                    name: user.name,
-                    email: user.email
-                })
-                    .where('id = :id', { id: user.id })
-                    .execute();
-            }));
+            try {
+                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                    let userRepo = manager.getRepository(user_1.User);
+                    //We don't allow everything to be changed since username should NEVER change.
+                    yield userRepo.createQueryBuilder()
+                        .update(user_1.User)
+                        .set({
+                        passwordHash: user.passwordHash,
+                        name: user.name,
+                        email: user.email
+                    })
+                        .where('id = :id', { id: user.id })
+                        .execute();
+                }));
+                return true;
+            }
+            catch (error) {
+                console.log('Failed to update user: ', error);
+                return false;
+            }
         });
     }
     /**
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
+     * @returns True if no error.
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (user == null) {
-                return;
+                return false;
             }
-            yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                let userRepo = manager.getRepository(user_1.User);
-                //We just need to mark the user as deleted
-                yield userRepo.createQueryBuilder()
-                    .update()
-                    .set({ isDeleted: true })
-                    .where('id = :id', { id: user.id }).execute();
-            }));
+            try {
+                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                    let userRepo = manager.getRepository(user_1.User);
+                    //We just need to mark the user as deleted
+                    yield userRepo.createQueryBuilder()
+                        .update()
+                        .set({ isDeleted: true })
+                        .where('id = :id', { id: user.id }).execute();
+                }));
+                return true;
+            }
+            catch (error) {
+                console.log('Failed to delete user: ', error);
+                return false;
+            }
         });
     }
     /**
@@ -168,12 +198,18 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             if (!username) {
                 return false;
             }
-            //Deleted users still reserve their username
-            let foundCount = yield this.repository.createQueryBuilder()
-                .select()
-                .where('LOWER(username) = LOWER(:username)', { username: username })
-                .getCount();
-            return foundCount == 0;
+            try {
+                //Deleted users still reserve their username
+                let foundCount = yield this.repository.createQueryBuilder()
+                    .select()
+                    .where('LOWER(username) = LOWER(:username)', { username: username })
+                    .getCount();
+                return foundCount == 0;
+            }
+            catch (error) {
+                console.log('Failed to check for username availability: ', error);
+                return false;
+            }
         });
     }
 };

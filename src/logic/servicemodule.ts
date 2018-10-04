@@ -3,4 +3,4 @@
  * services from.
  */
 export * from './user/userservice';
-export * from './security/authenticationservice';
+export * from './security/authservice';

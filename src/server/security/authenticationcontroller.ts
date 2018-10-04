@@ -3,7 +3,7 @@ import { Server } from '../server';
 import { BaseController } from '../common/baserouter';
 import * as HttpStatus from 'http-status-codes';
 import { UserLogin } from '../../data/datamodule';
-import { AuthenticationService } from '../../logic/security/authenticationservice';
+import { AuthService } from '../../logic/security/authservice';
 import { UserService } from '../../logic/user/userservice';
 import { IServiceLocator } from '../../logic/iservicelocator';
 
@@ -22,7 +22,7 @@ export class AuthenticationController extends BaseController {
      * The login service that connects back to
      * the database.
      */
-    private authService: AuthenticationService;
+    private authService: AuthService;
 
     /**
      * Create a new instance of the authentication router.
@@ -79,8 +79,9 @@ export class AuthenticationController extends BaseController {
         }
         
         try {
+            let username: string = request.body.username;
             let loginGuid:string = request.body.loginGuid;
-            await this.authService.logoutUser(loginGuid);
+            await this.authService.logoutUser(username, loginGuid);
             response.sendStatus(HttpStatus.OK);
         }
         catch(error){

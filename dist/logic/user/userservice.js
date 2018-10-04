@@ -29,6 +29,52 @@ class UserService extends service_1.Service {
         this.passwordHasher = new passwordhasher_1.PasswordHasher();
     }
     /**
+     * A new user wishes to join. Process their registration
+     * and attempt to add them to the system.
+     * @param registration The user's registration.
+     */
+    registerNewUser(registration) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return false;
+        });
+    }
+    /**
+     * User forgot their username and wants it emailed to them.
+     * @param email The user's email to send it to.
+     */
+    emailUserTheirUsername(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
+    }
+    /**
+     * User forgot their email and wants a temporary access password
+     * emailed to them. This will not remove their existing password.
+     * @param username The username of the user to email.
+     */
+    emailUserTempPassword(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
+    }
+    /**
+     * Checks if a username is available for taking.
+     * @param username The username to check for.
+     * @returns True if the username is available.
+     */
+    isUsernameAvailable(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!username) {
+                return false;
+            }
+            try {
+                return yield this.userRepo.isUsernameAvailable(username);
+            }
+            catch (error) {
+                console.log('UserService.isUsernameAvailable(): ', error);
+                return false;
+            }
+        });
+    }
+    /**
      * Search for a user by their username.
      * @param username The username to look for
      * @param includeDeleted If we should include deleted users in the results.
@@ -123,24 +169,6 @@ class UserService extends service_1.Service {
                     console.log('UserService.register(): Failed to register new user: ', error);
                     return false;
                 }
-            }
-        });
-    }
-    /**
-     * Checks if a username is available for taking.
-     * @param username The username to check for.
-     */
-    isUsernameAvailable(username) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!username) {
-                return false;
-            }
-            try {
-                return this.userRepo.isUsernameAvailable(username);
-            }
-            catch (error) {
-                console.log('UserService.isUsernameAvailable(): ', error);
-                return false;
             }
         });
     }

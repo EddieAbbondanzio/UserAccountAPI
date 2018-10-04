@@ -1,8 +1,6 @@
 import { Service } from "../common/service";
 import { UserLogin, User, UserLoginRepository, UserRepository, UserRegistration } from "../../data/datamodule";
-import { Request, Response, NextFunction } from "express";
-import { Connection, IsNull } from "typeorm";
-import { PasswordHasher } from "./passwordhasher";
+import { Connection } from "typeorm";
 import { TokenManager } from "./tokenmanager";
 import { TokenPayload } from "./tokenpayload";
 
@@ -11,7 +9,7 @@ import { TokenPayload } from "./tokenpayload";
  * The service used by the server to process login
  * requests, and check requests made for a login token.
  */
-export class AuthenticationService extends Service {
+export class AuthService extends Service {
     /**
      * The repo that holds all of the users in the
      * database.
@@ -23,11 +21,6 @@ export class AuthenticationService extends Service {
      * within the database.
      */
     private loginRepository: UserLoginRepository;
-
-    /**
-     * The hash generator, and checker of passwords.
-     */
-    private passwordHasher: PasswordHasher;
 
     /**
      * Handles giving out and verifying Json Web Tokens.
@@ -42,11 +35,88 @@ export class AuthenticationService extends Service {
     constructor(connection: Connection, tokenKey: string) {
         super(connection);
 
-        this.passwordHasher  = new PasswordHasher();
         this.tokenManager    = new TokenManager(tokenKey);
         this.userRepository  = connection.getCustomRepository(UserRepository);
         this.loginRepository = connection.getCustomRepository(UserLoginRepository);
     }
+
+    /**
+     * Login a user via their credentials.
+     * @param username The user's username.
+     * @param password The user's password.
+     * @returns The user if successful. Otherwise null.
+     */
+    public async loginUserViaCredentials(username: string, password: string): Promise<User|null> {
+        return null;
+    }
+
+    /**
+     * Login a user using a JWT they have.
+     * @param token The JWT from a previous login.
+     * @returns The user if successful. Otherwise null.
+     */
+    public async loginUserViaToken(token: string): Promise<User|null> {
+        return null;
+    }
+
+    /**
+     * Log out a user that is currently logged in.
+     * @param username The username to log out.
+     * @param loginGuid Their login guid to use.
+     * @returns True if logged out.
+     */
+    public async logoutUser(username: string, loginGuid: string): Promise<boolean> {
+        return false;
+    }
+
+    /**
+     * Reset a user's password after verifying their token is valid.
+     * @param username The username of the user.
+     * @param passwordToken Their temporary access password.
+     * @param newPassword Their new desired password.
+     * @returns True if the token was valid.
+     */
+    public async resetPassword(username: string, passwordToken: string, newPassword: string): Promise<boolean> {
+        return false;
+    }
+
+    /**
+     * Update a user's password. This only proceeds if their current
+     * password passed in is valid.
+     * @param username The username of the user.
+     * @param currPassword Their current password.
+     * @param newPassword Their new desired password.
+     * @returns True if successful.
+     */
+    public async updatePassword(username: string, currPassword: string, newPassword: string): Promise<boolean> {
+        return false;
+    }
+
+    /**
+     * Validate that a user is who they claim to be. This will check their username
+     * against the login provided in the database.
+     * @param username The username of the user.
+     * @param loginGuid Their login guid.
+     * @returns True if the user is who they claim to be.
+     */
+    public async validateUser(username: string, loginGuid: string): Promise<boolean> {
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Log in an existing user by checking the database for a match.
@@ -75,15 +145,15 @@ export class AuthenticationService extends Service {
         return userLogin;
     }
 
-    /**
-     * Log out an already logged in user. This will invalidate their
-     * login
-     * @param username The username of the user to log out.
-     * @param guid The unique id of the login
-     */
-    public async logoutUser(guid: string) {
-        await this.loginRepository.deleteByGuid(guid);
-    }
+    // /**
+    //  * Log out an already logged in user. This will invalidate their
+    //  * login
+    //  * @param username The username of the user to log out.
+    //  * @param guid The unique id of the login
+    //  */
+    // public async logoutUser(guid: string) {
+    //     await this.loginRepository.deleteByGuid(guid);
+    // }
 
     /**
      * Attempts to validate a loginId that a user passed to a game server. This
@@ -94,7 +164,7 @@ export class AuthenticationService extends Service {
      */
     public async validateLogin(username: string, guid: string) : Promise<boolean> {
         try {
-            let userLogin: UserLogin = await this.loginRepository.findByGuid(guid);
+            let userLogin: UserLogin = null; //await this.loginRepository.findByGuid(guid);
 
             if(userLogin){
                 return true;

@@ -15,78 +15,80 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-const userlogin_1 = require("./userlogin");
+const resettoken_1 = require("./resettoken");
 /**
- * Storage interface for logins of users. Allows for adding a new
- * login of a user, or removing every
+ * Storage interface for reset tokens of users. Allows for basic CRUD
+ * operations with the database.
  */
-let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRepository {
+let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.AbstractRepository {
     /**
-     * Search for a login for a specific user.
-     * @param user The user to look for a login for.
-     * @returns The login found (or null).
+     * Searches for a user's reset token.
+     * @param user The user to look for a reset token for.
+     * @returns The token found (or null).
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
+            //Stop bad data
             if (!user) {
                 return null;
             }
             try {
-                return yield this.repository.createQueryBuilder('login')
-                    .leftJoinAndSelect('login.user', 'user')
-                    .where('login.userId = :id', user)
+                return yield this.repository.createQueryBuilder('token')
+                    .leftJoinAndSelect('token.user', 'user')
+                    .where('token.userId = :id', { user })
                     .getOne();
             }
             catch (error) {
-                console.log('Failed to find user login by user: ', error);
+                console.log('Failed to find reset token by user: ', error);
                 return null;
             }
         });
     }
     /**
-     * Add a new user login to the database.
-     * @param userLogin The userlogin to add to the database.
+     * Add a new reset token to the database.
+     * @param resetToken The token to add to the database.
      * @returns True if no errors.
      */
-    add(userLogin) {
+    add(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userLogin) {
+            //Stop bad data.
+            if (!resetToken) {
                 return false;
             }
             try {
-                yield this.repository.insert(userLogin);
+                yield this.repository.insert(resetToken);
                 return true;
             }
             catch (error) {
-                console.log('Failed to insert user login: ', error);
+                console.log('Failed to insert reset token: ', error);
                 return false;
             }
         });
     }
     /**
-     * Remove an existing login from the database.
-     * @param userlogin The userlogin to remove from the database.
-     * @returns True if no errors.
+     * Delete an existing reset token from the database.
+     * @param resetToken The reset token to delete.
      */
-    delete(userlogin) {
+    delete(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userlogin) {
+            //Stop bad data.
+            if (!resetToken) {
                 return false;
             }
             try {
-                yield this.repository.delete(userlogin);
+                yield this.repository.delete(resetToken);
                 return true;
             }
             catch (error) {
-                console.log('Failed to delete user login: ', error);
+                console.log('Failed to delete reset token: ', error);
                 return false;
             }
         });
     }
 };
-UserLoginRepository = __decorate([
-    typeorm_1.EntityRepository(userlogin_1.UserLogin)
-], UserLoginRepository);
-exports.UserLoginRepository = UserLoginRepository;
+ResetTokenRespository = __decorate([
+    typeorm_1.EntityRepository(resettoken_1.ResetToken)
+], ResetTokenRespository);
+exports.ResetTokenRespository = ResetTokenRespository;
 
-//# sourceMappingURL=userloginrepository.js.map
+//# sourceMappingURL=resettokenrepository.js.map

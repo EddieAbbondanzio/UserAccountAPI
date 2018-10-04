@@ -11,8 +11,8 @@ export class UserStats {
      * The user object that these stats
      * belong to.
      */
-    @OneToOne(type => User, user => user.stats, {primary: true})
     @JoinColumn()
+    @OneToOne(type => User, user => user.stats, {primary: true})
     public user: User;
 
     /**

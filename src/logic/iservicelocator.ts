@@ -1,4 +1,4 @@
-import {UserService, AuthenticationService} from './servicemodule';
+import {UserService, AuthService} from './servicemodule';
 import { IEmailService } from './email/iemailservice';
 
 /**
@@ -17,7 +17,7 @@ export interface IServiceLocator {
      * The service for authenticating credentials
      * and handling JWTs being sent in.
      */
-    authService: AuthenticationService;
+    authService: AuthService;
 
     /**
      * The service for sending out emails.

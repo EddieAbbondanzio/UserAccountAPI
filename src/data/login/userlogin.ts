@@ -1,6 +1,6 @@
 import { User } from "../user/user";
 import { ManyToOne, Index, PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import uuidv4 = require('uuid/v4');
+import { RandomUtils } from "../../util/randomutils";
 
 /**
  * A login gives user access to portions of the
@@ -9,6 +9,11 @@ import uuidv4 = require('uuid/v4');
  */
 @Entity({name: "UserLogin"})
 export class UserLogin {
+    /**
+     * The ideal code length for the unique code.
+     */
+    private static CODE_LENGTH: number = 16;
+
     /**
      * Database table index for the login. This 
      * is only used by the foreign key relationship.
@@ -25,17 +30,18 @@ export class UserLogin {
     public user: User;
 
     /**
-     * The unique GUID for the login. These
+     * The unique code for the login. These
      * are passed around to prevent from handing
      * out the JWT to game servers.
      */
-    @Column("varchar", {nullable: false})
-    public guid: string;
+    @Column("char", {length: UserLogin.CODE_LENGTH, nullable: false})
+    public code: string;
 
     /**
      * The JWT associated with the login. This will
      * only be populated on the very first login.
      */
+    @Column("varchar", {nullable: false})
     public token: string;
 
     /**
@@ -53,7 +59,7 @@ export class UserLogin {
     public static GenerateLogin(user: User): UserLogin {
         let userLogin  = new UserLogin();
         userLogin.user = user;
-        userLogin.guid = uuidv4();
+        userLogin.code = RandomUtils.generateRandomString(UserLogin.CODE_LENGTH);
 
         return userLogin;
     }

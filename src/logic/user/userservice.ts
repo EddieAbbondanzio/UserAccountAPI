@@ -32,6 +32,62 @@ export class UserService extends Service {
     }
 
     /**
+     * A new user wishes to join. Process their registration
+     * and attempt to add them to the system.
+     * @param registration The user's registration.
+     */
+    public async registerNewUser(registration: UserRegistration): Promise<boolean> {
+        return false;
+    }
+
+    /**
+     * User forgot their username and wants it emailed to them.
+     * @param email The user's email to send it to.
+     */
+    public async emailUserTheirUsername(email: string): Promise<void> {
+
+    }
+
+    /**
+     * User forgot their email and wants a temporary access password
+     * emailed to them. This will not remove their existing password.
+     * @param username The username of the user to email.
+     */
+    public async emailUserTempPassword(username: string): Promise<void> {
+
+    }
+
+    /**
+     * Checks if a username is available for taking.
+     * @param username The username to check for.
+     * @returns True if the username is available.
+     */
+    public async isUsernameAvailable(username: string):Promise<boolean> {
+        if(!username){
+            return false;
+        }
+
+        try {
+            return await this.userRepo.isUsernameAvailable(username);
+        }
+        catch(error) {
+            console.log('UserService.isUsernameAvailable(): ', error);
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
      * Search for a user by their username.
      * @param username The username to look for
      * @param includeDeleted If we should include deleted users in the results.
@@ -128,21 +184,4 @@ export class UserService extends Service {
         }
     }
 
-    /**
-     * Checks if a username is available for taking.
-     * @param username The username to check for.
-     */
-    public async isUsernameAvailable(username: string):Promise<boolean> {
-        if(!username){
-            return false;
-        }
-
-        try {
-            return this.userRepo.isUsernameAvailable(username);
-        }
-        catch(error) {
-            console.log('UserService.isUsernameAvailable(): ', error);
-            return false;
-        }
-    }
 }

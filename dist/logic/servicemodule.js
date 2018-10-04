@@ -8,6 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * services from.
  */
 __export(require("./user/userservice"));
-__export(require("./security/authenticationservice"));
+__export(require("./security/authservice"));
 
 //# sourceMappingURL=servicemodule.js.map

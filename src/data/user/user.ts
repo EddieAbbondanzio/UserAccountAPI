@@ -1,6 +1,5 @@
-import { Entity, Column, OneToOne, Index, OneToMany } from 'typeorm';
+import { Entity, Column, OneToOne, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserStats } from './userstats';
-import { NumericIdEntity } from '../common/numericidentity';
 import { PasswordHasher } from '../../logic/security/passwordhasher';
 import { UserRegistration } from './userregistration';
 
@@ -9,7 +8,7 @@ import { UserRegistration } from './userregistration';
  * has registered with the system and has some roles, and stats.
  */
 @Entity({name: "User"})
-export class User extends NumericIdEntity {
+export class User {
     /**
      * The minimum number of characters in a username.
      */
@@ -29,6 +28,13 @@ export class User extends NumericIdEntity {
      * The minimum length to allow for passwords.
      */
     public static MIN_PASSWORD_LENGTH: number = 8;
+
+    /**
+     * The automatically generated unique id of the 
+     * entity object. Reduces how redundant the code is.
+     */
+    @PrimaryGeneratedColumn("increment", {type: "bigint", unsigned: true})
+    public id: number;
 
     /**
      * The user's unique username.
@@ -58,6 +64,19 @@ export class User extends NumericIdEntity {
     public email: string;
     
     /**
+     * If the user has verified their email address.
+     */
+    @Column({default: false})
+    public isVerified: boolean;
+
+    /**
+     * We don't allow anything to actually be 
+     * deleted since it ruins the data integrity.
+     */
+    @Column({default: false})
+    public isDeleted: boolean;
+
+    /**
      * The stats of the user. This is sync up 
      * to symbolize a foreign key relation between the pair.
      */
@@ -75,7 +94,6 @@ export class User extends NumericIdEntity {
         }
 
         this.passwordHash = await PasswordHasher.generateHash(password);
-        console.log('password generated!', this.passwordHash);
     }
 
     /**

@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../user/user");
 const typeorm_1 = require("typeorm");
-const uuidv4 = require("uuid/v4");
+const randomutils_1 = require("../../util/randomutils");
 /**
  * A login gives user access to portions of the
  * API that are locked down. Logins are simple ways
@@ -26,10 +26,14 @@ let UserLogin = UserLogin_1 = class UserLogin {
     static GenerateLogin(user) {
         let userLogin = new UserLogin_1();
         userLogin.user = user;
-        userLogin.guid = uuidv4();
+        userLogin.code = randomutils_1.RandomUtils.generateRandomString(UserLogin_1.CODE_LENGTH);
         return userLogin;
     }
 };
+/**
+ * The ideal code length for the unique code.
+ */
+UserLogin.CODE_LENGTH = 16;
 __decorate([
     typeorm_1.PrimaryGeneratedColumn("increment", { type: "bigint", unsigned: true }),
     __metadata("design:type", Number)
@@ -40,9 +44,13 @@ __decorate([
     __metadata("design:type", user_1.User)
 ], UserLogin.prototype, "user", void 0);
 __decorate([
+    typeorm_1.Column("char", { length: UserLogin_1.CODE_LENGTH, nullable: false }),
+    __metadata("design:type", String)
+], UserLogin.prototype, "code", void 0);
+__decorate([
     typeorm_1.Column("varchar", { nullable: false }),
     __metadata("design:type", String)
-], UserLogin.prototype, "guid", void 0);
+], UserLogin.prototype, "token", void 0);
 __decorate([
     typeorm_1.CreateDateColumn(),
     __metadata("design:type", Date)

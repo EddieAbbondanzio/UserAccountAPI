@@ -18,7 +18,7 @@ export class UserRepository extends AbstractRepository<User> {
      * in the search as well.
      * @returns {Promise<User>} The user found. (if any)
      */
-    public async findById(id: number, includeDeleted: boolean = false):Promise<User> {
+    public async findById(id: number, includeDeleted: boolean = false):Promise<User|null> {
         //Why bother searching?
         if(id == null){
             return null;
@@ -47,23 +47,29 @@ export class UserRepository extends AbstractRepository<User> {
      * in the search as well.
      * @returns {Promise<User>} The user found. (if any)
      */
-    public async findByUsername(username: string, includeDeleted: boolean = false):Promise<User> {
+    public async findByUsername(username: string, includeDeleted: boolean = false):Promise<User|null> {
         if(!username){
             return null;
         }
 
-        if(includeDeleted){
-            return this.repository.createQueryBuilder('user')
-            .leftJoinAndSelect('user.stats', 'stats')
-            .where('user.username = :username', {username: username})
-            .getOne();
+        try {
+            if(includeDeleted){
+                return this.repository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.stats', 'stats')
+                .where('user.username = :username', {username: username})
+                .getOne();
+            }
+            else {
+                return this.repository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.stats', 'stats')
+                .where('user.username = :username', {username: username})
+                .andWhere('user.isDeleted = false')
+                .getOne();
+            }
         }
-        else {
-            return this.repository.createQueryBuilder('user')
-            .leftJoinAndSelect('user.stats', 'stats')
-            .where('user.username = :username', {username: username})
-            .andWhere('user.isDeleted = false')
-            .getOne();
+        catch(error){
+            console.log('Failed to find by username: ', username);
+            return null;
         }
     }
 
@@ -71,33 +77,41 @@ export class UserRepository extends AbstractRepository<User> {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
+     * @returns True if no error.
      */
-    public async add(user: User) {
-        if(user == null){
-            return;
+    public async add(user: User): Promise<boolean> {
+        if(!user){
+            return false;
         }
 
-        //Start a transaction so we don't get orphan objects in
-        //the event of failures.
-        await this.manager.connection.transaction(async manager => {
-            let userRepo: Repository<User>      = manager.getRepository(User);
-            let statRepo: Repository<UserStats> = manager.getRepository(UserStats);
+        try {
+            //Start a transaction so we don't get orphan objects in
+            //the event of failures.
+            await this.manager.connection.transaction(async manager => {
+                let userRepo: Repository<User>      = manager.getRepository(User);
+                let statRepo: Repository<UserStats> = manager.getRepository(UserStats);
 
-            //Deleted users still reserve their username since we 
-            //don't want any copy cats.
-            let foundCount: number = await userRepo.createQueryBuilder()
-            .select()
-            .where('LOWER(username) = LOWER(:username)', user).getCount();
+                //Deleted users still reserve their username since we 
+                //don't want any copy cats.
+                let foundCount: number = await userRepo.createQueryBuilder()
+                .select()
+                .where('LOWER(username) = LOWER(:username)', user).getCount();
 
-            if(foundCount > 0){
-                throw new Error("Username is already claimed.");
-            }
+                if(foundCount > 0){
+                    throw new Error("Username is already claimed.");
+                }
 
-            //We have to await the user repo insert since
-            //we need a user id for the stat insert.
-            await userRepo.insert(user);
-            await statRepo.insert(user.stats);
-        });
+                //We have to await the user repo insert since
+                //we need a user id for the stat insert.
+                await userRepo.insert(user);
+                await statRepo.insert(user.stats);
+            });
+            return true;
+        }
+        catch(error){
+            console.log('Failed to add new user: ', error);
+            return false;
+        }
     }
 
     /**
@@ -105,47 +119,65 @@ export class UserRepository extends AbstractRepository<User> {
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
+     * @returns True if no error.
      */
-    public async update(user: User) {
-        if(user == null){
-            return;
+    public async update(user: User): Promise<boolean> {
+        if(!user){
+            return false;
         }
 
-        await this.manager.connection.transaction(async manager => {
-            let userRepo = manager.getRepository(User);
+        try {
+            await this.manager.connection.transaction(async manager => {
+                let userRepo = manager.getRepository(User);
 
-            //We don't allow everything to be changed since username should NEVER change.
-            await userRepo.createQueryBuilder()
-            .update(User)
-            .set({
-                passwordHash: user.passwordHash, 
-                name: user.name, 
-                email: user.email
-            })
-            .where('id = :id', {id: user.id})
-            .execute();
-        });
+                //We don't allow everything to be changed since username should NEVER change.
+                await userRepo.createQueryBuilder()
+                .update(User)
+                .set({
+                    passwordHash: user.passwordHash, 
+                    name: user.name, 
+                    email: user.email
+                })
+                .where('id = :id', {id: user.id})
+                .execute();
+            });
+
+            return true;
+        }
+        catch(error){
+            console.log('Failed to update user: ', error);
+            return false;
+        }
     }
 
     /**
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
+     * @returns True if no error.
      */
-    public async delete(user: User) {
+    public async delete(user: User): Promise<boolean> {
         if(user == null){
-            return;
+            return false;
         }
 
-        await this.manager.connection.transaction(async manager => {
-            let userRepo = manager.getRepository(User);
+        try {
+            await this.manager.connection.transaction(async manager => {
+                let userRepo = manager.getRepository(User);
 
-            //We just need to mark the user as deleted
-            await userRepo.createQueryBuilder()
-            .update()
-            .set({isDeleted: true})
-            .where('id = :id', {id: user.id}).execute();
-        });
+                //We just need to mark the user as deleted
+                await userRepo.createQueryBuilder()
+                .update()
+                .set({isDeleted: true})
+                .where('id = :id', {id: user.id}).execute();
+            });
+
+            return true;
+        }
+        catch(error){
+            console.log('Failed to delete user: ', error);
+            return false;
+        }
     }
 
     /**
@@ -159,12 +191,18 @@ export class UserRepository extends AbstractRepository<User> {
             return false;
         }
 
-        //Deleted users still reserve their username
-        let foundCount = await this.repository.createQueryBuilder()
-        .select()
-        .where('LOWER(username) = LOWER(:username)', {username: username})
-        .getCount();
+        try {
+            //Deleted users still reserve their username
+            let foundCount = await this.repository.createQueryBuilder()
+            .select()
+            .where('LOWER(username) = LOWER(:username)', {username: username})
+            .getCount();
 
-        return foundCount == 0;
+            return foundCount == 0;
+        }
+        catch(error){
+            console.log('Failed to check for username availability: ', error);
+            return false;
+        }
     }
 }

@@ -1,6 +1,6 @@
 import { IServiceLocator } from "./iservicelocator";
 import { UserService } from "./user/userservice";
-import { AuthenticationService } from "./security/authenticationservice";
+import { AuthService } from "./security/authservice";
 import { Connection } from "typeorm";
 import { IEmailService } from "./email/iemailservice";
 import { ZohoEmailService } from "./email/zohoemailservice";
@@ -22,7 +22,7 @@ export class ServiceLocator implements IServiceLocator {
     /**
      * The service for handling credentials and JWTs.
      */
-    public authService: AuthenticationService;
+    public authService: AuthService;
 
     /**
      * Service for sending out emails.
@@ -35,7 +35,7 @@ export class ServiceLocator implements IServiceLocator {
      */
     constructor(dbConnection: Connection) {
         this.userService  = new UserService(dbConnection);
-        this.authService  = new AuthenticationService(dbConnection, Secret.TOKEN_SECRET_KEY);
+        this.authService  = new AuthService(dbConnection, Secret.TOKEN_SECRET_KEY);
         this.emailService = new ZohoEmailService(Secret.EMAIL_CREDENTIALS);
     }
 }

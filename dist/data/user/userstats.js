@@ -18,8 +18,8 @@ const user_1 = require("./user");
 let UserStats = class UserStats {
 };
 __decorate([
-    typeorm_1.OneToOne(type => user_1.User, user => user.stats, { primary: true }),
     typeorm_1.JoinColumn(),
+    typeorm_1.OneToOne(type => user_1.User, user => user.stats, { primary: true }),
     __metadata("design:type", user_1.User)
 ], UserStats.prototype, "user", void 0);
 __decorate([

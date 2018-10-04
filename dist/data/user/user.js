@@ -19,13 +19,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const userstats_1 = require("./userstats");
-const numericidentity_1 = require("../common/numericidentity");
 const passwordhasher_1 = require("../../logic/security/passwordhasher");
 /**
  * User object of the service. Represents an individual that
  * has registered with the system and has some roles, and stats.
  */
-let User = User_1 = class User extends numericidentity_1.NumericIdEntity {
+let User = User_1 = class User {
     /**
      * Update the password hash of the user. This will
      * pass the password through the hasher.
@@ -37,7 +36,6 @@ let User = User_1 = class User extends numericidentity_1.NumericIdEntity {
                 throw new Error("Password is too short!");
             }
             this.passwordHash = yield passwordhasher_1.PasswordHasher.generateHash(password);
-            console.log('password generated!', this.passwordHash);
         });
     }
     /**
@@ -90,6 +88,10 @@ User.MAX_EMAIL_LENGTH = 64;
  */
 User.MIN_PASSWORD_LENGTH = 8;
 __decorate([
+    typeorm_1.PrimaryGeneratedColumn("increment", { type: "bigint", unsigned: true }),
+    __metadata("design:type", Number)
+], User.prototype, "id", void 0);
+__decorate([
     typeorm_1.Index("IX_userUsername"),
     typeorm_1.Column({ unique: true }),
     __metadata("design:type", String)
@@ -106,6 +108,14 @@ __decorate([
     typeorm_1.Column("varchar", { length: User_1.MAX_EMAIL_LENGTH }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
+__decorate([
+    typeorm_1.Column({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isVerified", void 0);
+__decorate([
+    typeorm_1.Column({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isDeleted", void 0);
 __decorate([
     typeorm_1.OneToOne(type => userstats_1.UserStats, stats => stats.user),
     __metadata("design:type", userstats_1.UserStats)

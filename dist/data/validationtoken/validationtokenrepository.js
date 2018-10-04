@@ -15,78 +15,80 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-const userlogin_1 = require("./userlogin");
+const validationtoken_1 = require("./validationtoken");
 /**
- * Storage interface for logins of users. Allows for adding a new
- * login of a user, or removing every
+ * Storage interface for validation tokens of users. Allows for basic
+ * CRUD operations with the database.
  */
-let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRepository {
+let ValidationTokenRepository = class ValidationTokenRepository extends typeorm_1.AbstractRepository {
     /**
-     * Search for a login for a specific user.
-     * @param user The user to look for a login for.
-     * @returns The login found (or null).
+     * Searches for a user's validation token.
+     * @param user The user to look for a validation token for.
+     * @returns The token found (or null).
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
+            //Stop bad data
             if (!user) {
                 return null;
             }
             try {
-                return yield this.repository.createQueryBuilder('login')
-                    .leftJoinAndSelect('login.user', 'user')
-                    .where('login.userId = :id', user)
+                return yield this.repository.createQueryBuilder('token')
+                    .leftJoinAndSelect('token.user', 'user')
+                    .where('token.userId = :id', user)
                     .getOne();
             }
             catch (error) {
-                console.log('Failed to find user login by user: ', error);
+                console.log('Failed to find validation token by user: ', error);
                 return null;
             }
         });
     }
     /**
-     * Add a new user login to the database.
-     * @param userLogin The userlogin to add to the database.
+     * Add a new validation token to the database.
+     * @param validationToken The token to add to the database.
      * @returns True if no errors.
      */
-    add(userLogin) {
+    add(validationToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userLogin) {
+            //Stop bad data.
+            if (!validationToken) {
                 return false;
             }
             try {
-                yield this.repository.insert(userLogin);
+                yield this.repository.insert(validationToken);
                 return true;
             }
             catch (error) {
-                console.log('Failed to insert user login: ', error);
+                console.log('Failed to insert validation token: ', error);
                 return false;
             }
         });
     }
     /**
-     * Remove an existing login from the database.
-     * @param userlogin The userlogin to remove from the database.
-     * @returns True if no errors.
+     * Delete an existing validation token from the database.
+     * @param validationtoken The validation token to delete.
      */
-    delete(userlogin) {
+    delete(validationToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userlogin) {
+            //Stop bad data.
+            if (!validationToken) {
                 return false;
             }
             try {
-                yield this.repository.delete(userlogin);
+                yield this.repository.delete(validationToken);
                 return true;
             }
             catch (error) {
-                console.log('Failed to delete user login: ', error);
+                console.log('Failed to delete validation token: ', error);
                 return false;
             }
         });
     }
 };
-UserLoginRepository = __decorate([
-    typeorm_1.EntityRepository(userlogin_1.UserLogin)
-], UserLoginRepository);
-exports.UserLoginRepository = UserLoginRepository;
+ValidationTokenRepository = __decorate([
+    typeorm_1.EntityRepository(validationtoken_1.ValidationToken)
+], ValidationTokenRepository);
+exports.ValidationTokenRepository = ValidationTokenRepository;
 
-//# sourceMappingURL=userloginrepository.js.map
+//# sourceMappingURL=validationtokenrepository.js.map

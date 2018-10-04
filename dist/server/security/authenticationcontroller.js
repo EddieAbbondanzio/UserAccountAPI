@@ -67,8 +67,9 @@ class AuthenticationController extends baserouter_1.BaseController {
                 response.sendStatus(HttpStatus.BAD_REQUEST);
             }
             try {
+                let username = request.body.username;
                 let loginGuid = request.body.loginGuid;
-                yield this.authService.logoutUser(loginGuid);
+                yield this.authService.logoutUser(username, loginGuid);
                 response.sendStatus(HttpStatus.OK);
             }
             catch (error) {

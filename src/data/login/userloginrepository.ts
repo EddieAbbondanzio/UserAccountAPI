@@ -10,70 +10,64 @@ import { StringUtils } from '../../util/stringutils';
 @EntityRepository(UserLogin)
 export class UserLoginRepository extends AbstractRepository<UserLogin> {
     /**
-     * Search for a userlogin via it's unique id.
-     * @param id The id of the login to search for.
-     * @returns{Promise<UserLogin} The userlogin (if found).
+     * Search for a login for a specific user.
+     * @param user The user to look for a login for.
+     * @returns The login found (or null).
      */
-    public async findByGuid(guid: string):Promise<UserLogin> {
-        if(StringUtils.isBlank(guid)){
-            throw new Error("No guid passed in");
-        }
-        else {
-            return await this.repository.createQueryBuilder('login')
-            .leftJoinAndSelect('login.user', 'user')
-            .where('login.guid = :guid', {guid: guid})
-            .andWhere('user.isDeleted = false')
-            .getOne();
-        }
-    }
-
-    /**
-     * Add a new login for a user to the database. Also prunes
-     * old data by removing unused logins.
-     * @param userlogin The login to add to the database.
-     */
-    public async add(userlogin: UserLogin):Promise<UserLogin> {
-        if(userlogin == null){
+    public async findByUser(user: User): Promise<UserLogin|null> {
+        if(!user){
             return null;
         }
 
-        //Delete old logins for user
-        await this.repository.createQueryBuilder()
-        .delete()
-        .from(UserLogin)
-        .where('userId = :id', {id: userlogin.user.id})
-        .execute();
-
-        //Save the new one and return it back.
-        return this.repository.save(userlogin);
+        try {
+            return await this.repository.createQueryBuilder('login')
+            .leftJoinAndSelect('login.user', 'user')
+            .where('login.userId = :id', user)
+            .getOne();
+        }
+        catch(error){
+            console.log('Failed to find user login by user: ', error);
+            return null;
+        }
     }
 
     /**
-     * Remove a userlogin from the database.
-     * @param userlogin The login to delete.
+     * Add a new user login to the database.
+     * @param userLogin The userlogin to add to the database.
+     * @returns True if no errors.
      */
-    public async delete(userlogin: UserLogin) {
-        if(userlogin == null){
-            return;
+    public async add(userLogin: UserLogin): Promise<boolean> {
+        if(!userLogin){
+            return false;
         }
 
-        await this.repository.createQueryBuilder()
-        .delete()
-        .from(UserLogin)
-        .where('id = :id', userlogin)
-        .execute();
+        try {
+            await this.repository.insert(userLogin);
+            return true;
+        }
+        catch(error){
+            console.log('Failed to insert user login: ', error);
+            return false;
+        }
     }
 
     /**
      * Remove an existing login from the database.
-     * @param loginId The login id of the login
-     * to remove from the database.
+     * @param userlogin The userlogin to remove from the database.
+     * @returns True if no errors.
      */
-    public async deleteByGuid(guid: string) {
-        await this.repository.createQueryBuilder()
-        .delete()
-        .from(UserLogin)
-        .where('guid = :guid', {guid: guid})
-        .execute();
+    public async delete(userlogin: UserLogin): Promise<boolean> {
+        if(!userlogin){
+            return false;
+        }
+
+        try {
+            await this.repository.delete(userlogin);
+            return true;
+        }
+        catch(error){
+            console.log('Failed to delete user login: ', error);
+            return false;
+        }
     }
 }
