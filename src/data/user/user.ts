@@ -1,8 +1,8 @@
 import { Entity, Column, OneToOne, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserStats } from './userstats';
-import { PasswordHasher } from '../../logic/security/passwordhasher';
 import { UserRegistration } from './userregistration';
 import { UserLogin } from '../login/userlogin';
+import { PasswordHasher } from '../../logic/authentication/common/passwordhasher';
 
 /**
  * User object of the service. Represents an individual that 

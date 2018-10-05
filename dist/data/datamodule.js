@@ -11,7 +11,7 @@ __export(require("./login/userlogin"));
 __export(require("./login/userloginrepository"));
 __export(require("./resettoken/resettoken"));
 __export(require("./resettoken/resettokenrepository"));
-__export(require("./validationtoken/validationtoken"));
-__export(require("./validationtoken/validationtokenrepository"));
+__export(require("./verificationtoken/verificationtoken"));
+__export(require("./verificationtoken/verificationtokenrepository"));
 
 //# sourceMappingURL=datamodule.js.map

@@ -9,5 +9,5 @@ export * from './login/userloginrepository';
 export * from './resettoken/resettoken';
 export * from './resettoken/resettokenrepository';
 
-export * from './validationtoken/validationtoken';
-export * from './validationtoken/validationtokenrepository';
+export * from './verificationtoken/verificationtoken';
+export * from './verificationtoken/verificationtokenrepository';

@@ -24,7 +24,7 @@ class UserController extends baserouter_1.BaseController {
      */
     constructor(serviceLocator) {
         super();
-        this.userService = serviceLocator.userService;
+        // this.userService = serviceLocator.userService;
     }
     /**
      * Register a new user with the system. This will return status 201

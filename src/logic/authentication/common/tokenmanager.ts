@@ -1,6 +1,6 @@
 import * as JWT from 'jsonwebtoken';
-import { UserLogin, User } from '../../data/datamodule';
-import { Secret } from '../../secret';
+import { UserLogin, User } from '../../../data/datamodule';
+import { Secret } from '../../../secret';
 import { TokenPayload } from './tokenpayload';
 
 /**

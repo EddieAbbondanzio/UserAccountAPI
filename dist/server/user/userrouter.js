@@ -23,7 +23,7 @@ class UserRouter extends baserouter_1.BaseController {
      */
     constructor(serviceLocator) {
         super();
-        this.userService = serviceLocator.userService;
+        //  this.userService = serviceLocator.userService;
     }
     /**
      * Process a request searching for a user via their username.

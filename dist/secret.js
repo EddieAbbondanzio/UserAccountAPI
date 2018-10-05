@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const emailcredentials_1 = require("./logic/email/emailcredentials");
+const emailcredentials_1 = require("./logic/services/email/emailcredentials");
 /**
  * Anything that shouldn't be uploaded to GitHub should
  * be kept in this file to prevent any potential security
@@ -19,6 +19,9 @@ Secret.TOKEN_SECRET_KEY = `MIIBPAIBAAJBAM6DrXEzXQCPPu+pCTsvtQ2UHY4NN3UHPorgE7xjT
     yBOKsZR9AmcM1SpoaX+I0YC3zGiaXQ4/AiEAg5MuwTPgm/vqwW1YmjmWDQ28kQNQ
     nChGnTqT54dvl9UCIQCncyIabAmYaWcwhbqNxdnTh2lrDrVOPMiDBCDmqJTQXwIg
     Glf7Xd/esxUUzw+tmWJv3YFXbbISIe81S++wZTslIzo=`;
+/**
+ * The username + password for the admin email.
+ */
 Secret.EMAIL_CREDENTIALS = new emailcredentials_1.EmailCredentials("admin@nomansblocks.com", "$ChipSkylark1");
 exports.Secret = Secret;
 

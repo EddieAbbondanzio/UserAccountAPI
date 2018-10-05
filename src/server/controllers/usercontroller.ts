@@ -1,7 +1,6 @@
 import { BaseController } from "../common/baserouter";
 import { IServiceLocator } from "../../logic/common/iservicelocator";
 import { Request, Response } from "express";
-import { UserService } from "../../logic/servicemodule";
 import * as HttpStatus from 'http-status-codes';
 import { UserRegistration } from "../../data/datamodule";
 
@@ -15,7 +14,7 @@ export class UserController extends BaseController {
      * The underlying user service. This is the business
      * logic behind the server.
      */
-    private userService: UserService;
+    private userService: any;
 
     /**
      * Create a new instance of the user controller.
@@ -25,7 +24,7 @@ export class UserController extends BaseController {
     constructor(serviceLocator: IServiceLocator) {
         super();
 
-        this.userService = serviceLocator.userService;
+       // this.userService = serviceLocator.userService;
     }
 
     /**

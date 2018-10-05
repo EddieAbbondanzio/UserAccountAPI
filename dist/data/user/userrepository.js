@@ -61,7 +61,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * in the search as well.
      * @returns {Promise<User>} The user found. (if any)
      */
-    findByUsername(username, includeDeleted = false) {
+    findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
                 return null;
@@ -82,7 +82,38 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
                 }
             }
             catch (error) {
-                console.log('Failed to find by username: ', username);
+                console.log('Failed to find user by username: ', error);
+                return null;
+            }
+        });
+    }
+    /**
+     * Search for a specific user via their email.
+     * @param email The email to look for.
+     * @returns User with matching email, or null.
+     */
+    findByEmail(email, includeDeleted) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!email) {
+                return null;
+            }
+            try {
+                if (includeDeleted) {
+                    return this.repository.createQueryBuilder('user')
+                        .leftJoinAndSelect('user.stats', 'stats')
+                        .where('user.email = :email', { email: email })
+                        .getOne();
+                }
+                else {
+                    return this.repository.createQueryBuilder('user')
+                        .leftJoinAndSelect('user.stats', 'stats')
+                        .where('user.email = :email', { email: email })
+                        .andWhere('user.isDeleted = false')
+                        .getOne();
+                }
+            }
+            catch (error) {
+                console.log('Failed to find user by email: ', error);
                 return null;
             }
         });

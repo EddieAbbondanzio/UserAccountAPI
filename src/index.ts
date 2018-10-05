@@ -1,6 +1,6 @@
 import { Server } from './server/server';
 import { DataContext } from './data/datacontext';
-import { ServiceLocator } from './logic/common/servicelocator';
+import { ServiceLocator } from './logic/servicelocator';
 import { UserRegistration } from './data/datamodule';
 
 /**

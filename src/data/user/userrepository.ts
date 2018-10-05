@@ -48,7 +48,7 @@ export class UserRepository extends AbstractRepository<User> {
      * in the search as well.
      * @returns {Promise<User>} The user found. (if any)
      */
-    public async findByUsername(username: string, includeDeleted: boolean = false):Promise<User|null> {
+    public async findByUsername(username: string, includeDeleted?: boolean):Promise<User|null> {
         if(!username){
             return null;
         }
@@ -69,7 +69,38 @@ export class UserRepository extends AbstractRepository<User> {
             }
         }
         catch(error){
-            console.log('Failed to find by username: ', username);
+            console.log('Failed to find user by username: ', error);
+            return null;
+        }
+    }
+
+    /**
+     * Search for a specific user via their email.
+     * @param email The email to look for.
+     * @returns User with matching email, or null.
+     */
+    public async findByEmail(email: string, includeDeleted?: boolean): Promise<User|null> {
+        if(!email){
+            return null;
+        }
+
+        try {
+            if(includeDeleted){
+                return this.repository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.stats', 'stats')
+                .where('user.email = :email', {email: email})
+                .getOne();
+            }
+            else {
+                return this.repository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.stats', 'stats')
+                .where('user.email = :email', {email: email})
+                .andWhere('user.isDeleted = false')
+                .getOne();
+            }
+        }
+        catch(error){
+            console.log('Failed to find user by email: ', error);
             return null;
         }
     }

@@ -23,8 +23,8 @@ class AuthenticationController extends baserouter_1.BaseController {
      */
     constructor(serviceLocator) {
         super();
-        this.userService = serviceLocator.userService;
-        this.authService = serviceLocator.authService;
+        //this.userService = serviceLocator.userService;
+        //this.authService = serviceLocator.authService;
     }
     /**
      * Process a request to login under the passed in credentials.

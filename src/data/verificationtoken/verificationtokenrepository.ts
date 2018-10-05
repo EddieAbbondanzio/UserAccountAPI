@@ -1,19 +1,19 @@
 import { AbstractRepository, EntityRepository, InsertResult } from "typeorm";
-import { ValidationToken } from "./validationtoken";
+import { VerificationToken } from "./verificationtoken";
 import { User } from "../user/user";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic
  * CRUD operations with the database.
  */
-@EntityRepository(ValidationToken)
-export class ValidationTokenRepository extends AbstractRepository<ValidationToken> {
+@EntityRepository(VerificationToken)
+export class VerificationTokenRepository extends AbstractRepository<VerificationToken> {
     /**
      * Searches for a user's validation token.
      * @param user The user to look for a validation token for.
      * @returns The token found (or null).
      */
-    public async findByUser(user: User): Promise<ValidationToken|null> {
+    public async findByUser(user: User): Promise<VerificationToken|null> {
         //Stop bad data
         if(!user){
             return null;
@@ -36,7 +36,7 @@ export class ValidationTokenRepository extends AbstractRepository<ValidationToke
      * @param validationToken The token to add to the database.
      * @returns True if no errors.
      */
-    public async add(validationToken: ValidationToken): Promise<boolean> {
+    public async add(validationToken: VerificationToken): Promise<boolean> {
         //Stop bad data.
         if(!validationToken) {
             return false;
@@ -56,7 +56,7 @@ export class ValidationTokenRepository extends AbstractRepository<ValidationToke
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
      */
-    public async delete(validationToken: ValidationToken): Promise<boolean> {
+    public async delete(validationToken: VerificationToken): Promise<boolean> {
         //Stop bad data.
         if(!validationToken) {
             return false;

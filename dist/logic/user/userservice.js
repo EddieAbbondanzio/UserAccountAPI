@@ -9,12 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const datamodule_1 = require("../../data/datamodule");
-const service_1 = require("../common/service");
 /**
  * Business logic pertaining to users. This allows for
  * registering new ones, or retrieving existing ones.
  */
-class UserService extends service_1.Service {
+class UserService {
     /**
      * Construct a new User Service for CRUD principles of the Users
      * in the system.
@@ -23,7 +22,6 @@ class UserService extends service_1.Service {
      * service with.
      */
     constructor(connection, emailService) {
-        super(connection);
         this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
         this.emailService = emailService;
     }

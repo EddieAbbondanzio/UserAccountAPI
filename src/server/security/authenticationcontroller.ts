@@ -3,8 +3,6 @@ import { Server } from '../server';
 import { BaseController } from '../common/baserouter';
 import * as HttpStatus from 'http-status-codes';
 import { UserLogin } from '../../data/datamodule';
-import { AuthService } from '../../logic/security/authservice';
-import { UserService } from '../../logic/user/userservice';
 import { IServiceLocator } from '../../logic/common/iservicelocator';
 
 /**
@@ -16,13 +14,13 @@ export class AuthenticationController extends BaseController {
     /**
      * Service for looking up users based off their id.
      */
-    private userService: UserService;
+    private userService: any;
 
     /**
      * The login service that connects back to
      * the database.
      */
-    private authService: AuthService;
+    private authService: any;
 
     /**
      * Create a new instance of the authentication router.
@@ -31,8 +29,8 @@ export class AuthenticationController extends BaseController {
      */
     constructor(serviceLocator: IServiceLocator) {
         super();
-        this.userService = serviceLocator.userService;
-        this.authService = serviceLocator.authService;
+        //this.userService = serviceLocator.userService;
+        //this.authService = serviceLocator.authService;
     }
 
     /**

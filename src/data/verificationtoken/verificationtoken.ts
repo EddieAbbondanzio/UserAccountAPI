@@ -7,8 +7,8 @@ import { RandomUtils } from '../../util/randomutils';
  * email address. User's aren't considered active 
  * unless they have a valid email.
  */
-@Entity({ name: "ValidationToken"})
-export class ValidationToken {
+@Entity({ name: "VerificationToken"})
+export class VerificationToken {
     /**
      * The ideal code length for validation tokens.
      */
@@ -30,7 +30,7 @@ export class ValidationToken {
     /**
      * The unique code that the user must pass back.
      */
-    @Column("char", {length: ValidationToken.CODE_LENGTH, nullable: false})
+    @Column("char", {length: VerificationToken.CODE_LENGTH, nullable: false})
     public code: string;
 
     /**
@@ -38,10 +38,10 @@ export class ValidationToken {
      * @param user The user to generate a token for.
      * @returns The newly generated token.
      */
-    public static generateToken(user: User): ValidationToken {
-        let vToken = new ValidationToken();
+    public static generateToken(user: User): VerificationToken {
+        let vToken = new VerificationToken();
         vToken.user = user;
-        vToken.code = RandomUtils.generateRandomString(ValidationToken.CODE_LENGTH);
+        vToken.code = RandomUtils.generateRandomString(VerificationToken.CODE_LENGTH);
 
         return vToken;
     }

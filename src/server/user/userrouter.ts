@@ -1,5 +1,4 @@
 import {Router, Request, Response } from 'express';
-import { UserService } from '../../logic/user/userservice';
 import { User } from '../../data/datamodule';
 import { Server } from '../server'
 import { BaseController } from '../common/baserouter';
@@ -16,7 +15,7 @@ export class UserRouter extends BaseController {
      * The underlying connection to the database 
      * for user objects.
      */
-    private userService: UserService;
+    private userService: any;
 
     /**
      * Create a new user router to handle requests related
@@ -25,7 +24,7 @@ export class UserRouter extends BaseController {
      */
     constructor(serviceLocator: IServiceLocator) {
         super();
-        this.userService = serviceLocator.userService;
+      //  this.userService = serviceLocator.userService;
     }
 
     /**

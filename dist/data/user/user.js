@@ -19,8 +19,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const userstats_1 = require("./userstats");
-const passwordhasher_1 = require("../../logic/security/passwordhasher");
 const userlogin_1 = require("../login/userlogin");
+const passwordhasher_1 = require("../../logic/authentication/common/passwordhasher");
 /**
  * User object of the service. Represents an individual that
  * has registered with the system and has some roles, and stats.

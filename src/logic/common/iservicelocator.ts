@@ -1,5 +1,5 @@
-import {UserService, AuthService} from '../servicemodule';
-import { IEmailService } from '../email/iemailservice';
+import { IEmailService } from '../services/email/iemailservice';
+import { TokenManager } from '../authentication/common/tokenmanager';
 
 /**
  * A service locator is responsible for providing
@@ -8,19 +8,12 @@ import { IEmailService } from '../email/iemailservice';
  */
 export interface IServiceLocator {
     /**
-     * The service to handle retrieving users based
-     * off information such as their id, or username.
-     */
-    userService: UserService;
-
-    /**
-     * The service for authenticating credentials
-     * and handling JWTs being sent in.
-     */
-    authService: AuthService;
-
-    /**
      * The service for sending out emails.
      */
     emailService: IEmailService;
+
+    /**
+     * The JWT manager.
+     */
+    tokenManager: TokenManager;
 }
