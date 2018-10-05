@@ -33,9 +33,9 @@ let ValidationToken = ValidationToken_1 = class ValidationToken {
 /**
  * The ideal code length for validation tokens.
  */
-ValidationToken.CODE_LENGTH = 4;
+ValidationToken.CODE_LENGTH = 6;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn("increment", { type: "bigint", unsigned: true }),
+    typeorm_1.PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], ValidationToken.prototype, "id", void 0);
 __decorate([

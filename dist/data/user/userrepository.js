@@ -99,24 +99,20 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
                 return false;
             }
             try {
-                //Start a transaction so we don't get orphan objects in
-                //the event of failures.
-                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                    let userRepo = manager.getRepository(user_1.User);
-                    let statRepo = manager.getRepository(userstats_1.UserStats);
-                    //Deleted users still reserve their username since we 
-                    //don't want any copy cats.
-                    let foundCount = yield userRepo.createQueryBuilder()
-                        .select()
-                        .where('LOWER(username) = LOWER(:username)', user).getCount();
-                    if (foundCount > 0) {
-                        throw new Error("Username is already claimed.");
-                    }
-                    //We have to await the user repo insert since
-                    //we need a user id for the stat insert.
-                    yield userRepo.insert(user);
-                    yield statRepo.insert(user.stats);
-                }));
+                let userRepo = this.repository;
+                let statsRepo = this.manager.getRepository(userstats_1.UserStats);
+                //Deleted users still reserve their username since we 
+                //don't want any copy cats.
+                let foundCount = yield userRepo.createQueryBuilder()
+                    .select()
+                    .where('LOWER(username) = LOWER(:username)', user).getCount();
+                if (foundCount > 0) {
+                    return false;
+                }
+                //We have to await the user repo insert since
+                //we need a user id for the stat insert.
+                yield userRepo.insert(user);
+                yield statsRepo.insert(user.stats);
                 return true;
             }
             catch (error) {
@@ -138,19 +134,16 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
                 return false;
             }
             try {
-                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                    let userRepo = manager.getRepository(user_1.User);
-                    //We don't allow everything to be changed since username should NEVER change.
-                    yield userRepo.createQueryBuilder()
-                        .update(user_1.User)
-                        .set({
-                        passwordHash: user.passwordHash,
-                        name: user.name,
-                        email: user.email
-                    })
-                        .where('id = :id', { id: user.id })
-                        .execute();
-                }));
+                //We don't allow everything to be changed since username should NEVER change.
+                yield this.repository.createQueryBuilder()
+                    .update(user_1.User)
+                    .set({
+                    passwordHash: user.passwordHash,
+                    name: user.name,
+                    email: user.email
+                })
+                    .where('id = :id', { id: user.id })
+                    .execute();
                 return true;
             }
             catch (error) {

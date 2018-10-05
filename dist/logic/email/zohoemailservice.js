@@ -59,13 +59,18 @@ class ZohoEmailService {
      * @param body The body of the email.
      * @param isHtml If the body is in html.
      */
-    createNewEmail(reciever, subject, body, isHtml) {
-        if (isHtml) {
-            return new htmlemail_1.HtmlEmail(this.credentials.user, reciever, subject, body);
-        }
-        else {
-            return new textemail_1.TextEmail(this.credentials.user, reciever, subject, body);
-        }
+    createAndSendEmail(reciever, subject, body, isHtml) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let email;
+            if (isHtml) {
+                email = new htmlemail_1.HtmlEmail(reciever, subject, body);
+            }
+            else {
+                email = new textemail_1.TextEmail(reciever, subject, body);
+            }
+            email.sender = this.credentials.user;
+            return yield this.sendEmail(email);
+        });
     }
 }
 exports.ZohoEmailService = ZohoEmailService;

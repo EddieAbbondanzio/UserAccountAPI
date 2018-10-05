@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("./server/server");
 const datacontext_1 = require("./data/datacontext");
-const servicelocator_1 = require("./logic/servicelocator");
+const servicelocator_1 = require("./logic/common/servicelocator");
+const datamodule_1 = require("./data/datamodule");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -26,6 +27,12 @@ function initialize() {
             //Spin up the server. This takes and handles the 
             //HTTP Requests clients make.
             const server = new server_1.Server(serviceLocator);
+            let userReg = new datamodule_1.UserRegistration();
+            userReg.email = 'me@eddieabbondanz.io';
+            userReg.name = 'Eddie A';
+            userReg.password = 'hunter22';
+            userReg.username = 'EddieAbb95';
+            serviceLocator.authService.registerNewUser(userReg);
             console.log('Server ready...');
         }
         catch (error) {

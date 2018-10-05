@@ -20,6 +20,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const userstats_1 = require("./userstats");
 const passwordhasher_1 = require("../../logic/security/passwordhasher");
+const userlogin_1 = require("../login/userlogin");
 /**
  * User object of the service. Represents an individual that
  * has registered with the system and has some roles, and stats.
@@ -55,7 +56,7 @@ let User = User_1 = class User {
      * Be sure to call .validate() on the registration!
      * @param registration The registration to build the user from.
      */
-    static FromRegistration(registration) {
+    static fromRegistration(registration) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!registration.validate()) {
                 throw new Error("Registration is invalid.");
@@ -66,6 +67,7 @@ let User = User_1 = class User {
             user.name = registration.name;
             user.email = registration.email;
             user.stats = new userstats_1.UserStats();
+            user.stats.user = user;
             yield user.setPassword(registration.password);
             return user;
         });
@@ -88,7 +90,8 @@ User.MAX_EMAIL_LENGTH = 64;
  */
 User.MIN_PASSWORD_LENGTH = 8;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn("increment", { type: "bigint", unsigned: true }),
+    typeorm_1.Index("IX_userId"),
+    typeorm_1.PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
@@ -120,6 +123,10 @@ __decorate([
     typeorm_1.OneToOne(type => userstats_1.UserStats, stats => stats.user),
     __metadata("design:type", userstats_1.UserStats)
 ], User.prototype, "stats", void 0);
+__decorate([
+    typeorm_1.OneToOne(type => userlogin_1.UserLogin, login => login.user),
+    __metadata("design:type", userlogin_1.UserLogin)
+], User.prototype, "login", void 0);
 User = User_1 = __decorate([
     typeorm_1.Entity({ name: "User" })
 ], User);

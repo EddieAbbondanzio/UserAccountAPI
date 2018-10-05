@@ -1,12 +1,14 @@
 import { getConnection, Connection, Repository } from "typeorm";
 import { PasswordHasher } from "../security/passwordhasher";
-import {  User, UserStats, UserRepository, UserRegistration } from "../../data/datamodule";
+import {  User, UserStats, UserRepository, UserRegistration, ValidationToken, ValidationTokenRepository, UserLogin } from "../../data/datamodule";
 import { Service } from "../common/service";
+import { IEmailService } from "../email/iemailservice";
+import { TextEmail } from "../email/types/textemail";
+import { IEmail } from "../email/types/iemail";
 
 /**
- * A class for storing and retrieving users of the system. This provides
- * some functionality such as hashing passwords, validating credentials
- * and more.
+ * Business logic pertaining to users. This allows for 
+ * registering new ones, or retrieving existing ones.
  */
 export class UserService extends Service {
     /**
@@ -15,30 +17,28 @@ export class UserService extends Service {
     private userRepo: UserRepository;
 
     /**
-     * Handles generating the password hashes.
+     * The repository for storing
      */
-    private passwordHasher: PasswordHasher;
+    private validationTokenRepo: ValidationTokenRepository;
+
+    /**
+     * Service for sending emails to users.
+     */
+    private emailService: IEmailService;
 
     /**
      * Construct a new User Service for CRUD principles of the Users 
      * in the system.
      * @param userRepo The user repo to use for running the
+     * @param emailService The service for sending out emails.
      * service with.
      */
-    constructor(connection: Connection) {
+    constructor(connection: Connection, emailService: IEmailService) {
         super(connection);
-        this.userRepo       = connection.getCustomRepository(UserRepository);
-        this.passwordHasher = new PasswordHasher();
+        this.userRepo     = connection.getCustomRepository(UserRepository);
+        this.emailService = emailService;
     }
 
-    /**
-     * A new user wishes to join. Process their registration
-     * and attempt to add them to the system.
-     * @param registration The user's registration.
-     */
-    public async registerNewUser(registration: UserRegistration): Promise<boolean> {
-        return false;
-    }
 
     /**
      * User forgot their username and wants it emailed to them.
@@ -173,7 +173,7 @@ export class UserService extends Service {
         }
         else {
             try {
-                let user: User = await User.FromRegistration(registration);
+                let user: User = await User.fromRegistration(registration);
                 await this.userRepo.add(user);
                 return true;
             }

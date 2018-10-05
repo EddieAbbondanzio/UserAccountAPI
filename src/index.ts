@@ -1,6 +1,6 @@
 import { Server } from './server/server';
 import { DataContext } from './data/datacontext';
-import { ServiceLocator } from './logic/servicelocator';
+import { ServiceLocator } from './logic/common/servicelocator';
 import { UserRegistration } from './data/datamodule';
 
 /**
@@ -19,6 +19,14 @@ async function initialize() {
     //Spin up the server. This takes and handles the 
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
+
+    let userReg = new UserRegistration();
+    userReg.email = 'me@eddieabbondanz.io';
+    userReg.name = 'Eddie A';
+    userReg.password = 'hunter22';
+    userReg.username = 'EddieAbb95';
+
+    // serviceLocator.authService.registerNewUser(userReg);
 
     console.log('Server ready...');
   }

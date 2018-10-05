@@ -12,12 +12,12 @@ export class ValidationToken {
     /**
      * The ideal code length for validation tokens.
      */
-    private static CODE_LENGTH: number = 4;
+    private static CODE_LENGTH: number = 6;
 
     /**
      * The unique id of the validation token.
      */
-    @PrimaryGeneratedColumn("increment", {type: "bigint", unsigned: true})
+    @PrimaryGeneratedColumn()
     public id: number;
 
     /**

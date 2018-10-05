@@ -28,13 +28,11 @@ export class TextEmail implements IEmail {
 
     /**
      * Create a new email.
-     * @param sender The sender's email address.
      * @param reciever The reciever's email address.
      * @param subject The subject line of the email.
      * @param body The body of the email.
      */
-    constructor(sender?: string, reciever?: string, subject?: string, body?: string) {
-        this.sender   = sender;
+    constructor(reciever?: string, subject?: string, body?: string) {
         this.reciever = reciever;
         this.subject  = subject;
         this.body     = body;

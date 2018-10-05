@@ -1,7 +1,7 @@
 import * as http from 'http';
 import * as Express from 'express';
 import * as BodyParser from 'body-parser';
-import { IServiceLocator } from '../logic/iservicelocator';
+import { IServiceLocator } from '../logic/common/iservicelocator';
 import { AuthController } from './controllers/authcontroller';
 import { UserController } from './controllers/usercontroller';
 

@@ -1,11 +1,11 @@
 import { IServiceLocator } from "./iservicelocator";
-import { UserService } from "./user/userservice";
-import { AuthService } from "./security/authservice";
+import { UserService } from "../user/userservice";
+import { AuthService } from "../security/authservice";
 import { Connection } from "typeorm";
-import { IEmailService } from "./email/iemailservice";
-import { ZohoEmailService } from "./email/zohoemailservice";
-import { EmailCredentials } from "./email/emailcredentials";
-import { Secret } from "../secret";
+import { IEmailService } from "../email/iemailservice";
+import { ZohoEmailService } from "../email/zohoemailservice";
+import { EmailCredentials } from "../email/emailcredentials";
+import { Secret } from "../../secret";
 
 /**
  * Service locator for providing the dependencies
@@ -34,8 +34,8 @@ export class ServiceLocator implements IServiceLocator {
      * @param dbConnection The connection to the database.
      */
     constructor(dbConnection: Connection) {
-        this.userService  = new UserService(dbConnection);
-        this.authService  = new AuthService(dbConnection, Secret.TOKEN_SECRET_KEY);
         this.emailService = new ZohoEmailService(Secret.EMAIL_CREDENTIALS);
+        this.userService  = new UserService(dbConnection, this.emailService);
+        this.authService  = new AuthService(dbConnection, this.emailService,  Secret.TOKEN_SECRET_KEY);
     }
 }

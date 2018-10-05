@@ -1,6 +1,7 @@
 import { AbstractRepository, EntityRepository, Repository } from "typeorm";
 import { User } from "./user";
 import { UserStats } from "./userstats";
+import { UserLoginRepository } from "../login/userloginrepository";
 
 /**
  * Storage interface for Users in the database. Handles loading
@@ -85,27 +86,24 @@ export class UserRepository extends AbstractRepository<User> {
         }
 
         try {
-            //Start a transaction so we don't get orphan objects in
-            //the event of failures.
-            await this.manager.connection.transaction(async manager => {
-                let userRepo: Repository<User>      = manager.getRepository(User);
-                let statRepo: Repository<UserStats> = manager.getRepository(UserStats);
+            let userRepo = this.repository;
+            let statsRepo = this.manager.getRepository(UserStats);
 
-                //Deleted users still reserve their username since we 
-                //don't want any copy cats.
-                let foundCount: number = await userRepo.createQueryBuilder()
-                .select()
-                .where('LOWER(username) = LOWER(:username)', user).getCount();
+            //Deleted users still reserve their username since we 
+            //don't want any copy cats.
+            let foundCount: number = await userRepo.createQueryBuilder()
+            .select()
+            .where('LOWER(username) = LOWER(:username)', user).getCount();
 
-                if(foundCount > 0){
-                    throw new Error("Username is already claimed.");
-                }
+            if(foundCount > 0){
+                return false;
+            }
 
-                //We have to await the user repo insert since
-                //we need a user id for the stat insert.
-                await userRepo.insert(user);
-                await statRepo.insert(user.stats);
-            });
+            //We have to await the user repo insert since
+            //we need a user id for the stat insert.
+            await userRepo.insert(user);
+            await statsRepo.insert(user.stats);
+
             return true;
         }
         catch(error){
@@ -127,20 +125,16 @@ export class UserRepository extends AbstractRepository<User> {
         }
 
         try {
-            await this.manager.connection.transaction(async manager => {
-                let userRepo = manager.getRepository(User);
-
-                //We don't allow everything to be changed since username should NEVER change.
-                await userRepo.createQueryBuilder()
-                .update(User)
-                .set({
-                    passwordHash: user.passwordHash, 
-                    name: user.name, 
-                    email: user.email
-                })
-                .where('id = :id', {id: user.id})
-                .execute();
-            });
+            //We don't allow everything to be changed since username should NEVER change.
+            await this.repository.createQueryBuilder()
+            .update(User)
+            .set({
+                passwordHash: user.passwordHash, 
+                name: user.name, 
+                email: user.email
+            })
+            .where('id = :id', {id: user.id})
+            .execute();
 
             return true;
         }

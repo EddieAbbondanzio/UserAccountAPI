@@ -17,7 +17,7 @@ export class ResetToken {
     /**
      * The unique id of the reset token.
      */
-    @PrimaryGeneratedColumn("increment", {type: "bigint", unsigned: true})
+    @PrimaryGeneratedColumn()
     public id: number;
 
     /**

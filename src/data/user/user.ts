@@ -2,6 +2,7 @@ import { Entity, Column, OneToOne, Index, OneToMany, PrimaryGeneratedColumn } fr
 import { UserStats } from './userstats';
 import { PasswordHasher } from '../../logic/security/passwordhasher';
 import { UserRegistration } from './userregistration';
+import { UserLogin } from '../login/userlogin';
 
 /**
  * User object of the service. Represents an individual that 
@@ -33,7 +34,8 @@ export class User {
      * The automatically generated unique id of the 
      * entity object. Reduces how redundant the code is.
      */
-    @PrimaryGeneratedColumn("increment", {type: "bigint", unsigned: true})
+    @Index("IX_userId")
+    @PrimaryGeneratedColumn()
     public id: number;
 
     /**
@@ -84,6 +86,12 @@ export class User {
     public stats: UserStats;
 
     /**
+     * The user's login. If any.
+     */
+    @OneToOne(type => UserLogin, login => login.user)
+    public login: UserLogin;
+
+    /**
      * Update the password hash of the user. This will
      * pass the password through the hasher.
      * @param The new password to hash.
@@ -112,7 +120,7 @@ export class User {
      * Be sure to call .validate() on the registration!
      * @param registration The registration to build the user from.
      */
-    public static async FromRegistration(registration: UserRegistration):Promise<User> {
+    public static async fromRegistration(registration: UserRegistration): Promise<User> {
         if(!registration.validate()){
             throw new Error("Registration is invalid.");
         }
@@ -123,8 +131,9 @@ export class User {
         user.name     = registration.name;
         user.email    = registration.email;
         user.stats    = new UserStats();
-        await user.setPassword(registration.password);
+        user.stats.user = user;
 
+        await user.setPassword(registration.password);
         return user;
     }
 }

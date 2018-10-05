@@ -8,35 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const passwordhasher_1 = require("../security/passwordhasher");
 const datamodule_1 = require("../../data/datamodule");
 const service_1 = require("../common/service");
 /**
- * A class for storing and retrieving users of the system. This provides
- * some functionality such as hashing passwords, validating credentials
- * and more.
+ * Business logic pertaining to users. This allows for
+ * registering new ones, or retrieving existing ones.
  */
 class UserService extends service_1.Service {
     /**
      * Construct a new User Service for CRUD principles of the Users
      * in the system.
      * @param userRepo The user repo to use for running the
+     * @param emailService The service for sending out emails.
      * service with.
      */
-    constructor(connection) {
+    constructor(connection, emailService) {
         super(connection);
         this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
-        this.passwordHasher = new passwordhasher_1.PasswordHasher();
-    }
-    /**
-     * A new user wishes to join. Process their registration
-     * and attempt to add them to the system.
-     * @param registration The user's registration.
-     */
-    registerNewUser(registration) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return false;
-        });
+        this.emailService = emailService;
     }
     /**
      * User forgot their username and wants it emailed to them.
@@ -161,7 +150,7 @@ class UserService extends service_1.Service {
             }
             else {
                 try {
-                    let user = yield datamodule_1.User.FromRegistration(registration);
+                    let user = yield datamodule_1.User.fromRegistration(registration);
                     yield this.userRepo.add(user);
                     return true;
                 }

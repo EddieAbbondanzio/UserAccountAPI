@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const service_1 = require("../common/service");
 const datamodule_1 = require("../../data/datamodule");
 const tokenmanager_1 = require("./tokenmanager");
+const textemail_1 = require("../email/types/textemail");
 /**
  * The service used by the server to process login
  * requests, and check requests made for a login token.
@@ -19,13 +20,55 @@ class AuthService extends service_1.Service {
     /**
      * Get a new LoginService up and running.
      * @param connection The underlying database connection.
+     * @param emailService The service to send emails.
      * @param tokenKey The secret encryption key for JWTs.
      */
-    constructor(connection, tokenKey) {
+    constructor(connection, emailService, tokenKey) {
         super(connection);
+        this.emailService = emailService;
         this.tokenManager = new tokenmanager_1.TokenManager(tokenKey);
         this.userRepository = connection.getCustomRepository(datamodule_1.UserRepository);
         this.loginRepository = connection.getCustomRepository(datamodule_1.UserLoginRepository);
+    }
+    /**
+     * A new user wishes to join. Process their registration
+     * and attempt to add them to the system.
+     * @param registration The user's registration.
+     * @returns The new user if success, or null.
+     */
+    registerNewUser(registration) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!registration || !registration.validate()) {
+                return null;
+            }
+            try {
+                let user = yield datamodule_1.User.fromRegistration(registration);
+                var vToken;
+                yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                    //First insert the user
+                    let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                    yield userRepo.add(user);
+                    //Now generate a validation token.
+                    vToken = datamodule_1.ValidationToken.generateToken(user);
+                    let tokenRepo = manager.getCustomRepository(datamodule_1.ValidationTokenRepository);
+                    yield tokenRepo.add(vToken);
+                    //Generate a login for the user
+                    let login = datamodule_1.UserLogin.generateLogin(user);
+                    login.token = yield this.tokenManager.issueToken(user);
+                    let loginRepo = manager.getCustomRepository(datamodule_1.UserLoginRepository);
+                    yield loginRepo.add(login);
+                    user.login = login;
+                }));
+                //Send them a confirmation email
+                let validationEmail = new textemail_1.TextEmail(registration.email, "No Man's Blocks Account Confirmation.", "Thanks for joining! Your confirmation code is: " + vToken.code);
+                yield this.emailService.sendEmail(validationEmail);
+                return user;
+            }
+            catch (error) {
+                console.log('Failed to register new user: ', error);
+                return null;
+            }
+        });
     }
     /**
      * Login a user via their credentials.
@@ -115,7 +158,7 @@ class AuthService extends service_1.Service {
             }
             //Build the new login, and save it so we
             //can get it's unique login id.
-            let userLogin = datamodule_1.UserLogin.GenerateLogin(user);
+            let userLogin = datamodule_1.UserLogin.generateLogin(user);
             yield this.loginRepository.add(userLogin);
             return userLogin;
         });
@@ -167,7 +210,7 @@ class AuthService extends service_1.Service {
                 if (!user) {
                     throw new Error("Failed to find user");
                 }
-                let userLogin = datamodule_1.UserLogin.GenerateLogin(user);
+                let userLogin = datamodule_1.UserLogin.generateLogin(user);
                 yield this.loginRepository.add(userLogin);
                 return userLogin;
             }

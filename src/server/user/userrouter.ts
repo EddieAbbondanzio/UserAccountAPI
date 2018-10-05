@@ -3,7 +3,7 @@ import { UserService } from '../../logic/user/userservice';
 import { User } from '../../data/datamodule';
 import { Server } from '../server'
 import { BaseController } from '../common/baserouter';
-import { IServiceLocator } from '../../logic/iservicelocator';
+import { IServiceLocator } from '../../logic/common/iservicelocator';
 
 /**
  * Router for locating user's via their name in the url.

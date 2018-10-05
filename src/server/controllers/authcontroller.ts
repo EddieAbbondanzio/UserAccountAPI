@@ -1,5 +1,5 @@
 import { BaseController } from "../common/baserouter";
-import { IServiceLocator } from "../../logic/iservicelocator";
+import { IServiceLocator } from "../../logic/common/iservicelocator";
 import { Response, Request } from "express";
 
 /**

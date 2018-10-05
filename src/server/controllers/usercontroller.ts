@@ -1,5 +1,5 @@
 import { BaseController } from "../common/baserouter";
-import { IServiceLocator } from "../../logic/iservicelocator";
+import { IServiceLocator } from "../../logic/common/iservicelocator";
 import { Request, Response } from "express";
 import { UserService } from "../../logic/servicemodule";
 import * as HttpStatus from 'http-status-codes';

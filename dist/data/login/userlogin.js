@@ -23,7 +23,7 @@ let UserLogin = UserLogin_1 = class UserLogin {
      * associated with it.
      * @param user The user to build a login for.
      */
-    static GenerateLogin(user) {
+    static generateLogin(user) {
         let userLogin = new UserLogin_1();
         userLogin.user = user;
         userLogin.code = randomutils_1.RandomUtils.generateRandomString(UserLogin_1.CODE_LENGTH);
@@ -35,22 +35,17 @@ let UserLogin = UserLogin_1 = class UserLogin {
  */
 UserLogin.CODE_LENGTH = 16;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn("increment", { type: "bigint", unsigned: true }),
+    typeorm_1.PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], UserLogin.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Index("IX_loginUserId"),
-    typeorm_1.ManyToOne(type => user_1.User),
+    typeorm_1.OneToOne(type => user_1.User),
     __metadata("design:type", user_1.User)
 ], UserLogin.prototype, "user", void 0);
 __decorate([
     typeorm_1.Column("char", { length: UserLogin_1.CODE_LENGTH, nullable: false }),
     __metadata("design:type", String)
 ], UserLogin.prototype, "code", void 0);
-__decorate([
-    typeorm_1.Column("varchar", { nullable: false }),
-    __metadata("design:type", String)
-], UserLogin.prototype, "token", void 0);
 __decorate([
     typeorm_1.CreateDateColumn(),
     __metadata("design:type", Date)

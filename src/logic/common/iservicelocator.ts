@@ -1,5 +1,5 @@
-import {UserService, AuthService} from './servicemodule';
-import { IEmailService } from './email/iemailservice';
+import {UserService, AuthService} from '../servicemodule';
+import { IEmailService } from '../email/iemailservice';
 
 /**
  * A service locator is responsible for providing

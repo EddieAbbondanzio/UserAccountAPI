@@ -1,8 +1,11 @@
 import { Service } from "../common/service";
-import { UserLogin, User, UserLoginRepository, UserRepository, UserRegistration } from "../../data/datamodule";
+import { UserLogin, User, UserLoginRepository, UserRepository, UserRegistration, ValidationToken, ValidationTokenRepository } from "../../data/datamodule";
 import { Connection } from "typeorm";
 import { TokenManager } from "./tokenmanager";
 import { TokenPayload } from "./tokenpayload";
+import { IEmail } from "../email/types/iemail";
+import { TextEmail } from "../email/types/textemail";
+import { IEmailService } from "../email/iemailservice";
 
 
 /**
@@ -23,6 +26,11 @@ export class AuthService extends Service {
     private loginRepository: UserLoginRepository;
 
     /**
+     * The service for sending emails.
+     */
+    private emailService: IEmailService;
+
+    /**
      * Handles giving out and verifying Json Web Tokens.
      */
     private tokenManager: TokenManager;
@@ -30,15 +38,97 @@ export class AuthService extends Service {
     /**
      * Get a new LoginService up and running.
      * @param connection The underlying database connection.
+     * @param emailService The service to send emails.
      * @param tokenKey The secret encryption key for JWTs.
      */
-    constructor(connection: Connection, tokenKey: string) {
+    constructor(connection: Connection, emailService: IEmailService, tokenKey: string) {
         super(connection);
 
+        this.emailService    = emailService;
         this.tokenManager    = new TokenManager(tokenKey);
         this.userRepository  = connection.getCustomRepository(UserRepository);
         this.loginRepository = connection.getCustomRepository(UserLoginRepository);
     }
+
+    /**
+     * A new user wishes to join. Process their registration
+     * and attempt to add them to the system.
+     * @param registration The user's registration.
+     * @returns The new user if success, or null.
+     */
+    public async registerNewUser(registration: UserRegistration): Promise<User|null> {
+        if(!registration || !registration.validate()){
+            return null;
+        }
+
+        try {
+            let user: User = await User.fromRegistration(registration);
+            var vToken: ValidationToken;
+
+            await this.transaction(async manager => {
+                //First insert the user
+                let userRepo: UserRepository = manager.getCustomRepository(UserRepository);
+                await userRepo.add(user);
+
+                //Now generate a validation token.
+                vToken = ValidationToken.generateToken(user);
+                let tokenRepo: ValidationTokenRepository = manager.getCustomRepository(ValidationTokenRepository);
+                await tokenRepo.add(vToken);
+
+                //Generate a login for the user
+                let login: UserLogin = UserLogin.generateLogin(user);
+                login.token = await this.tokenManager.issueToken(user);
+
+                let loginRepo: UserLoginRepository = manager.getCustomRepository(UserLoginRepository);
+                await loginRepo.add(login);
+
+                user.login = login;
+            });
+
+            //Send them a confirmation email
+            let validationEmail: IEmail = new TextEmail(registration.email,
+            "No Man's Blocks Account Confirmation.",
+            "Thanks for joining! Your confirmation code is: " + vToken.code
+            );
+
+            await this.emailService.sendEmail(validationEmail);
+            return user;
+        }
+        catch(error){
+            console.log('Failed to register new user: ', error);
+            return null;
+        }
+    }
+
+    /**
+     * Validate a user's email by checking the validation code they gave us.
+     * @param user The user whos email we need to validate.
+     * @param validationCode The validation code they provided.
+     * @returns True if the code was valid.
+     */
+    public async validateUserEmail(user: User, validationCode: string): Promise<boolean> {
+        return false;
+    }
+
+    public async resendValidationCode(user: User): Promise<boolean> {
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     /**
      * Login a user via their credentials.
@@ -139,7 +229,7 @@ export class AuthService extends Service {
 
         //Build the new login, and save it so we
         //can get it's unique login id.
-        let userLogin: UserLogin = UserLogin.GenerateLogin(user);
+        let userLogin: UserLogin = UserLogin.generateLogin(user);
         await this.loginRepository.add(userLogin);
 
         return userLogin;
@@ -195,7 +285,7 @@ export class AuthService extends Service {
                 throw new Error("Failed to find user");
             }
 
-            let userLogin: UserLogin = UserLogin.GenerateLogin(user);
+            let userLogin: UserLogin = UserLogin.generateLogin(user);
             await this.loginRepository.add(userLogin);
             return userLogin;
         }

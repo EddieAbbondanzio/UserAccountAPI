@@ -5,7 +5,7 @@ import * as HttpStatus from 'http-status-codes';
 import { UserLogin } from '../../data/datamodule';
 import { AuthService } from '../../logic/security/authservice';
 import { UserService } from '../../logic/user/userservice';
-import { IServiceLocator } from '../../logic/iservicelocator';
+import { IServiceLocator } from '../../logic/common/iservicelocator';
 
 /**
  * Handles login requests, along with middleware for

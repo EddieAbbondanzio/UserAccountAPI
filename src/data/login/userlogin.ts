@@ -1,5 +1,5 @@
 import { User } from "../user/user";
-import { ManyToOne, Index, PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { ManyToOne, Index, PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
 import { RandomUtils } from "../../util/randomutils";
 
 /**
@@ -18,15 +18,14 @@ export class UserLogin {
      * Database table index for the login. This 
      * is only used by the foreign key relationship.
      */
-    @PrimaryGeneratedColumn("increment", {type: "bigint", unsigned: true})
+    @PrimaryGeneratedColumn()
     public id: number;
 
     /**
      * The user that this login belongs to. A user may
      * only have one login at a time.
      */
-    @Index("IX_loginUserId")
-    @ManyToOne(type => User)
+    @OneToOne(type => User)
     public user: User;
 
     /**
@@ -38,10 +37,9 @@ export class UserLogin {
     public code: string;
 
     /**
-     * The JWT associated with the login. This will
-     * only be populated on the very first login.
+     * The JWT associated with the login. These are never stored in
+     * the database since they are a one time use.
      */
-    @Column("varchar", {nullable: false})
     public token: string;
 
     /**
@@ -56,7 +54,7 @@ export class UserLogin {
      * associated with it.
      * @param user The user to build a login for.
      */
-    public static GenerateLogin(user: User): UserLogin {
+    public static generateLogin(user: User): UserLogin {
         let userLogin  = new UserLogin();
         userLogin.user = user;
         userLogin.code = RandomUtils.generateRandomString(UserLogin.CODE_LENGTH);

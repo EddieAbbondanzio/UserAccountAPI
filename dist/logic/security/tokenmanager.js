@@ -84,9 +84,9 @@ class TokenManager {
     }
 }
 /**
- * Tokens are good for 3 days.
+ * Tokens are good for 6 months.
  */
-TokenManager.TOKEN_LIFESPAN = 7776000;
+TokenManager.TOKEN_LIFESPAN = 15780000;
 exports.TokenManager = TokenManager;
 
 //# sourceMappingURL=tokenmanager.js.map

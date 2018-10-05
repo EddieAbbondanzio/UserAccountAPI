@@ -40,7 +40,7 @@ export class ZohoEmailService implements IEmailService {
      * Send out an email.
      * @param email The email to send out.
      */
-    public async sendEmail(email: IEmail): Promise<void> {
+    public async sendEmail(email: IEmail): Promise<boolean> {
         //Service can only send emails from the email it has on file.
         if(email.sender != this.credentials.user){
             email.sender = this.credentials.user;
@@ -48,7 +48,7 @@ export class ZohoEmailService implements IEmailService {
         
         let emailOptions: EmailOptions = email.getSendOptions();
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             this.transporter.sendMail(emailOptions, (error, info) => {
                 if(error){
                     reject(error);
@@ -68,12 +68,17 @@ export class ZohoEmailService implements IEmailService {
      * @param body The body of the email.
      * @param isHtml If the body is in html.
      */
-    public createNewEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):IEmail {
+    public async createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<boolean> {
+        let email: IEmail;
+
         if(isHtml){
-            return new HtmlEmail(this.credentials.user, reciever, subject, body);
+            email = new HtmlEmail(reciever, subject, body);
         }
         else {
-            return new TextEmail(this.credentials.user, reciever, subject, body);
+            email = new TextEmail(reciever, subject, body);
         }
+
+        email.sender = this.credentials.user;
+        return await this.sendEmail(email);
     }
 }

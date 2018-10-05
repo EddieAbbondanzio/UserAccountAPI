@@ -7,13 +7,11 @@ const emailoptions_1 = require("../emailoptions");
 class HtmlEmail {
     /**
      * Create a new email.
-     * @param sender The sender's email address.
      * @param reciever The reciever's email address.
      * @param subject The subject line of the email.
      * @param body The body of the email.
      */
-    constructor(sender, reciever, subject, body) {
-        this.sender = sender;
+    constructor(reciever, subject, body) {
         this.reciever = reciever;
         this.subject = subject;
         this.body = body;

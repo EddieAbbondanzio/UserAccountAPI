@@ -9,9 +9,9 @@ import { TokenPayload } from './tokenpayload';
  */
 export class TokenManager {
     /**
-     * Tokens are good for 3 days.
+     * Tokens are good for 6 months.
      */
-    private static TOKEN_LIFESPAN: number = 7776000;
+    private static TOKEN_LIFESPAN: number = 15780000;
 
     /**
      * The options used to sign tokens

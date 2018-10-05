@@ -7,8 +7,9 @@ export interface IEmailService {
     /**
      * Send an email out.
      * @param email The email to send.
+     * @returns True if no errors.
      */
-    sendEmail(email: IEmail):Promise<void>;
+    sendEmail(email: IEmail):Promise<boolean>;
 
     /**
      * Create a new email for sending out. This prepopulates
@@ -17,6 +18,7 @@ export interface IEmailService {
      * @param subject The subject line.
      * @param body The body of the email.
      * @param isHtml If the body is html encoded.
+     * @returns True if no errors.
      */
-    createNewEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):IEmail;
+    createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<boolean>;
 }
