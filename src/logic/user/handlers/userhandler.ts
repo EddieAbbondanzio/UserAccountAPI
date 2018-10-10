@@ -109,6 +109,13 @@ export class UserHandler extends LogicHandler {
      * @param user The user to delete
      */
     public async delete(user: User): Promise<void>  {
+        //Bad data
+        if(!user || isNaN(user.id) || user.isDeleted){
+            return;
+        }
+
+
+
         return null;
         // if(!user || isNaN(user.id)){
         //     return;

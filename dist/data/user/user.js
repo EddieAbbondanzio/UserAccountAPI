@@ -58,9 +58,9 @@ let User = User_1 = class User {
      */
     static fromRegistration(registration) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!registration.validate()) {
-                throw new Error("Registration is invalid.");
-            }
+            // if(!registration.validate()){
+            //     throw new Error("Registration is invalid.");
+            // }
             //Build the user object.
             let user = new User_1();
             user.username = registration.username;
@@ -81,6 +81,10 @@ User.MIN_USERNAME_LENGTH = 4;
  * The maximum number of characters in a username.
  */
 User.MAX_USERNAME_LENGTH = 24;
+/**
+ * The maximum number of characters allowed in their real name.
+ */
+User.MAX_NAME_LENGTH = 32;
 /**
  * The maximum number of characters in a user's email.
  */
@@ -104,11 +108,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "passwordHash", void 0);
 __decorate([
-    typeorm_1.Column("varchar", { length: User_1.MAX_USERNAME_LENGTH }),
+    typeorm_1.Column("char", { length: User_1.MAX_NAME_LENGTH }),
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
-    typeorm_1.Column("varchar", { length: User_1.MAX_EMAIL_LENGTH }),
+    typeorm_1.Column("char", { length: User_1.MAX_EMAIL_LENGTH }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([

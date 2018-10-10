@@ -29,34 +29,4 @@ export class UserRegistration {
      * their password.
      */
     public email: string;
-
-    /**
-     * Validate the registration to see if everything is 
-     * okay. This will check the username, and more.
-     * @returns True if the user is accepted.
-     */
-    public validate(): boolean {
-        //Check if the username is valid
-        if(!/^[-\w\_]{4,24}$/.test(this.username)) {
-            return false;
-        }
-
-        //Check the password
-        if(StringUtils.isBlank(this.password) || this.password.length < User.MIN_PASSWORD_LENGTH){
-            return false;
-        }
-
-        //Check the name
-        if(StringUtils.isBlank(this.name)) {
-            return false;
-        }
-
-        //Check the email
-        if(StringUtils.isBlank(this.email)){
-            return false;
-        }
-
-        //Made it this far, it must be good.
-        return true;
-    }
 }

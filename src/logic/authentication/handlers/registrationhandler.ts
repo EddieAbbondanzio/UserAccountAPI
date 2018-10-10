@@ -42,9 +42,9 @@ export class RegistrationHandler extends LogicHandler {
      * @returns The new user, or null if it failed.
      */
     public async registerNewUser(registration: UserRegistration): Promise<User|null> {
-        if(!registration || !registration.validate()){
-            return null;
-        }
+        // if(!registration || !registration.validate()){
+        //     return null;
+        // }
 
         try {
             let user: User = await User.fromRegistration(registration);

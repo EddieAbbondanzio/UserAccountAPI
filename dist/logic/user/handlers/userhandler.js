@@ -110,6 +110,10 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
+            //Bad data
+            if (!user || isNaN(user.id) || user.isDeleted) {
+                return;
+            }
             return null;
             // if(!user || isNaN(user.id)){
             //     return;

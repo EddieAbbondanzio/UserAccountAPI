@@ -21,6 +21,11 @@ export class User {
     public static MAX_USERNAME_LENGTH:number = 24;
 
     /**
+     * The maximum number of characters allowed in their real name.
+     */
+    public static MAX_NAME_LENGTH = 32;
+
+    /**
      * The maximum number of characters in a user's email.
      */
     public static MAX_EMAIL_LENGTH: number = 64;
@@ -55,14 +60,14 @@ export class User {
     /**
      * The actual name of the user.
      */
-    @Column("varchar", {length: User.MAX_USERNAME_LENGTH})
+    @Column("char", {length: User.MAX_NAME_LENGTH})
     public name: string;
 
     /**
      * The email of the user. This is optional and
      * therefore can be null.
      */
-    @Column("varchar", { length: User.MAX_EMAIL_LENGTH})
+    @Column("char", { length: User.MAX_EMAIL_LENGTH})
     public email: string;
     
     /**
@@ -121,9 +126,9 @@ export class User {
      * @param registration The registration to build the user from.
      */
     public static async fromRegistration(registration: UserRegistration): Promise<User> {
-        if(!registration.validate()){
-            throw new Error("Registration is invalid.");
-        }
+        // if(!registration.validate()){
+        //     throw new Error("Registration is invalid.");
+        // }
 
         //Build the user object.
         let user = new User();

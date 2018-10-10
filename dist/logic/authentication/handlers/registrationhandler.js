@@ -35,9 +35,9 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
      */
     registerNewUser(registration) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!registration || !registration.validate()) {
-                return null;
-            }
+            // if(!registration || !registration.validate()){
+            //     return null;
+            // }
             try {
                 let user = yield datamodule_1.User.fromRegistration(registration);
                 var vToken;
