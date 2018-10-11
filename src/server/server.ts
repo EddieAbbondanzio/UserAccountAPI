@@ -4,6 +4,7 @@ import * as BodyParser from 'body-parser';
 import { IServiceLocator } from '../logic/common/iservicelocator';
 import { AuthController } from './controllers/authcontroller';
 import { UserController } from './controllers/usercontroller';
+import { UserHandler } from '../logic/user/handlers/userhandler';
 
 
 /**

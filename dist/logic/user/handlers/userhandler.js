@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
+const datamodule_1 = require("../../../data/datamodule");
+const taskresult_1 = require("../../common/results/taskresult");
 /**
  * Handler related to users. Manages users such as finding,
  * removing, or updating them.
@@ -21,6 +23,7 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
+        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
     }
     /**
      * Checks if a username is available for taking.
@@ -29,17 +32,13 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            return false;
-            // if(!username){
-            //     return false;
-            // }
-            // try {
-            //     return await this.userRepo.isUsernameAvailable(username);
-            // }
-            // catch(error) {
-            //     console.log('UserService.isUsernameAvailable(): ', error);
-            //     return false;
-            // }
+            if (!username) {
+                return taskresult_1.TaskResult.errorResult('No username was passed in.');
+            }
+            else {
+                let isAvailable = yield this.userRepo.isUsernameAvailable(username);
+                return taskresult_1.TaskResult.successResult(isAvailable);
+            }
         });
     }
     /**
@@ -48,19 +47,15 @@ class UserHandler extends logichandler_1.LogicHandler {
      * @param includeDeleted If we should include deleted users in the results.
      * @returns The user if found.
      */
-    findByUsername(username, includeDeleted = false) {
+    findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
-            // if(!username){
-            //     return null;
-            // }
-            // try {
-            //     return this.userRepo.findByUsername(username, includeDeleted);
-            // }
-            // catch(error){
-            //     console.log('UserService.findByUsername(): ', error);
-            //     return null;
-            // }
+            if (!username) {
+                return taskresult_1.TaskResult.errorResult('No username was passed in');
+            }
+            else {
+                let user = yield this.userRepo.findByUsername(username, includeDeleted);
+                return taskresult_1.TaskResult.successResult(user);
+            }
         });
     }
     /**
@@ -68,21 +63,17 @@ class UserHandler extends logichandler_1.LogicHandler {
      * API calls.
      * @param id The numeric id of the user to look for.
      * @param includeDeleted If we should include deleted users in the results.
-     * @returns {Promise<User>} The user if found.
+     * @returns The user if found.
      */
     findById(id, includeDeleted = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
-            // if(isNaN(id)){
-            //     return null;
-            // }
-            // try {
-            //     return this.userRepo.findById(id, includeDeleted);
-            // }
-            // catch(error){
-            //     console.log('UserService.findById(): ', error);
-            //     return null;
-            // }
+            if (isNaN(id)) {
+                return taskresult_1.TaskResult.errorResult('No user id passed in.');
+            }
+            else {
+                let user = yield this.userRepo.findById(id, includeDeleted);
+                return taskresult_1.TaskResult.successResult(user);
+            }
         });
     }
     /**
@@ -92,38 +83,29 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return;
-            // if(!user){
-            //     return;
-            // }
-            // try {
-            //     this.userRepo.update(user);
-            // }
-            // catch(error){
-            //     console.log('UserService.update(): ', error);
-            // }
+            if (!user || isNaN(user.id) || user.isDeleted) {
+                return false;
+            }
+            else {
+                return yield this.userRepo.update(user);
+            }
         });
     }
     /**
      * Delete a user from the database
      * @param user The user to delete
+     * @returns True if no errors occured.
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             //Bad data
-            if (!user || isNaN(user.id) || user.isDeleted) {
-                return;
+            if (!user || isNaN(user.id)) {
+                return taskresult_1.TaskResult.errorResult('No user passed in, or user has no id.');
             }
-            return null;
-            // if(!user || isNaN(user.id)){
-            //     return;
-            // }
-            // try {
-            //     this.userRepo.delete(user);
-            // }
-            // catch(error){
-            //     console.log('UserService.delete(): ', error);
-            // }
+            else {
+                yield this.userRepo.delete(user);
+                return taskresult_1.TaskResult.successResult(true);
+            }
         });
     }
 }

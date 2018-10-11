@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/logic/common/component.ts"],"names":[],"mappings":";;AAIA;;;;GAIG;AACH;IAWI;;;;OAIG;IACH,YAAY,UAAsB,EAAE,cAA+B;QAC/D,IAAI,CAAC,UAAU,GAAG,UAAU,CAAC;QAC7B,IAAI,CAAC,cAAc,GAAG,cAAc,CAAC;IACzC,CAAC;CACJ;AApBD,8BAoBC","file":"component.js","sourceRoot":"../../"}

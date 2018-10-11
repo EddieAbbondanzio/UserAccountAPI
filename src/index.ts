@@ -1,7 +1,7 @@
 import { Server } from './server/server';
 import { DataContext } from './data/datacontext';
 import { ServiceLocator } from './logic/servicelocator';
-import { UserRegistration } from './data/datamodule';
+import { UserRegistration, UserRepository, User, UserStats } from './data/datamodule';
 
 /**
  * Initialize the application for use. This first starts
@@ -19,6 +19,16 @@ async function initialize() {
     //Spin up the server. This takes and handles the 
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
+
+    let userRepo = connection.getCustomRepository(UserRepository)
+
+    let user = new User();
+    user.email = 'd';
+    user.id = 100;
+    user.username = 'testuser';
+    user.passwordHash = 'aaa';
+    user.name = 'Bert';
+    await userRepo.delete(user);
 
     let userReg = new UserRegistration();
     userReg.email = 'me@eddieabbondanz.io';

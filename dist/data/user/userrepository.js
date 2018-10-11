@@ -194,21 +194,17 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             if (user == null) {
                 return false;
             }
-            try {
-                yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                    let userRepo = manager.getRepository(user_1.User);
-                    //We just need to mark the user as deleted
-                    yield userRepo.createQueryBuilder()
-                        .update()
-                        .set({ isDeleted: true })
-                        .where('id = :id', { id: user.id }).execute();
-                }));
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to delete user: ', error);
-                return false;
-            }
+            let res = yield this.manager.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                let userRepo = manager.getRepository(user_1.User);
+                //We just need to mark the user as deleted
+                let result = yield userRepo.createQueryBuilder()
+                    .update()
+                    .set({ isDeleted: true })
+                    .where('id = :id', { id: user.id }).execute();
+                return result.raw.affectedRowCount == 1;
+            }));
+            console.log(res);
+            return res;
         });
     }
     /**

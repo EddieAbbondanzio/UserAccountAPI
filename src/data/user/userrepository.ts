@@ -1,4 +1,4 @@
-import { AbstractRepository, EntityRepository, Repository } from "typeorm";
+import { AbstractRepository, EntityRepository, Repository, UpdateResult } from "typeorm";
 import { User } from "./user";
 import { UserStats } from "./userstats";
 import { UserLoginRepository } from "../login/userloginrepository";
@@ -186,23 +186,20 @@ export class UserRepository extends AbstractRepository<User> {
             return false;
         }
 
-        try {
-            await this.manager.connection.transaction(async manager => {
-                let userRepo = manager.getRepository(User);
+        let res = await this.manager.connection.transaction(async manager => {
+            let userRepo = manager.getRepository(User);
 
-                //We just need to mark the user as deleted
-                await userRepo.createQueryBuilder()
-                .update()
-                .set({isDeleted: true})
-                .where('id = :id', {id: user.id}).execute();
-            });
+            //We just need to mark the user as deleted
+            let result: UpdateResult = await userRepo.createQueryBuilder()
+            .update()
+            .set({isDeleted: true})
+            .where('id = :id', {id: user.id}).execute();
 
-            return true;
-        }
-        catch(error){
-            console.log('Failed to delete user: ', error);
-            return false;
-        }
+            return result.raw.affectedRowCount == 1;
+        });
+
+        console.log(res);
+        return res;
     }
 
     /**
