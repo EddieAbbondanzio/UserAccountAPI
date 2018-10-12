@@ -22,14 +22,14 @@ export abstract class UserValidator implements IValidator<User> {
 
     /**
      * Validate the user against the validator.
-     * @param entity The user to validate.
+     * @param user The user to validate.
      * @returns The validation result.
      */
-    public validate(entity: User): ValidatorResult {
+    public validate(user: User): ValidatorResult {
         let result: ValidatorResult = new ValidatorResult();
         
         for(let i = 0; i < this.rules.length; i++){
-            let ruleResult: ValidatorRuleResult = this.rules[i].validate(entity);
+            let ruleResult: ValidatorRuleResult = this.rules[i].validate(user);
 
             if(!ruleResult.isValid) {
                 result.errors.push(ruleResult.error);

@@ -58,10 +58,6 @@ let User = User_1 = class User {
      */
     static fromRegistration(registration) {
         return __awaiter(this, void 0, void 0, function* () {
-            // if(!registration.validate()){
-            //     throw new Error("Registration is invalid.");
-            // }
-            //Build the user object.
             let user = new User_1();
             user.username = registration.username;
             user.name = registration.name;

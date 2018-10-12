@@ -126,11 +126,6 @@ export class User {
      * @param registration The registration to build the user from.
      */
     public static async fromRegistration(registration: UserRegistration): Promise<User> {
-        // if(!registration.validate()){
-        //     throw new Error("Registration is invalid.");
-        // }
-
-        //Build the user object.
         let user = new User();
         user.username = registration.username;
         user.name     = registration.name;

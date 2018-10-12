@@ -22,19 +22,9 @@ async function initialize() {
 
     let userRepo = connection.getCustomRepository(UserRepository)
 
-    let user = new User();
-    user.email = 'd';
-    user.id = 100;
-    user.username = 'testuser';
-    user.passwordHash = 'aaa';
-    user.name = 'Bert';
-    await userRepo.delete(user);
 
-    let userReg = new UserRegistration();
-    userReg.email = 'me@eddieabbondanz.io';
-    userReg.name = 'Eddie A';
-    userReg.password = 'hunter22';
-    userReg.username = 'EddieAbb95';
+
+    
 
     // serviceLocator.authService.registerNewUser(userReg);
 

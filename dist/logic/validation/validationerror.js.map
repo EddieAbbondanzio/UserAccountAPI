@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/logic/validation/validationerror.ts"],"names":[],"mappings":";;AAEA;;GAEG;AACH,qBAA6B,SAAQ,KAAK;IAMtC;;;;OAIG;IACH,YAAY,OAAe,EAAE,eAAgC;QACzD,KAAK,CAAC,OAAO,CAAC,CAAC;IACnB,CAAC;CACJ;AAdD,0CAcC","file":"validationerror.js","sourceRoot":"../../"}

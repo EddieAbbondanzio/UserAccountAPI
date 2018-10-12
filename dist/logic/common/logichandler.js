@@ -28,9 +28,11 @@ class LogicHandler {
      */
     transaction(job) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.connection.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                yield job(manager);
-            }));
+            return yield this.connection.transaction(function (manager) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    return yield job(manager);
+                });
+            });
         });
     }
 }

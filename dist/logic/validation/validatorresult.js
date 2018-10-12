@@ -10,7 +10,7 @@ class ValidatorResult {
      * @param isValid If the object was valid.
      * @param errors The errors of it (if any).
      */
-    constructor(isValid, errors) {
+    constructor(isValid, ...errors) {
         if (typeof isValid === 'boolean') {
             this.isValid = isValid;
         }

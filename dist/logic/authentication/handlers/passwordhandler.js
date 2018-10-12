@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
+const authenticationerror_1 = require("../common/authenticationerror");
+const datamodule_1 = require("../../../data/datamodule");
 /**
  * Business logic for resetting or updating user passwords.
  */
@@ -20,29 +22,58 @@ class PasswordHandler extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
+        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
+        this.resetTokenRepo = connection.getCustomRepository(datamodule_1.ResetTokenRespository);
     }
     /**
      * Reset a user's password after verifying their token is valid.
-     * @param username The username of the user.
-     * @param passwordToken Their temporary access password.
+     * @param user The user.
+     * @param resetCode Their temporary access password.
      * @param newPassword Their new desired password.
      * @returns True if the token was valid.
      */
-    resetPassword(username, passwordToken, newPassword) {
+    resetPassword(user, resetCode, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!user) {
+                throw new Error('No user passed in');
+            }
+            //Need to pull in the reset token for them.
+            let resetToken = yield this.resetTokenRepo.findByUser(user);
+            if (resetToken && resetToken.code == resetCode) {
+                user.setPassword(newPassword);
+                //Don't want to fail to update the user but revoke their reset token.
+                return yield this.transaction(function (manager) {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        let rTokenRepo = manager.getCustomRepository(datamodule_1.ResetTokenRespository);
+                        let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                        let deleteResult = rTokenRepo.delete(resetToken, manager);
+                        let updateResult = userRepo.updatePassword(user, manager);
+                        yield Promise.all([deleteResult, updateResult]);
+                        return deleteResult;
+                    });
+                });
+            }
             return false;
         });
     }
     /**
      * Update a user's password. This only proceeds if their current
      * password passed in is valid.
-     * @param username The username of the user.
+     * @param user The user to update.
      * @param currPassword Their current password.
      * @param newPassword Their new desired password.
      * @returns True if successful.
      */
-    updatePassword(username, currPassword, newPassword) {
+    updatePassword(user, currPassword, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!user) {
+                throw new Error('No user passed in.');
+            }
+            if (!(yield user.validatePassword(currPassword))) {
+                throw new authenticationerror_1.AuthenticationError('Invalid password.');
+            }
+            user.setPassword(newPassword);
+            yield this.userRepo.updatePassword(user);
             return false;
         });
     }

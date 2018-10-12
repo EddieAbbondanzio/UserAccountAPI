@@ -1,4 +1,4 @@
-import { AbstractRepository, EntityRepository, InsertResult } from "typeorm";
+import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repository, DeleteResult } from "typeorm";
 import { VerificationToken } from "./verificationtoken";
 import { User } from "../user/user";
 
@@ -13,62 +13,53 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
      * @param user The user to look for a validation token for.
      * @returns The token found (or null).
      */
-    public async findByUser(user: User): Promise<VerificationToken|null> {
+    public async findByUser(user: User): Promise<VerificationToken> {
         //Stop bad data
         if(!user){
             return null;
         }
 
-        try {
-            return await this.repository.createQueryBuilder('token')
-            .leftJoinAndSelect('token.user', 'user')
-            .where('token.userId = :id', user)
-            .getOne();
-        }
-        catch(error){
-            console.log('Failed to find validation token by user: ', error);
-            return null;
-        }
+        return this.repository.createQueryBuilder('token')
+        .leftJoinAndSelect('token.user', 'user')
+        .where('token.userId = :id', user)
+        .getOne();
     }
 
     /**
      * Add a new validation token to the database.
-     * @param validationToken The token to add to the database.
+     * @param verificationToken The token to add to the database.
+     * @param transactionManager The transaction manager to use when 
+     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    public async add(validationToken: VerificationToken): Promise<boolean> {
+    public async add(verificationToken: VerificationToken, transactionManager?: EntityManager): Promise<boolean> {
         //Stop bad data.
-        if(!validationToken) {
+        if(!verificationToken) {
             return false;
         }
 
-        try {
-            await this.repository.insert(validationToken);
-            return true;
-        }
-        catch(error){
-            console.log('Failed to insert validation token: ', error);
-            return false;
-        }
+        let tokenRepo: Repository<VerificationToken> = transactionManager ? transactionManager.getRepository(VerificationToken) : this.repository;
+        let result: InsertResult = await tokenRepo.insert(verificationToken);
+        
+        return result.raw.affectedRowCount == 1;
     }
 
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
+     * @param transactionManager The transaction manager to use when 
+     * a database transaction is in progress.
+     * @returns True if no errors.
      */
-    public async delete(validationToken: VerificationToken): Promise<boolean> {
+    public async delete(verificationToken: VerificationToken, transactionManager?: EntityManager): Promise<boolean> {
         //Stop bad data.
-        if(!validationToken) {
+        if(!verificationToken) {
             return false;
         }
 
-        try {
-            await this.repository.delete(validationToken);
-            return true;
-        }
-        catch(error) {
-            console.log('Failed to delete validation token: ', error);
-            return false;
-        }
+        let tokenRepo: Repository<VerificationToken> = transactionManager ? transactionManager.getRepository(VerificationToken) : this.repository;
+        let result: DeleteResult = await tokenRepo.delete(verificationToken);
+
+        return result.raw.affectedRowCount == 1;
     }
 }

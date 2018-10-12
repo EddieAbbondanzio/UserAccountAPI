@@ -32,57 +32,46 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
             if (!user) {
                 return null;
             }
-            try {
-                return yield this.repository.createQueryBuilder('token')
-                    .leftJoinAndSelect('token.user', 'user')
-                    .where('token.userId = :id', { user })
-                    .getOne();
-            }
-            catch (error) {
-                console.log('Failed to find reset token by user: ', error);
-                return null;
-            }
+            return this.repository.createQueryBuilder('token')
+                .leftJoinAndSelect('token.user', 'user')
+                .where('token.userId = :id', { user })
+                .getOne();
         });
     }
     /**
      * Add a new reset token to the database.
      * @param resetToken The token to add to the database.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    add(resetToken) {
+    add(resetToken, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!resetToken) {
                 return false;
             }
-            try {
-                yield this.repository.insert(resetToken);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to insert reset token: ', error);
-                return false;
-            }
+            let tokenRepo = transactionManager ? transactionManager.getRepository(resettoken_1.ResetToken) : this.repository;
+            let result = yield tokenRepo.insert(resetToken);
+            return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Delete an existing reset token from the database.
      * @param resetToken The reset token to delete.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
+     * @returns True if no errors.
      */
-    delete(resetToken) {
+    delete(resetToken, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!resetToken) {
                 return false;
             }
-            try {
-                yield this.repository.delete(resetToken);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to delete reset token: ', error);
-                return false;
-            }
+            let tokenRepo = transactionManager ? transactionManager.getRepository(resettoken_1.ResetToken) : this.repository;
+            let result = yield tokenRepo.delete(resetToken);
+            return result.raw.affectedRowCount == 1;
         });
     }
 };

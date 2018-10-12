@@ -28,18 +28,6 @@ function initialize() {
             //HTTP Requests clients make.
             const server = new server_1.Server(serviceLocator);
             let userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
-            let user = new datamodule_1.User();
-            user.email = 'd';
-            user.id = 100;
-            user.username = 'testuser';
-            user.passwordHash = 'aaa';
-            user.name = 'Bert';
-            yield userRepo.delete(user);
-            let userReg = new datamodule_1.UserRegistration();
-            userReg.email = 'me@eddieabbondanz.io';
-            userReg.name = 'Eddie A';
-            userReg.password = 'hunter22';
-            userReg.username = 'EddieAbb95';
             // serviceLocator.authService.registerNewUser(userReg);
             console.log('Server ready...');
         }

@@ -10,7 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
 const datamodule_1 = require("../../../data/datamodule");
-const taskresult_1 = require("../../common/results/taskresult");
+const userdeletevalidator_1 = require("../../validation/user/validators/userdeletevalidator");
+const userupdatevalidator_1 = require("../../validation/user/validators/userupdatevalidator");
+const validationerror_1 = require("../../validation/validationerror");
 /**
  * Handler related to users. Manages users such as finding,
  * removing, or updating them.
@@ -24,21 +26,20 @@ class UserHandler extends logichandler_1.LogicHandler {
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
         this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
+        this.updateValidator = new userupdatevalidator_1.UserUpdateValidator();
+        this.deleteValidator = new userdeletevalidator_1.UserDeleteValidator();
     }
     /**
-     * Checks if a username is available for taking.
+     * Checks if a username is available for taking.s
      * @param username The username to check for.
      * @returns True if the username is available.
      */
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
-                return taskresult_1.TaskResult.errorResult('No username was passed in.');
+                throw new Error('No username was passed in.');
             }
-            else {
-                let isAvailable = yield this.userRepo.isUsernameAvailable(username);
-                return taskresult_1.TaskResult.successResult(isAvailable);
-            }
+            return this.userRepo.isUsernameAvailable(username);
         });
     }
     /**
@@ -50,12 +51,9 @@ class UserHandler extends logichandler_1.LogicHandler {
     findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
-                return taskresult_1.TaskResult.errorResult('No username was passed in');
+                throw new Error('No username was passed in');
             }
-            else {
-                let user = yield this.userRepo.findByUsername(username, includeDeleted);
-                return taskresult_1.TaskResult.successResult(user);
-            }
+            return this.userRepo.findByUsername(username, includeDeleted);
         });
     }
     /**
@@ -68,12 +66,9 @@ class UserHandler extends logichandler_1.LogicHandler {
     findById(id, includeDeleted = false) {
         return __awaiter(this, void 0, void 0, function* () {
             if (isNaN(id)) {
-                return taskresult_1.TaskResult.errorResult('No user id passed in.');
+                throw new Error('No user id passed in.');
             }
-            else {
-                let user = yield this.userRepo.findById(id, includeDeleted);
-                return taskresult_1.TaskResult.successResult(user);
-            }
+            return this.userRepo.findById(id, includeDeleted);
         });
     }
     /**
@@ -83,11 +78,15 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user || isNaN(user.id) || user.isDeleted) {
-                return false;
+            if (!user || isNaN(user.id)) {
+                throw new Error('No user passed in, or user has no id.');
             }
             else {
-                return yield this.userRepo.update(user);
+                let validatorResult = this.updateValidator.validate(user);
+                if (!validatorResult.isValid) {
+                    throw new validationerror_1.ValidationError('Failed to update user.', validatorResult);
+                }
+                return this.userRepo.update(user);
             }
         });
     }
@@ -98,13 +97,15 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Bad data
             if (!user || isNaN(user.id)) {
-                return taskresult_1.TaskResult.errorResult('No user passed in, or user has no id.');
+                throw new Error('No user passed in, or user has no id.');
             }
             else {
-                yield this.userRepo.delete(user);
-                return taskresult_1.TaskResult.successResult(true);
+                let validatorResult = this.deleteValidator.validate(user);
+                if (!validatorResult.isValid) {
+                    throw new validationerror_1.ValidationError('Failed to delete user.', validatorResult);
+                }
+                return this.userRepo.delete(user);
             }
         });
     }

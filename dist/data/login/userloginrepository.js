@@ -31,56 +31,44 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
             if (!user) {
                 return null;
             }
-            try {
-                return yield this.repository.createQueryBuilder('login')
-                    .leftJoinAndSelect('login.user', 'user')
-                    .where('login.userId = :id', user)
-                    .getOne();
-            }
-            catch (error) {
-                console.log('Failed to find user login by user: ', error);
-                return null;
-            }
+            return this.repository.createQueryBuilder('login')
+                .leftJoinAndSelect('login.user', 'user')
+                .where('login.userId = :id', user)
+                .getOne();
         });
     }
     /**
      * Add a new user login to the database.
      * @param userLogin The userlogin to add to the database.
      * @returns True if no errors.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
      */
-    add(userLogin) {
+    add(userLogin, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userLogin) {
                 return false;
             }
-            try {
-                yield this.repository.insert(userLogin);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to insert user login: ', error);
-                return false;
-            }
+            let loginRepo = transactionManager ? transactionManager.getRepository(userlogin_1.UserLogin) : this.repository;
+            let result = yield loginRepo.insert(userLogin);
+            return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Remove an existing login from the database.
      * @param userlogin The userlogin to remove from the database.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    delete(userlogin) {
+    delete(userlogin, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userlogin) {
                 return false;
             }
-            try {
-                yield this.repository.delete(userlogin);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to delete user login: ', error);
-                return false;
-            }
+            let loginRepo = transactionManager ? transactionManager.getRepository(userlogin_1.UserLogin) : this.repository;
+            let result = yield loginRepo.delete(userlogin);
+            return result.raw.affectedRowCount == 1;
         });
     }
 };

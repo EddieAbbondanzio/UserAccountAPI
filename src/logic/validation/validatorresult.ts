@@ -1,3 +1,4 @@
+import { IValidator } from "./ivalidator";
 
 /**
  * The results of a validator performing a 
@@ -19,7 +20,7 @@ export class ValidatorResult {
      * @param isValid If the object was valid.
      * @param errors The errors of it (if any).
      */
-    constructor(isValid?: boolean, errors?: string[]) {
+    constructor(isValid?: boolean, ...errors: string[]) {
         if(typeof isValid === 'boolean') {
             this.isValid = isValid;
         }

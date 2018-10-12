@@ -86,8 +86,8 @@ export class RegistrationHandler extends LogicHandler {
      * @returns True if the code was valid.
      */
     public async validateUserEmail(user: User, validationCode: string): Promise<boolean> {
-        if(!user || StringUtils.isBlank(validationCode)){
-            return false;
+        if(!user){
+            throw new Error('No user passed in.');
         }
 
         //Is user already validated?

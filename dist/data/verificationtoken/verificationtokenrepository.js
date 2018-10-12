@@ -32,57 +32,46 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
             if (!user) {
                 return null;
             }
-            try {
-                return yield this.repository.createQueryBuilder('token')
-                    .leftJoinAndSelect('token.user', 'user')
-                    .where('token.userId = :id', user)
-                    .getOne();
-            }
-            catch (error) {
-                console.log('Failed to find validation token by user: ', error);
-                return null;
-            }
+            return this.repository.createQueryBuilder('token')
+                .leftJoinAndSelect('token.user', 'user')
+                .where('token.userId = :id', user)
+                .getOne();
         });
     }
     /**
      * Add a new validation token to the database.
-     * @param validationToken The token to add to the database.
+     * @param verificationToken The token to add to the database.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    add(validationToken) {
+    add(verificationToken, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
-            if (!validationToken) {
+            if (!verificationToken) {
                 return false;
             }
-            try {
-                yield this.repository.insert(validationToken);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to insert validation token: ', error);
-                return false;
-            }
+            let tokenRepo = transactionManager ? transactionManager.getRepository(verificationtoken_1.VerificationToken) : this.repository;
+            let result = yield tokenRepo.insert(verificationToken);
+            return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
+     * @param transactionManager The transaction manager to use when
+     * a database transaction is in progress.
+     * @returns True if no errors.
      */
-    delete(validationToken) {
+    delete(verificationToken, transactionManager) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
-            if (!validationToken) {
+            if (!verificationToken) {
                 return false;
             }
-            try {
-                yield this.repository.delete(validationToken);
-                return true;
-            }
-            catch (error) {
-                console.log('Failed to delete validation token: ', error);
-                return false;
-            }
+            let tokenRepo = transactionManager ? transactionManager.getRepository(verificationtoken_1.VerificationToken) : this.repository;
+            let result = yield tokenRepo.delete(verificationToken);
+            return result.raw.affectedRowCount == 1;
         });
     }
 };
