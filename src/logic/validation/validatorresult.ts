@@ -1,5 +1,3 @@
-import { IValidator } from "./ivalidator";
-
 /**
  * The results of a validator performing a 
  * validation on an object.

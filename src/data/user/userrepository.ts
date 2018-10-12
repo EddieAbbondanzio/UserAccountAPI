@@ -157,6 +157,7 @@ export class UserRepository extends AbstractRepository<User> {
         .set({
             name: user.name, 
             email: user.email,
+            isVerified: user.isVerified
         })
         .where('id = :id', {id: user.id})
         .execute();

@@ -28,7 +28,7 @@ class UserUsernameValidatorRule {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserUsernameValidatorRule.USERNAME_TOO_LONG_ERROR);
         }
         //Valid characters?
-        if (!/^[-\w\_]$/.test(user.username)) {
+        if (!/^[a-z0-9_\-]+$/i.test(user.username)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserUsernameValidatorRule.USERNAME_BAD_CHARS_ERROR);
         }
         return new validatorruleresult_1.ValidatorRuleResult(true);

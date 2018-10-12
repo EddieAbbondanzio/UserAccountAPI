@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const uservalidator_1 = require("./uservalidator");
 const usernotdeletedvalidatorrule_1 = require("../rules/usernotdeletedvalidatorrule");
+const validator_1 = require("../../validator");
 /**
  * Validator to check that a user can be deleted.
  */
-class UserDeleteValidator extends uservalidator_1.UserValidator {
+class UserDeleteValidator extends validator_1.Validator {
     /**
      * Create a new user delete validator.
      */

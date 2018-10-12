@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
+const datamodule_1 = require("../../../data/datamodule");
+const authenticationerror_1 = require("../common/authenticationerror");
 /**
  * Business logic for the login portion of the
  * authentication component.
@@ -21,6 +23,8 @@ class LoginHandler extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
+        this.tokenManager = serviceLocator.tokenManager;
+        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
     }
     /**
      * Login a user via their credentials.
@@ -30,7 +34,21 @@ class LoginHandler extends logichandler_1.LogicHandler {
      */
     loginUserViaCredentials(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            let user = yield this.userRepo.findByUsername(username);
+            if (!user) {
+                return null;
+            }
+            //Are they authentic?
+            if (!(yield user.validatePassword(password))) {
+                throw new authenticationerror_1.AuthenticationError('User is not authorized.');
+            }
+            //Issue them a login
+            let login = datamodule_1.UserLogin.generateLogin(user);
+            login.token = yield this.tokenManager.issueToken(user);
+            //Save it
+            yield this.loginRepo.add(login);
+            user.login = login;
+            return user;
         });
     }
     /**
@@ -40,18 +58,31 @@ class LoginHandler extends logichandler_1.LogicHandler {
      */
     loginUserViaToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
-            return null;
+            let payLoad = yield this.tokenManager.verifyToken(token);
+            let user = yield this.userRepo.findById(payLoad.userId);
+            //Issue them a login
+            let login = datamodule_1.UserLogin.generateLogin(user);
+            login.token = yield this.tokenManager.issueToken(user);
+            //Save it
+            yield this.loginRepo.add(login);
+            user.login = login;
+            return user;
         });
     }
     /**
      * Log out a user that is currently logged in.
-     * @param username The username to log out.
-     * @param loginGuid Their login guid to use.
+     * @param user The username to log out.
      * @returns True if logged out.
      */
-    logoutUser(username, loginGuid) {
+    logoutUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return false;
+            if (!user.login) {
+                throw new Error('User is not logged in!');
+            }
+            //Delete it from the db
+            let success = yield this.loginRepo.delete(user.login);
+            user.login = null;
+            return success;
         });
     }
 }

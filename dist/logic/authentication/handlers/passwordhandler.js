@@ -40,16 +40,14 @@ class PasswordHandler extends logichandler_1.LogicHandler {
             //Need to pull in the reset token for them.
             let resetToken = yield this.resetTokenRepo.findByUser(user);
             if (resetToken && resetToken.code == resetCode) {
-                user.setPassword(newPassword);
+                yield user.setPassword(newPassword);
                 //Don't want to fail to update the user but revoke their reset token.
                 return yield this.transaction(function (manager) {
                     return __awaiter(this, void 0, void 0, function* () {
                         let rTokenRepo = manager.getCustomRepository(datamodule_1.ResetTokenRespository);
                         let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
-                        let deleteResult = rTokenRepo.delete(resetToken, manager);
-                        let updateResult = userRepo.updatePassword(user, manager);
-                        yield Promise.all([deleteResult, updateResult]);
-                        return deleteResult;
+                        yield Promise.all([rTokenRepo.delete(resetToken, manager), userRepo.updatePassword(user, manager)]);
+                        return true;
                     });
                 });
             }
@@ -72,7 +70,8 @@ class PasswordHandler extends logichandler_1.LogicHandler {
             if (!(yield user.validatePassword(currPassword))) {
                 throw new authenticationerror_1.AuthenticationError('Invalid password.');
             }
-            user.setPassword(newPassword);
+            //Gotta update the password before we can update the user in the db.
+            yield user.setPassword(newPassword);
             yield this.userRepo.updatePassword(user);
             return false;
         });

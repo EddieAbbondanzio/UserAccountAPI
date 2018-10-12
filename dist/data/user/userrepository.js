@@ -165,6 +165,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
                 .set({
                 name: user.name,
                 email: user.email,
+                isVerified: user.isVerified
             })
                 .where('id = :id', { id: user.id })
                 .execute();

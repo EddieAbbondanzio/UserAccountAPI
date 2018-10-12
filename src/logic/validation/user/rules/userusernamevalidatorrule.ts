@@ -36,7 +36,7 @@ export class UserUsernameValidatorRule implements IValidatorRule<User> {
         }
 
         //Valid characters?
-        if(!/^[-\w\_]$/.test(user.username)) {
+        if(!/^[a-z0-9_\-]+$/i.test(user.username)) {
             return new ValidatorRuleResult(false, UserUsernameValidatorRule.USERNAME_BAD_CHARS_ERROR);
         }
 

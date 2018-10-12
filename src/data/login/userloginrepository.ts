@@ -57,6 +57,35 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> {
 
         let loginRepo: Repository<UserLogin> = transactionManager ? transactionManager.getRepository(UserLogin) : this.repository;
         let result: DeleteResult = await loginRepo.delete(userlogin);
+        return result.raw.affectedRowCount == 1;
+    }
+
+    /**
+     * Remove an existing login from the database via it's id.
+     * @param id The login id to look for.
+     * @param transactionManager The transaction manager to use when a database
+     * transaction is in progress.
+     * @returns True if no errors.
+     */
+    public async deleteById(id: number, transactionManager?: EntityManager): Promise<boolean> {
+        if(isNaN){
+            throw new Error('Invalid id passed.');
+        }
+
+        let result: DeleteResult;
+
+        if(transactionManager){
+            result = await transactionManager.createQueryBuilder()
+            .delete()
+            .where('id = :id', {id: id})
+            .execute();
+        }
+        else{
+            result = await this.repository.createQueryBuilder()
+            .delete()
+            .where('id = :id', {id: id})
+            .execute();
+        }
 
         return result.raw.affectedRowCount == 1;
     }

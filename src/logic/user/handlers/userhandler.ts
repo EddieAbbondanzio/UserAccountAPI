@@ -93,15 +93,14 @@ export class UserHandler extends LogicHandler {
         if(!user || isNaN(user.id)){
             throw new Error('No user passed in, or user has no id.');
         }
-        else {
-            let validatorResult: ValidatorResult = this.updateValidator.validate(user);
+        
+        let validatorResult: ValidatorResult = this.updateValidator.validate(user);
 
-            if(!validatorResult.isValid){
-                throw new ValidationError('Failed to update user.', validatorResult);
-            }
-            
-            return this.userRepo.update(user);
+        if(!validatorResult.isValid){
+            throw new ValidationError('Failed to update user.', validatorResult);
         }
+        
+        return this.userRepo.update(user);
     }
 
     /**
@@ -113,14 +112,13 @@ export class UserHandler extends LogicHandler {
         if(!user || isNaN(user.id)){
             throw new Error('No user passed in, or user has no id.');
         }
-        else {
-            let validatorResult: ValidatorResult = this.deleteValidator.validate(user);
 
-            if(!validatorResult.isValid){
-                throw new ValidationError('Failed to delete user.', validatorResult);
-            }
+        let validatorResult: ValidatorResult = this.deleteValidator.validate(user);
 
-            return this.userRepo.delete(user);
+        if(!validatorResult.isValid){
+            throw new ValidationError('Failed to delete user.', validatorResult);
         }
+
+        return this.userRepo.delete(user);
     }
 }

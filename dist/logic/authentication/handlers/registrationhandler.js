@@ -11,7 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
 const datamodule_1 = require("../../../data/datamodule");
 const textemail_1 = require("../../services/email/types/textemail");
-const stringutils_1 = require("../../../util/stringutils");
+const usercreatevalidator_1 = require("../../validation/user/validators/usercreatevalidator");
+const validationerror_1 = require("../../validation/validationerror");
 /**
  * Business logic for the registration portion of the
  * authentication component.
@@ -26,6 +27,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
         super(connection, serviceLocator);
         this.emailService = serviceLocator.emailService;
         this.tokenManager = serviceLocator.tokenManager;
+        this.userCreateValidator = new usercreatevalidator_1.UserCreateValidator();
     }
     /**
      * Register a new user with the system. This will
@@ -35,14 +37,19 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
      */
     registerNewUser(registration) {
         return __awaiter(this, void 0, void 0, function* () {
-            // if(!registration || !registration.validate()){
-            //     return null;
-            // }
-            try {
-                let user = yield datamodule_1.User.fromRegistration(registration);
-                var vToken;
-                yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                    //First insert the user
+            if (!registration) {
+                throw new Error('No registration passed in.');
+            }
+            let user = yield datamodule_1.User.fromRegistration(registration);
+            let vToken;
+            //Is the user even valid?
+            let validatorResult = this.userCreateValidator.validate(user);
+            if (!validatorResult.isValid) {
+                throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
+            }
+            //Attempt to generate the user's verification token + login, and store them in the DB.
+            yield this.transaction(function (manager) {
+                return __awaiter(this, void 0, void 0, function* () {
                     let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
                     yield userRepo.add(user);
                     //Now generate a validation token.
@@ -56,26 +63,23 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
                     yield loginRepo.add(login);
                     //Set their login, and get ready to return things.
                     user.login = login;
-                }));
-                yield this.sendValiditionEmail(user, vToken);
-                return user;
-            }
-            catch (error) {
-                console.log('Failed to register new user: ', error);
-                return null;
-            }
+                });
+            });
+            //Send them the email
+            yield this.sendVerificationEmail(user, vToken);
+            return user;
         });
     }
     /**
-     * Validate a user's email by checking the validation code they gave us.
+     * Verify a user's email by checking the validation code they gave us.
      * @param user The user whos email we need to validate.
-     * @param validationCode The validation code they provided.
+     * @param verificationCode The validation code they provided.
      * @returns True if the code was valid.
      */
-    validateUserEmail(user, validationCode) {
+    verifyUserEmail(user, verificationCode) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user || stringutils_1.StringUtils.isBlank(validationCode)) {
-                return false;
+            if (!user) {
+                throw new Error('No user passed in.');
             }
             //Is user already validated?
             if (user.isVerified) {
@@ -84,7 +88,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             let vTokenRepo = this.connection.getCustomRepository(datamodule_1.VerificationTokenRepository);
             let vToken = yield vTokenRepo.findByUser(user);
             //Not found, or bad match
-            if (!vToken || vToken.code === validationCode) {
+            if (!vToken || vToken.code === verificationCode) {
                 return false;
             }
             else {
@@ -104,10 +108,14 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
      * @param user The user to re email.
      * @returns True if no error.
      */
-    resendValidationCode(user) {
+    resendVerificationEmail(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user || user.isVerified) {
-                return false;
+            if (!user) {
+                throw new Error('No user passed in.');
+            }
+            //User has already been verified.
+            if (user.isVerified) {
+                return true;
             }
             let vTokenRepo = this.connection.getCustomRepository(datamodule_1.VerificationTokenRepository);
             let vToken = yield vTokenRepo.findByUser(user);
@@ -115,10 +123,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             if (!vToken) {
                 return false;
             }
-            else {
-                yield this.sendValiditionEmail(user, vToken);
-                return true;
-            }
+            return this.sendVerificationEmail(user, vToken);
         });
     }
     /**
@@ -126,10 +131,10 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
      * @param user The user to re email.
      * @param vToken Their validation code.
      */
-    sendValiditionEmail(user, vToken) {
+    sendVerificationEmail(user, vToken) {
         return __awaiter(this, void 0, void 0, function* () {
             let validationEmail = new textemail_1.TextEmail(user.email, "No Man's Blocks Account Confirmation.", "Thanks for joining! Your confirmation code is: " + vToken.code);
-            yield this.emailService.sendEmail(validationEmail);
+            return this.emailService.sendEmail(validationEmail);
         });
     }
 }

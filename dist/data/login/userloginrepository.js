@@ -71,6 +71,34 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
             return result.raw.affectedRowCount == 1;
         });
     }
+    /**
+     * Remove an existing login from the database via it's id.
+     * @param id The login id to look for.
+     * @param transactionManager The transaction manager to use when a database
+     * transaction is in progress.
+     * @returns True if no errors.
+     */
+    deleteById(id, transactionManager) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (isNaN) {
+                throw new Error('Invalid id passed.');
+            }
+            let result;
+            if (transactionManager) {
+                result = yield transactionManager.createQueryBuilder()
+                    .delete()
+                    .where('id = :id', { id: id })
+                    .execute();
+            }
+            else {
+                result = yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('id = :id', { id: id })
+                    .execute();
+            }
+            return result.raw.affectedRowCount == 1;
+        });
+    }
 };
 UserLoginRepository = __decorate([
     typeorm_1.EntityRepository(userlogin_1.UserLogin)

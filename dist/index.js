@@ -12,6 +12,7 @@ const server_1 = require("./server/server");
 const datacontext_1 = require("./data/datacontext");
 const servicelocator_1 = require("./logic/servicelocator");
 const datamodule_1 = require("./data/datamodule");
+const registrationhandler_1 = require("./logic/authentication/handlers/registrationhandler");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -27,8 +28,14 @@ function initialize() {
             //Spin up the server. This takes and handles the 
             //HTTP Requests clients make.
             const server = new server_1.Server(serviceLocator);
-            let userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
-            // serviceLocator.authService.registerNewUser(userReg);
+            let userReg = new datamodule_1.UserRegistration();
+            userReg.email = 'eddieabb95@gmail.com';
+            userReg.name = 'Eddie Abbondanzio';
+            userReg.password = 'testpassword';
+            userReg.username = 'EddieAbb95';
+            let regHandler = new registrationhandler_1.RegistrationHandler(connection, serviceLocator);
+            let user = yield regHandler.registerNewUser(userReg);
+            console.log(user);
             console.log('Server ready...');
         }
         catch (error) {

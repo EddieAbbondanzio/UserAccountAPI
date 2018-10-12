@@ -2,6 +2,7 @@ import { Server } from './server/server';
 import { DataContext } from './data/datacontext';
 import { ServiceLocator } from './logic/servicelocator';
 import { UserRegistration, UserRepository, User, UserStats } from './data/datamodule';
+import { RegistrationHandler } from './logic/authentication/handlers/registrationhandler';
 
 /**
  * Initialize the application for use. This first starts
@@ -20,13 +21,19 @@ async function initialize() {
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
 
-    let userRepo = connection.getCustomRepository(UserRepository)
 
+    let userReg: UserRegistration = new UserRegistration();
+    userReg.email = 'eddieabb95@gmail.com';
+    userReg.name = 'Eddie Abbondanzio';
+    userReg.password = 'testpassword';
+    userReg.username = 'EddieAbb95';
 
+    let regHandler: RegistrationHandler = new RegistrationHandler(connection, serviceLocator);
+    let user = await regHandler.registerNewUser(userReg);
 
+    console.log(user)
     
 
-    // serviceLocator.authService.registerNewUser(userReg);
 
     console.log('Server ready...');
   }
