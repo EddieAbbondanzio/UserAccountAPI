@@ -51,7 +51,7 @@ export class PasswordHandler extends LogicHandler {
             await user.setPassword(newPassword);
 
             //Don't want to fail to update the user but revoke their reset token.
-            return await this.transaction(async function(manager: EntityManager): Promise<boolean> {
+            return await this.transaction(async (manager: EntityManager): Promise<boolean> => {
                 let rTokenRepo: ResetTokenRespository = manager.getCustomRepository(ResetTokenRespository);
                 let userRepo: UserRepository          = manager.getCustomRepository(UserRepository);
 

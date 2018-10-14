@@ -42,14 +42,12 @@ class PasswordHandler extends logichandler_1.LogicHandler {
             if (resetToken && resetToken.code == resetCode) {
                 yield user.setPassword(newPassword);
                 //Don't want to fail to update the user but revoke their reset token.
-                return yield this.transaction(function (manager) {
-                    return __awaiter(this, void 0, void 0, function* () {
-                        let rTokenRepo = manager.getCustomRepository(datamodule_1.ResetTokenRespository);
-                        let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
-                        yield Promise.all([rTokenRepo.delete(resetToken, manager), userRepo.updatePassword(user, manager)]);
-                        return true;
-                    });
-                });
+                return yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                    let rTokenRepo = manager.getCustomRepository(datamodule_1.ResetTokenRespository);
+                    let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                    yield Promise.all([rTokenRepo.delete(resetToken, manager), userRepo.updatePassword(user, manager)]);
+                    return true;
+                }));
             }
             return false;
         });

@@ -3,6 +3,9 @@ import { DataContext } from './data/datacontext';
 import { ServiceLocator } from './logic/servicelocator';
 import { UserRegistration, UserRepository, User, UserStats } from './data/datamodule';
 import { RegistrationHandler } from './logic/authentication/handlers/registrationhandler';
+import { UserComponent } from './logic/user/usercomponent';
+import { AuthenticationComponent } from './logic/authentication/authenticationcomponent';
+import * as DotEnv from 'dotenv';
 
 /**
  * Initialize the application for use. This first starts
@@ -11,6 +14,9 @@ import { RegistrationHandler } from './logic/authentication/handlers/registratio
  */
 async function initialize() {
   try {
+    //Pull in env vars
+    DotEnv.config();
+
     //Get the data connection ready to roll.
     const connection = await DataContext.initializeDatabaseAsync();
 
@@ -21,19 +27,12 @@ async function initialize() {
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
 
+    let userComp = new UserComponent(connection, serviceLocator);
+    let authComp = new AuthenticationComponent(connection, serviceLocator);
+    let user = await userComp.userHandler.findByUsername('EddieAbb95')
 
-    let userReg: UserRegistration = new UserRegistration();
-    userReg.email = 'eddieabb95@gmail.com';
-    userReg.name = 'Eddie Abbondanzio';
-    userReg.password = 'testpassword';
-    userReg.username = 'EddieAbb95';
-
-    let regHandler: RegistrationHandler = new RegistrationHandler(connection, serviceLocator);
-    let user = await regHandler.registerNewUser(userReg);
 
     console.log(user)
-    
-
 
     console.log('Server ready...');
   }

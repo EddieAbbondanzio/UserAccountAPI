@@ -52,7 +52,7 @@ export class RecoveryHandler extends LogicHandler {
      */
     public async emailUserResetToken(username: string): Promise<void> {
         let userRepo = this.connection.getCustomRepository(UserRepository);
-        let user: User = await userRepo.findByEmail(username);
+        let user: User = await userRepo.findByUsername(username);
 
         //Only send an email if a user was found.
         if(user){

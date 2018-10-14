@@ -65,8 +65,7 @@ export class RegistrationHandler extends LogicHandler {
             throw new ValidationError('Failed to register new user.', validatorResult);
         }
 
-        //Attempt to generate the user's verification token + login, and store them in the DB.
-        await this.transaction(async function(manager: EntityManager): Promise<void> {
+        await this.transaction(async (manager: EntityManager): Promise<void> => {
             let userRepo: UserRepository = manager.getCustomRepository(UserRepository);
             await userRepo.add(user);
 
@@ -111,14 +110,14 @@ export class RegistrationHandler extends LogicHandler {
         let vToken: VerificationToken = await vTokenRepo.findByUser(user);
 
         //Not found, or bad match
-        if(!vToken || vToken.code === verificationCode){
+        if(!vToken || vToken.code !== verificationCode){
             return false;
         }
         else {
             user.isVerified = true;
         }
         
-        this.transaction(async manager => {
+        await this.transaction(async (manager): Promise<void> => {
             let userRepo: UserRepository = manager.getCustomRepository(UserRepository);
             let tokenRepo: VerificationTokenRepository = manager.getCustomRepository(VerificationTokenRepository);
 

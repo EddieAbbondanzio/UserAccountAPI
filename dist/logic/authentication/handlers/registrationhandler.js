@@ -47,24 +47,21 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             if (!validatorResult.isValid) {
                 throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
             }
-            //Attempt to generate the user's verification token + login, and store them in the DB.
-            yield this.transaction(function (manager) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
-                    yield userRepo.add(user);
-                    //Now generate a validation token.
-                    vToken = datamodule_1.VerificationToken.generateToken(user);
-                    let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
-                    yield tokenRepo.add(vToken);
-                    //Issue a login for the user
-                    let loginRepo = manager.getCustomRepository(datamodule_1.UserLoginRepository);
-                    let login = datamodule_1.UserLogin.generateLogin(user);
-                    login.token = yield this.tokenManager.issueToken(user);
-                    yield loginRepo.add(login);
-                    //Set their login, and get ready to return things.
-                    user.login = login;
-                });
-            });
+            yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+                let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                yield userRepo.add(user);
+                //Now generate a validation token.
+                vToken = datamodule_1.VerificationToken.generateToken(user);
+                let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
+                yield tokenRepo.add(vToken);
+                //Issue a login for the user
+                let loginRepo = manager.getCustomRepository(datamodule_1.UserLoginRepository);
+                let login = datamodule_1.UserLogin.generateLogin(user);
+                login.token = yield this.tokenManager.issueToken(user);
+                yield loginRepo.add(login);
+                //Set their login, and get ready to return things.
+                user.login = login;
+            }));
             //Send them the email
             yield this.sendVerificationEmail(user, vToken);
             return user;
@@ -88,13 +85,13 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             let vTokenRepo = this.connection.getCustomRepository(datamodule_1.VerificationTokenRepository);
             let vToken = yield vTokenRepo.findByUser(user);
             //Not found, or bad match
-            if (!vToken || vToken.code === verificationCode) {
+            if (!vToken || vToken.code !== verificationCode) {
                 return false;
             }
             else {
                 user.isVerified = true;
             }
-            this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
+            yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
                 let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
                 let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
                 yield Promise.all([userRepo.update(user), tokenRepo.delete(vToken)]);

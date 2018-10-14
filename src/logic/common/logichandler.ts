@@ -29,7 +29,9 @@ export abstract class LogicHandler {
     }
 
     /**
-     * Execute a database job within a transaction.
+     * Execute a database job within a transaction. If you need to keep
+     * this focused on the executing context be sure to pass this as an
+     * arrow function.
      * @param job The job to execute.
      */
     protected async transaction<T>(job: TransactionJob<T>) {

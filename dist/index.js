@@ -11,8 +11,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("./server/server");
 const datacontext_1 = require("./data/datacontext");
 const servicelocator_1 = require("./logic/servicelocator");
-const datamodule_1 = require("./data/datamodule");
-const registrationhandler_1 = require("./logic/authentication/handlers/registrationhandler");
+const usercomponent_1 = require("./logic/user/usercomponent");
+const authenticationcomponent_1 = require("./logic/authentication/authenticationcomponent");
+const DotEnv = require("dotenv");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -21,6 +22,8 @@ const registrationhandler_1 = require("./logic/authentication/handlers/registrat
 function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            //Pull in env vars
+            DotEnv.config();
             //Get the data connection ready to roll.
             const connection = yield datacontext_1.DataContext.initializeDatabaseAsync();
             // Set up the logic layer for use.
@@ -28,13 +31,9 @@ function initialize() {
             //Spin up the server. This takes and handles the 
             //HTTP Requests clients make.
             const server = new server_1.Server(serviceLocator);
-            let userReg = new datamodule_1.UserRegistration();
-            userReg.email = 'eddieabb95@gmail.com';
-            userReg.name = 'Eddie Abbondanzio';
-            userReg.password = 'testpassword';
-            userReg.username = 'EddieAbb95';
-            let regHandler = new registrationhandler_1.RegistrationHandler(connection, serviceLocator);
-            let user = yield regHandler.registerNewUser(userReg);
+            let userComp = new usercomponent_1.UserComponent(connection, serviceLocator);
+            let authComp = new authenticationcomponent_1.AuthenticationComponent(connection, serviceLocator);
+            let user = yield userComp.userHandler.findByUsername('EddieAbb95');
             console.log(user);
             console.log('Server ready...');
         }

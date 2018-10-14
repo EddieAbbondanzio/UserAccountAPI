@@ -47,7 +47,7 @@ class RecoveryHandler extends logichandler_1.LogicHandler {
     emailUserResetToken(username) {
         return __awaiter(this, void 0, void 0, function* () {
             let userRepo = this.connection.getCustomRepository(datamodule_1.UserRepository);
-            let user = yield userRepo.findByEmail(username);
+            let user = yield userRepo.findByUsername(username);
             //Only send an email if a user was found.
             if (user) {
                 //Generate them a reset token.
