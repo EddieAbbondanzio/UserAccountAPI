@@ -23,17 +23,19 @@ export class ZohoEmailService implements IEmailService {
 
     /**
      * Create a new email service
-     * @param emailCredentials Username and passwords.
+     * @param username The email username
+     * @param password The email password.
      */
-    constructor(emailCredentials: EmailCredentials){
+    constructor(username: string, password: string){
+        this.credentials = new EmailCredentials(username, password)
+
         this.transporter = NodeMailer.createTransport({
             host: 'smtp.zoho.com',
             port: 465,
             secure: true,
-            auth: emailCredentials
+            auth: this.credentials
         });
 
-        this.credentials = emailCredentials;
     }
 
     /**

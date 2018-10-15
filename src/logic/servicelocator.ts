@@ -3,7 +3,6 @@ import { Connection } from "typeorm";
 import { IEmailService } from "./services/email/iemailservice";
 import { ZohoEmailService } from "./services/email/zohoemailservice";
 import { EmailCredentials } from "./services/email/emailcredentials";
-import { Secret } from "../secret";
 import { TokenManager } from "./authentication/common/tokenmanager";
 
 /**
@@ -27,7 +26,7 @@ export class ServiceLocator implements IServiceLocator {
      * @param dbConnection The connection to the database.
      */
     constructor(dbConnection: Connection) {
-        this.emailService = new ZohoEmailService(Secret.EMAIL_CREDENTIALS);
-        this.tokenManager = new TokenManager(Secret.TOKEN_SECRET_KEY);
+        this.emailService = new ZohoEmailService(process.env.EMAIL_USERNAME, process.env.EMAIL_PASSWORD);
+        this.tokenManager = new TokenManager(process.env.TOKEN_SECRET_KEY);
     }
 }

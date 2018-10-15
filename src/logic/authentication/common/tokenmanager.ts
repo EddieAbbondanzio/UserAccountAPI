@@ -1,6 +1,5 @@
 import * as JWT from 'jsonwebtoken';
 import { UserLogin, User } from '../../../data/datamodule';
-import { Secret } from '../../../secret';
 import { TokenPayload } from './tokenpayload';
 
 /**
@@ -88,7 +87,7 @@ export class TokenManager {
         }
 
         return new Promise<any>((resolve, reject) => {
-            JWT.verify(token, Secret.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+            JWT.verify(token, process.env.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
                 if(error){
                     reject(error);
                 }

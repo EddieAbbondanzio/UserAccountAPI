@@ -15,7 +15,8 @@ export class PasswordHasher {
             return null;
         }
 
-        return await BcryptJS.hash(password, 16);
+        //The # is saltRounds. Currently 10 is default.
+        return await BcryptJS.hash(password, 10);
     }
 
     /**

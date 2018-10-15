@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const NodeMailer = require("nodemailer");
+const emailcredentials_1 = require("./emailcredentials");
 const textemail_1 = require("./types/textemail");
 const htmlemail_1 = require("./types/htmlemail");
 /**
@@ -17,16 +18,17 @@ const htmlemail_1 = require("./types/htmlemail");
 class ZohoEmailService {
     /**
      * Create a new email service
-     * @param emailCredentials Username and passwords.
+     * @param username The email username
+     * @param password The email password.
      */
-    constructor(emailCredentials) {
+    constructor(username, password) {
+        this.credentials = new emailcredentials_1.EmailCredentials(username, password);
         this.transporter = NodeMailer.createTransport({
             host: 'smtp.zoho.com',
             port: 465,
             secure: true,
-            auth: emailCredentials
+            auth: this.credentials
         });
-        this.credentials = emailCredentials;
     }
     /**
      * Send out an email.

@@ -24,7 +24,7 @@ class PasswordHasher {
             if (typeof password !== 'string') {
                 return null;
             }
-            return yield BcryptJS.hash(password, 16);
+            return yield BcryptJS.hash(password, 10);
         });
     }
     /**

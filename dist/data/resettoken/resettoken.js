@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var ResetToken_1;
 const typeorm_1 = require("typeorm");
 const user_1 = require("../user/user");
 const randomutils_1 = require("../../util/randomutils");
@@ -52,6 +53,5 @@ ResetToken = ResetToken_1 = __decorate([
     typeorm_1.Entity({ name: "ResetToken" })
 ], ResetToken);
 exports.ResetToken = ResetToken;
-var ResetToken_1;
 
 //# sourceMappingURL=resettoken.js.map

@@ -1,1 +1,1 @@
-{"version":3,"sources":["../src/logic/authentication/common/authenticationerror.ts"],"names":[],"mappings":";;AACA;;GAEG;AACH,yBAAiC,SAAQ,KAAK;IAC1C;;;OAGG;IACH,YAAY,OAAe;QACvB,KAAK,CAAC,OAAO,CAAC,CAAC;IACnB,CAAC;CACJ;AARD,kDAQC","file":"authenticationerror.js","sourceRoot":"../../../"}
+{"version":3,"sources":["../src/logic/authentication/common/authenticationerror.ts"],"names":[],"mappings":";;AACA;;GAEG;AACH,MAAa,mBAAoB,SAAQ,KAAK;IAC1C;;;OAGG;IACH,YAAY,OAAe;QACvB,KAAK,CAAC,OAAO,CAAC,CAAC;IACnB,CAAC;CACJ;AARD,kDAQC","file":"authenticationerror.js","sourceRoot":"../../../"}

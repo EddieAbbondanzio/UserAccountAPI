@@ -4,5 +4,4 @@ build/
 tmp/
 temp/
 ormconfig.json
-src/secret.ts
 *.env

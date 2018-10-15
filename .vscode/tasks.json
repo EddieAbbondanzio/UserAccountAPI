@@ -24,6 +24,14 @@
             ]
         },
         {
+            "label": "Run Unit Tests",
+            "type": "shell",
+            "command": "npm test",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
             "label": "Clear",
             "type": "shell",
             "command": "clear",

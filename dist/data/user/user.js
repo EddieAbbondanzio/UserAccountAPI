@@ -17,6 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var User_1;
 const typeorm_1 = require("typeorm");
 const userstats_1 = require("./userstats");
 const userlogin_1 = require("../login/userlogin");
@@ -131,6 +132,5 @@ User = User_1 = __decorate([
     typeorm_1.Entity({ name: "User" })
 ], User);
 exports.User = User;
-var User_1;
 
 //# sourceMappingURL=user.js.map

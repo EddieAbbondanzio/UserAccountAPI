@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const JWT = require("jsonwebtoken");
-const secret_1 = require("../../../secret");
 const tokenpayload_1 = require("./tokenpayload");
 /**
  * Handles issuing and verifying jwt tokens to users. Use
@@ -70,7 +69,7 @@ class TokenManager {
                 throw new Error('AuthenticationService.issueToken(): No token passed in!');
             }
             return new Promise((resolve, reject) => {
-                JWT.verify(token, secret_1.Secret.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+                JWT.verify(token, process.env.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
                     if (error) {
                         reject(error);
                     }
