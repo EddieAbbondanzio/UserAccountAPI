@@ -28,7 +28,10 @@ var StringUtils;
      * @param str The string to test.
      */
     function isAlphanumeric(str) {
-        return (str && /^[a-z0-9]+$/i.test(str));
+        if (str) {
+            return /^[a-z0-9]+$/i.test(str);
+        }
+        return false;
     }
     StringUtils.isAlphanumeric = isAlphanumeric;
 })(StringUtils = exports.StringUtils || (exports.StringUtils = {}));

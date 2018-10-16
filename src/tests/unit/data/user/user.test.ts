@@ -16,7 +16,7 @@ describe('Users', () => {
     beforeEach(() => {
         user = new User();
     });
-
+    
     /**
      * Typeorm doesn't want any values defaulted
      * when creating a new instance.
@@ -67,7 +67,7 @@ describe('Users', () => {
      */
     test('Initialized with an isDeleted of undefined.', () => {
         expect(user.isDeleted).toBeUndefined();
-    });
+});
 
     /**
      * Passwords shorter than the min length will throw an

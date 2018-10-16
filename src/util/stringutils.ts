@@ -26,6 +26,10 @@ export module StringUtils {
      * @param str The string to test.
      */
     export function isAlphanumeric(str: string):boolean {
-        return (str && /^[a-z0-9]+$/i.test(str));
+        if(str){
+            return /^[a-z0-9]+$/i.test(str);
+        }
+
+        return false;
     }
 }
