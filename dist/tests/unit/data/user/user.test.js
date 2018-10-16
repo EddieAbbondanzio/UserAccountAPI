@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("jest");
-const user_1 = require("../../data/user/user");
+const user_1 = require("../../../../data/user/user");
 /**
  * Test module for the user data model.
  */

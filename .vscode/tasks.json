@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Transpile Typescript",
+            "label": "Build",
             "type": "shell",
             "command": "npm run build",
             "problemMatcher": [
@@ -16,7 +16,7 @@
             }
         },
         {
-            "label": "Start Server",
+            "label": "Start",
             "type": "shell",
             "command": "npm start",
             "problemMatcher": [
@@ -24,9 +24,25 @@
             ]
         },
         {
-            "label": "Run Unit Tests",
+            "label": "Test: All",
             "type": "shell",
             "command": "npm test",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
+            "label": "Test: Unit",
+            "type": "shell",
+            "command": "npm test --path ./src/tests/unit",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
+            "label": "Test: Integration",
+            "type": "shell",
+            "command": "npm test --path ./src/tests/integration",
             "problemMatcher": [
                 "$node-sass"
             ]

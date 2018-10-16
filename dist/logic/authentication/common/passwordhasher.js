@@ -24,6 +24,7 @@ class PasswordHasher {
             if (typeof password !== 'string') {
                 return null;
             }
+            //The # is saltRounds. Currently 10 is default.
             return yield BcryptJS.hash(password, 10);
         });
     }

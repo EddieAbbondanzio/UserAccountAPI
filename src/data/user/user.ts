@@ -67,7 +67,7 @@ export class User {
      * The email of the user. This is optional and
      * therefore can be null.
      */
-    @Column("char", { length: User.MAX_EMAIL_LENGTH})
+    @Column("char", { length: User.MAX_EMAIL_LENGTH, unique: true})
     public email: string;
     
     /**
@@ -103,7 +103,7 @@ export class User {
      */
     public async setPassword(password: string): Promise<void> {
         if(password.length < User.MIN_PASSWORD_LENGTH){
-            throw new Error("Password is too short!");
+            throw new Error('Password is too short!');
         }
 
         this.passwordHash = await PasswordHasher.generateHash(password);

@@ -120,11 +120,18 @@ export class UserRepository extends AbstractRepository<User> {
 
         //Deleted users still reserve their username since we 
         //don't want any copy cats.
-        let foundCount: number = await userRepo.createQueryBuilder()
+        let usernameCount: number = await userRepo.createQueryBuilder()
         .select()
         .where('LOWER(username) = LOWER(:username)', user).getCount();
 
-        if(foundCount > 0){
+        //Check to ensure the email isn't being used by someone else.
+        let emailCount: number = await this.repository.createQueryBuilder()
+        .select()
+        .where('email = :email', user)
+        .andWhere('deleted = FALSE')
+        .getCount();
+
+        if(usernameCount || emailCount){
             return false;
         }
 
@@ -218,7 +225,7 @@ export class UserRepository extends AbstractRepository<User> {
     /**
      * Checks if a username is free for use.
      * @param username The username to check for availability.
-     * @returns {Promise<boolean>} True if the username is free
+     * @returns True if the username is free
      * for the grabbing.
      */
     public async isUsernameAvailable(username: string):Promise<boolean> {
@@ -227,11 +234,30 @@ export class UserRepository extends AbstractRepository<User> {
         }
 
         //Deleted users still reserve their username
-        let foundCount = await this.repository.createQueryBuilder()
+        let foundCount: number = await this.repository.createQueryBuilder()
         .select()
         .where('LOWER(username) = LOWER(:username)', {username: username})
         .getCount();
 
         return foundCount == 0;
+    }
+
+    /**
+     * Checks if an email is in use by a user in the database.
+     * @param email The email to check.
+     * @returns True if the email exists.
+     */
+    public async isEmailInUse(email: string): Promise<boolean> {
+        if(!email){
+            return false;
+        }
+
+        let foundCount: number = await this.repository.createQueryBuilder()
+        .select()
+        .where('email = :email', {email: email})
+        .andWhere('deleted = FALSE')
+        .getCount();
+
+        return foundCount == 1;
     }
 }

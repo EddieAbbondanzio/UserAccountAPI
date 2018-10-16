@@ -29,4 +29,18 @@ export class UserRegistration {
      * their password.
      */
     public email: string;
+
+    /**
+     * Create a new UserRegistration.
+     * @param username The username the user wants.
+     * @param password Their desired password. (Pre-hash)
+     * @param name Their actual name.
+     * @param email Their contact email.
+     */
+    constructor(username?: string, password?: string, name?: string, email?: string) {
+        this.username = username;
+        this.password = password;
+        this.name  = name;
+        this.email = email;
+    }
 }

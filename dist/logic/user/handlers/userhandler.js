@@ -43,6 +43,20 @@ class UserHandler extends logichandler_1.LogicHandler {
         });
     }
     /**
+     * Check if an email is already in use by a non-deleted
+     * user.
+     * @param email The email to check.
+     * @returns True if the email is being used.
+     */
+    isEmailInUser(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!email) {
+                throw new Error('No email was passed in.');
+            }
+            return this.userRepo.isEmailInUse(email);
+        });
+    }
+    /**
      * Search for a user by their username.
      * @param username The username to look for
      * @param includeDeleted If we should include deleted users in the results.

@@ -35,7 +35,7 @@ let User = User_1 = class User {
     setPassword(password) {
         return __awaiter(this, void 0, void 0, function* () {
             if (password.length < User_1.MIN_PASSWORD_LENGTH) {
-                throw new Error("Password is too short!");
+                throw new Error('Password is too short!');
             }
             this.passwordHash = yield passwordhasher_1.PasswordHasher.generateHash(password);
         });
@@ -109,7 +109,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
-    typeorm_1.Column("char", { length: User_1.MAX_EMAIL_LENGTH }),
+    typeorm_1.Column("char", { length: User_1.MAX_EMAIL_LENGTH, unique: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
