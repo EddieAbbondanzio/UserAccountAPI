@@ -16,6 +16,15 @@ const user_1 = require("./user");
  * points, and counts. Along with their join date.
  */
 let UserStats = class UserStats {
+    /**
+     * Create a new user stats.
+     * @param user The user to create the stats for.
+     */
+    constructor(user) {
+        if (user) {
+            this.user = user;
+        }
+    }
 };
 __decorate([
     typeorm_1.JoinColumn(),
@@ -27,7 +36,8 @@ __decorate([
     __metadata("design:type", Date)
 ], UserStats.prototype, "joinedDate", void 0);
 UserStats = __decorate([
-    typeorm_1.Entity({ name: "UserStats" })
+    typeorm_1.Entity({ name: "UserStats" }),
+    __metadata("design:paramtypes", [user_1.User])
 ], UserStats);
 exports.UserStats = UserStats;
 

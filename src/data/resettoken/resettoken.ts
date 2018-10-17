@@ -12,7 +12,7 @@ export class ResetToken {
     /**
      * The ideal code length for reset tokens.
      */
-    private static CODE_LENGTH: number = 8;
+    public static CODE_LENGTH: number = 8;
 
     /**
      * The unique id of the reset token.
@@ -34,16 +34,13 @@ export class ResetToken {
     public code: string;
 
     /**
-     * Generate a new password reset token for the passed
-     * in user.
-     * @param user The user to generate a token for.
-     * @returns The newly generated token.
+     * Create a new reset token for a user.
+     * @param user The user to create a reset token for.
      */
-    public static generateToken(user: User): ResetToken {
-        let rToken = new ResetToken();
-        rToken.user = user;
-        rToken.code = RandomUtils.generateRandomString(ResetToken.CODE_LENGTH);
-
-        return rToken;
+    constructor(user?: User){
+        if(user){
+            this.user = user;
+            this.code = RandomUtils.generateRandomString(ResetToken.CODE_LENGTH);
+        }
     }
 }

@@ -21,4 +21,14 @@ export class UserStats {
      */
     @Column("datetime", {default: () => 'CURRENT_TIMESTAMP'})
     public joinedDate: Date;
+
+    /**
+     * Create a new user stats.
+     * @param user The user to create the stats for.
+     */
+    constructor(user?: User){
+        if(user){
+            this.user = user;
+        }
+    }
 }

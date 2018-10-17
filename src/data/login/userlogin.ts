@@ -12,7 +12,7 @@ export class UserLogin {
     /**
      * The ideal code length for the unique code.
      */
-    private static CODE_LENGTH: number = 16;
+    public static CODE_LENGTH: number = 16;
 
     /**
      * Database table index for the login. This 
@@ -50,15 +50,13 @@ export class UserLogin {
     public loginDate: Date;
 
     /**
-     * Generate a new login that has a unique GUID
-     * associated with it.
-     * @param user The user to build a login for.
+     * Create a new user login.
+     * @param user The user to create a login for.
      */
-    public static generateLogin(user: User): UserLogin {
-        let userLogin  = new UserLogin();
-        userLogin.user = user;
-        userLogin.code = RandomUtils.generateRandomString(UserLogin.CODE_LENGTH);
-
-        return userLogin;
+    constructor(user?: User){
+        if(user){
+            this.user = user;
+            this.code = RandomUtils.generateRandomString(UserLogin.CODE_LENGTH);
+        }
     }
 } 

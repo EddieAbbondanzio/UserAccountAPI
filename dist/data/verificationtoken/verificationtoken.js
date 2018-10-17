@@ -19,16 +19,11 @@ const randomutils_1 = require("../../util/randomutils");
  * unless they have a valid email.
  */
 let VerificationToken = VerificationToken_1 = class VerificationToken {
-    /**
-     * Generate a new validation token.
-     * @param user The user to generate a token for.
-     * @returns The newly generated token.
-     */
-    static generateToken(user) {
-        let vToken = new VerificationToken_1();
-        vToken.user = user;
-        vToken.code = randomutils_1.RandomUtils.generateRandomString(VerificationToken_1.CODE_LENGTH);
-        return vToken;
+    constructor(user) {
+        if (user) {
+            this.user = user;
+            this.code = randomutils_1.RandomUtils.generateRandomString(VerificationToken_1.CODE_LENGTH);
+        }
     }
 };
 /**
@@ -49,7 +44,8 @@ __decorate([
     __metadata("design:type", String)
 ], VerificationToken.prototype, "code", void 0);
 VerificationToken = VerificationToken_1 = __decorate([
-    typeorm_1.Entity({ name: "VerificationToken" })
+    typeorm_1.Entity({ name: "VerificationToken" }),
+    __metadata("design:paramtypes", [user_1.User])
 ], VerificationToken);
 exports.VerificationToken = VerificationToken;
 

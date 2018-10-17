@@ -20,15 +20,14 @@ const randomutils_1 = require("../../util/randomutils");
  */
 let UserLogin = UserLogin_1 = class UserLogin {
     /**
-     * Generate a new login that has a unique GUID
-     * associated with it.
-     * @param user The user to build a login for.
+     * Create a new user login.
+     * @param user The user to create a login for.
      */
-    static generateLogin(user) {
-        let userLogin = new UserLogin_1();
-        userLogin.user = user;
-        userLogin.code = randomutils_1.RandomUtils.generateRandomString(UserLogin_1.CODE_LENGTH);
-        return userLogin;
+    constructor(user) {
+        if (user) {
+            this.user = user;
+            this.code = randomutils_1.RandomUtils.generateRandomString(UserLogin_1.CODE_LENGTH);
+        }
     }
 };
 /**
@@ -52,7 +51,8 @@ __decorate([
     __metadata("design:type", Date)
 ], UserLogin.prototype, "loginDate", void 0);
 UserLogin = UserLogin_1 = __decorate([
-    typeorm_1.Entity({ name: "UserLogin" })
+    typeorm_1.Entity({ name: "UserLogin" }),
+    __metadata("design:paramtypes", [user_1.User])
 ], UserLogin);
 exports.UserLogin = UserLogin;
 

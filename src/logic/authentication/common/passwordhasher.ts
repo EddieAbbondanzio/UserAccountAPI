@@ -1,18 +1,18 @@
 import * as BcryptJS from 'bcryptjs';
+import { StringUtils } from '../../../util/stringutils';
 
 /**
  * Hasher utility for creating new password hashes and
  * validating passed in passwords.
  */
-export class PasswordHasher {
+export module PasswordHasher {
     /**
      * Generate a new password hash from a passed in hash.
      * @param password The password to hash
      */
-    public static async generateHash(password: string):Promise<string> {
-        //Don't hash an empty or null password.
-        if(typeof password !== 'string'){
-            return null;
+    export async function generateHash(password: string):Promise<string> {
+        if(StringUtils.isBlank(password)){
+            throw new Error('No password, or blank password passed in!');
         }
 
         //The # is saltRounds. Currently 10 is default.
@@ -25,9 +25,9 @@ export class PasswordHasher {
      * @param password The password to hash and check.
      * @param hash The hash to compare against.
      */
-    public static async validateHash(password: string, hash: string):Promise<boolean>{
+    export async function validateHash(password: string, hash: string):Promise<boolean>{
         if(typeof password !== 'string' || typeof hash !== 'string'){
-            return false;
+            throw new Error('Bad password, or hashed passed in!');
         }
         
         return await BcryptJS.compare(password, hash);

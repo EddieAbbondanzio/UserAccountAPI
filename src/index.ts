@@ -21,18 +21,11 @@ async function initialize() {
     const connection = await DataContext.initializeDatabaseAsync();
 
     // Set up the logic layer for use.
-    const serviceLocator = new ServiceLocator(connection);
+    const serviceLocator = new ServiceLocator();
 
     //Spin up the server. This takes and handles the 
     //HTTP Requests clients make.
     const server = new Server(serviceLocator);
-
-    let userComp = new UserComponent(connection, serviceLocator);
-    let authComp = new AuthenticationComponent(connection, serviceLocator);
-    let user = await userComp.userHandler.findByUsername('EddieAbb95')
-
-
-    console.log(user)
 
     console.log('Server ready...');
   }

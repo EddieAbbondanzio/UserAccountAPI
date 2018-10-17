@@ -1,6 +1,7 @@
 import * as JWT from 'jsonwebtoken';
 import { UserLogin, User } from '../../../data/datamodule';
 import { TokenPayload } from './tokenpayload';
+import { StringUtils } from '../../../util/stringutils';
 
 /**
  * Handles issuing and verifying jwt tokens to users. Use
@@ -35,6 +36,10 @@ export class TokenManager {
      * @param secretKey The secret encryption key.
      */
     constructor(secretKey: string) {
+        if(StringUtils.isEmpty(secretKey)){
+            throw new Error('A secret key is required!');
+        }
+
         this.signOptions = {
             algorithm: 'HS256',
             expiresIn: TokenManager.TOKEN_LIFESPAN
@@ -54,8 +59,8 @@ export class TokenManager {
      * @param User The user to issue a token for.
      */
     public async issueToken(user: User):Promise<string> {
-        if(!user){
-            throw new Error('AuthenticationService.issueToken(): No user passed in!');
+        if(!user || isNaN(user.id)){
+            throw new Error('No user passed in, or id is missing!');
         }
 
         //The payload we want to pack in the JWT.
@@ -87,7 +92,7 @@ export class TokenManager {
         }
 
         return new Promise<any>((resolve, reject) => {
-            JWT.verify(token, process.env.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+            JWT.verify(token, this.secretKey, this.verifyOptions, (error, decoded) => {
                 if(error){
                     reject(error);
                 }

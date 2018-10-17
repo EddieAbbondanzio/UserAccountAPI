@@ -20,16 +20,14 @@ const randomutils_1 = require("../../util/randomutils");
  */
 let ResetToken = ResetToken_1 = class ResetToken {
     /**
-     * Generate a new password reset token for the passed
-     * in user.
-     * @param user The user to generate a token for.
-     * @returns The newly generated token.
+     * Create a new reset token for a user.
+     * @param user The user to create a reset token for.
      */
-    static generateToken(user) {
-        let rToken = new ResetToken_1();
-        rToken.user = user;
-        rToken.code = randomutils_1.RandomUtils.generateRandomString(ResetToken_1.CODE_LENGTH);
-        return rToken;
+    constructor(user) {
+        if (user) {
+            this.user = user;
+            this.code = randomutils_1.RandomUtils.generateRandomString(ResetToken_1.CODE_LENGTH);
+        }
     }
 };
 /**
@@ -50,7 +48,8 @@ __decorate([
     __metadata("design:type", String)
 ], ResetToken.prototype, "code", void 0);
 ResetToken = ResetToken_1 = __decorate([
-    typeorm_1.Entity({ name: "ResetToken" })
+    typeorm_1.Entity({ name: "ResetToken" }),
+    __metadata("design:paramtypes", [user_1.User])
 ], ResetToken);
 exports.ResetToken = ResetToken;
 

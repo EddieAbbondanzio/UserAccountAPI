@@ -70,13 +70,13 @@ export class RegistrationHandler extends LogicHandler {
             await userRepo.add(user);
 
             //Now generate a validation token.
-            vToken = VerificationToken.generateToken(user);
+            vToken = new VerificationToken(user);
             let tokenRepo: VerificationTokenRepository = manager.getCustomRepository(VerificationTokenRepository);
             await tokenRepo.add(vToken);
 
             //Issue a login for the user
             let loginRepo: UserLoginRepository = manager.getCustomRepository(UserLoginRepository);
-            let login: UserLogin = UserLogin.generateLogin(user);
+            let login: UserLogin = new UserLogin(user);
             login.token = await this.tokenManager.issueToken(user);
             await loginRepo.add(login);
 

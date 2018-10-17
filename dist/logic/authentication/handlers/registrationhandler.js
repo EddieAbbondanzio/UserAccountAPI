@@ -51,12 +51,12 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
                 let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
                 yield userRepo.add(user);
                 //Now generate a validation token.
-                vToken = datamodule_1.VerificationToken.generateToken(user);
+                vToken = new datamodule_1.VerificationToken(user);
                 let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
                 yield tokenRepo.add(vToken);
                 //Issue a login for the user
                 let loginRepo = manager.getCustomRepository(datamodule_1.UserLoginRepository);
-                let login = datamodule_1.UserLogin.generateLogin(user);
+                let login = new datamodule_1.UserLogin(user);
                 login.token = yield this.tokenManager.issueToken(user);
                 yield loginRepo.add(login);
                 //Set their login, and get ready to return things.

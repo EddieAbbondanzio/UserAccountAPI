@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const JWT = require("jsonwebtoken");
 const tokenpayload_1 = require("./tokenpayload");
+const stringutils_1 = require("../../../util/stringutils");
 /**
  * Handles issuing and verifying jwt tokens to users. Use
  * this with the loginservice, and registerservice for authentication.
@@ -21,6 +22,9 @@ class TokenManager {
      * @param secretKey The secret encryption key.
      */
     constructor(secretKey) {
+        if (stringutils_1.StringUtils.isEmpty(secretKey)) {
+            throw new Error('A secret key is required!');
+        }
         this.signOptions = {
             algorithm: 'HS256',
             expiresIn: TokenManager.TOKEN_LIFESPAN
@@ -38,8 +42,8 @@ class TokenManager {
      */
     issueToken(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('AuthenticationService.issueToken(): No user passed in!');
+            if (!user || isNaN(user.id)) {
+                throw new Error('No user passed in, or id is missing!');
             }
             //The payload we want to pack in the JWT.
             let payload = {
@@ -69,7 +73,7 @@ class TokenManager {
                 throw new Error('AuthenticationService.issueToken(): No token passed in!');
             }
             return new Promise((resolve, reject) => {
-                JWT.verify(token, process.env.TOKEN_SECRET_KEY, this.verifyOptions, (error, decoded) => {
+                JWT.verify(token, this.secretKey, this.verifyOptions, (error, decoded) => {
                     if (error) {
                         reject(error);
                     }

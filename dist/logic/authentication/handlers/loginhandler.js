@@ -43,7 +43,7 @@ class LoginHandler extends logichandler_1.LogicHandler {
                 throw new authenticationerror_1.AuthenticationError('User is not authorized.');
             }
             //Issue them a login
-            let login = datamodule_1.UserLogin.generateLogin(user);
+            let login = new datamodule_1.UserLogin(user);
             login.token = yield this.tokenManager.issueToken(user);
             //Save it
             yield this.loginRepo.add(login);
@@ -61,7 +61,7 @@ class LoginHandler extends logichandler_1.LogicHandler {
             let payLoad = yield this.tokenManager.verifyToken(token);
             let user = yield this.userRepo.findById(payLoad.userId);
             //Issue them a login
-            let login = datamodule_1.UserLogin.generateLogin(user);
+            let login = new datamodule_1.UserLogin(user);
             login.token = yield this.tokenManager.issueToken(user);
             //Save it
             yield this.loginRepo.add(login);

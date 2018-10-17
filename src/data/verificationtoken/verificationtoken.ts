@@ -12,7 +12,7 @@ export class VerificationToken {
     /**
      * The ideal code length for validation tokens.
      */
-    private static CODE_LENGTH: number = 6;
+    public static CODE_LENGTH: number = 6;
 
     /**
      * The unique id of the validation token.
@@ -33,16 +33,10 @@ export class VerificationToken {
     @Column("char", {length: VerificationToken.CODE_LENGTH, nullable: false})
     public code: string;
 
-    /**
-     * Generate a new validation token.
-     * @param user The user to generate a token for.
-     * @returns The newly generated token.
-     */
-    public static generateToken(user: User): VerificationToken {
-        let vToken = new VerificationToken();
-        vToken.user = user;
-        vToken.code = RandomUtils.generateRandomString(VerificationToken.CODE_LENGTH);
-
-        return vToken;
+    constructor(user?: User) {
+        if(user){
+            this.user = user;
+            this.code = RandomUtils.generateRandomString(VerificationToken.CODE_LENGTH);
+        }
     }
 }

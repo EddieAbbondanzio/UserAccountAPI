@@ -58,7 +58,7 @@ export class RecoveryHandler extends LogicHandler {
         if(user){
             //Generate them a reset token.
             let tokenRepo: ResetTokenRespository = this.connection.getCustomRepository(ResetTokenRespository);
-            let rToken: ResetToken = ResetToken.generateToken(user);
+            let rToken: ResetToken = new ResetToken(user);
             await tokenRepo.add(rToken);
 
             let resetEmail: TextEmail = new TextEmail(user.email,

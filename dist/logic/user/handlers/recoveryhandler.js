@@ -52,7 +52,7 @@ class RecoveryHandler extends logichandler_1.LogicHandler {
             if (user) {
                 //Generate them a reset token.
                 let tokenRepo = this.connection.getCustomRepository(datamodule_1.ResetTokenRespository);
-                let rToken = datamodule_1.ResetToken.generateToken(user);
+                let rToken = new datamodule_1.ResetToken(user);
                 yield tokenRepo.add(rToken);
                 let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Password Reset', 'Hi, your password reset code is: ' + rToken.code);
                 yield this.emailService.sendEmail(resetEmail);

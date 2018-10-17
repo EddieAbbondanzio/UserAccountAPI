@@ -23,9 +23,8 @@ export class ServiceLocator implements IServiceLocator {
 
     /**
      * Create a new service locator.
-     * @param dbConnection The connection to the database.
      */
-    constructor(dbConnection: Connection) {
+    constructor() {
         this.emailService = new ZohoEmailService(process.env.EMAIL_USERNAME, process.env.EMAIL_PASSWORD);
         this.tokenManager = new TokenManager(process.env.TOKEN_SECRET_KEY);
     }

@@ -60,7 +60,7 @@ export class LoginHandler extends LogicHandler {
         }
 
         //Issue them a login
-        let login: UserLogin = UserLogin.generateLogin(user);
+        let login: UserLogin = new UserLogin(user);
         login.token = await this.tokenManager.issueToken(user);
 
         //Save it
@@ -80,7 +80,7 @@ export class LoginHandler extends LogicHandler {
         let user: User = await this.userRepo.findById(payLoad.userId);
 
         //Issue them a login
-        let login: UserLogin = UserLogin.generateLogin(user);
+        let login: UserLogin = new UserLogin(user);
         login.token = await this.tokenManager.issueToken(user);
 
         //Save it
