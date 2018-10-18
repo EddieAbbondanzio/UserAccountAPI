@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const confighandler_1 = require("./config/confighandler");
 const configtype_1 = require("./config/configtype");
 const configtypeutils_1 = require("./config/configtypeutils");
+const Minimist = require("minimist");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -19,6 +20,8 @@ const configtypeutils_1 = require("./config/configtypeutils");
 function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            //Get the command line arguments
+            var parseArgs = Minimist(process.argv);
             //Get the data connection ready to roll.
             // const connection = await DataContext.initializeDatabaseAsync();
             // // Set up the logic layer for use.
@@ -30,7 +33,7 @@ function initialize() {
             // let regHandler = new RegistrationHandler(connection, serviceLocator);
             // await regHandler.registerNewUser(userReg);
             //What method to run as?
-            let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(process.argv[2]);
+            let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(parseArgs.e);
             let config = yield confighandler_1.ConfigHandler.getConfig(configtype_1.ConfigType.Development);
             console.log('Config: ', config);
             console.log('Server ready...');

@@ -27,7 +27,7 @@
         {
             "label": "Start: Dev",
             "type": "shell",
-            "command": "npm start dev",
+            "command": "npm start -- -e dev",
             "problemMatcher": [
                 "$node-sass"
             ]
@@ -35,7 +35,7 @@
         {
             "label": "Start: Test",
             "type": "shell",
-            "command": "npm start test",
+            "command": "npm start -- -e test",
             "problemMatcher": [
                 "$node-sass"
             ]
@@ -43,7 +43,7 @@
         {
             "label": "Start: Production",
             "type": "shell",
-            "command": "npm start prod",
+            "command": "npm start -- -e prod",
             "problemMatcher": [
                 "$node-sass"
             ]

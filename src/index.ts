@@ -5,6 +5,7 @@ import { Config } from './config/config';
 import { ConfigHandler } from './config/confighandler';
 import { ConfigType } from './config/configtype';
 import { ConfigTypeUtils } from './config/configtypeutils';
+import * as Minimist from 'minimist';
 
 /**
  * Initialize the application for use. This first starts
@@ -14,6 +15,9 @@ import { ConfigTypeUtils } from './config/configtypeutils';
 
 async function initialize() {
   try {
+    //Get the command line arguments
+    var parseArgs = Minimist(process.argv);
+
     //Get the data connection ready to roll.
     // const connection = await DataContext.initializeDatabaseAsync();
 
@@ -31,10 +35,11 @@ async function initialize() {
 
     //What method to run as?
 
-    let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(process.argv[2]);
+
+    let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(parseArgs.e);
     let config: Config = await ConfigHandler.getConfig(ConfigType.Development);
 
-    console.log('Config: ', config);
+    console.log('Config: ', config); 
     console.log('Server ready...');
   }
   catch (error) {
