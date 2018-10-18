@@ -1,7 +1,6 @@
 import { AbstractRepository, EntityRepository, EntityManager, Repository, InsertResult, DeleteResult } from 'typeorm';
 import { UserLogin } from "./userlogin";
 import { User } from '../user/user';
-import { StringUtils } from '../../util/stringutils';
 
 /**
  * Storage interface for logins of users. Allows for adding a new
@@ -14,9 +13,9 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> {
      * @param user The user to look for a login for.
      * @returns The login found (or null).
      */
-    public async findByUser(user: User): Promise<UserLogin> {
-        if(!user){
-            return null;
+    public async findByUser(user: User): Promise<UserLogin|undefined> {
+        if(user == undefined){
+            return undefined;
         }
 
         return this.repository.createQueryBuilder('login')

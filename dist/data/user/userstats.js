@@ -40,5 +40,4 @@ UserStats = __decorate([
     __metadata("design:paramtypes", [user_1.User])
 ], UserStats);
 exports.UserStats = UserStats;
-
 //# sourceMappingURL=userstats.js.map

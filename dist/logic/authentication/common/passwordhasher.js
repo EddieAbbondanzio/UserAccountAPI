@@ -46,5 +46,4 @@ var PasswordHasher;
     }
     PasswordHasher.validateHash = validateHash;
 })(PasswordHasher = exports.PasswordHasher || (exports.PasswordHasher = {}));
-
 //# sourceMappingURL=passwordhasher.js.map

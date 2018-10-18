@@ -23,85 +23,101 @@ describe('LoginHandler', () => {
     });
 
     /**
-     * When no username is passed in the method should throw 
-     * an error.
+     * Test module for every test related to the loginUserViaCredentials()
+     * method of the Login Handler.
      */
-    it('loginUserViaCredentials() should throw an error is no username.', async () => {
+    describe('loginUserViaCredentials()', () => {
+        /**
+         * When no username is passed in the method should throw 
+         * an error.
+         */
+        it('should throw an error is no username.', async () => {
+            await expect(loginHandler.loginUserViaCredentials(undefined, 'PASS')).rejects.toThrow();
+        });
 
+        /**
+         * When no password is passed in the method should throw
+         * an error.
+         */
+        it('should throw an error if no password.', async () => {
+            await expect(loginHandler.loginUserViaCredentials('USER', undefined)).rejects.toThrow();
+        });
+
+        /**
+         * If no user with the username passed in was found, it should
+         * return null.
+         */
+        it('returns null if no user found.', async () => {
+            await expect(loginHandler.loginUserViaCredentials('USER', 'PASS')).toBeNull();
+        });
+
+        /**
+         * If the password passed in does not match the current password,
+         * an error should be thrown.
+         */
+        it('should return null when bad password.', async () => {
+            await expect(loginHandler.loginUserViaCredentials('USER', 'PASS')).toBeNull();
+        });
+
+        /**
+         * If the username and password match a user in the database, the
+         * user should be returned.
+         */
+        it('should return a user if valid credentials passed.', async () => {
+
+        });
+
+        /**
+         * If the user is properly logged in they should have a new user
+         * login tied to them with a JWT.
+         */
+        it('should return a user with a login that has a JWT', async () => {
+
+        });
     });
 
     /**
-     * When no password is passed in the method should throw
-     * an error.
+     * Test module for the loginUserViaToken method of the LoginHandler.
      */
-    it('loginUserViaCredentials() should throw an error if no password.', async () => {
+    describe('loginUserViaToken()', () => {
+        /**
+         * When no token is passed, null should be returned.
+         */
+        it('', async () => {
 
+        });
+
+        /**
+         * When an invalid token is passed, null should be returned.
+         */
+        it('', async () => {
+
+        });
+
+        /**
+         * When a valid token is passed a user should be returned.
+         */
+        it('', async () => {
+
+        });
+
+        /**
+        * When a valid token is passed a user should be returned with
+        * a user login that has a new JWT with it.
+        */
+        it('', async () => {
+
+        });
     });
 
     /**
-     * If no user with the username passed in was found, it should
-     * return null.
+     * Test module for the logoutUser method of the LoginHandler.
      */
-    it('loginUserViaCredentials() should throw an error if no user found.', async () => {
+    describe('logoutUser()', () => {
+        //logout user no user
 
+        //logout user no logged in user
+
+        //logout user valid
     });
-
-    /**
-     * If the password passed in does not match the current password,
-     * an error should be thrown.
-     */
-    it('loginUserViaCredentials() should throw an Auth Error when bad password', async () => {
-
-    });
-
-    /**
-     * If the username and password match a user in the database, the
-     * user should be returned.
-     */
-    it('loginUserViaCredentials() should return a user if valid credentials passed.', async () => {
-
-    });
-
-    /**
-     * If the user is properly logged in they should have a new user
-     * login tied to them with a JWT.
-     */
-    it('loginUserViaCredentials() should return a user with a login that has a JWT', async () => {
-
-    });
-
-    /**
-     * When no token is passed, null should be returned.
-     */
-    it('', async () => {
-
-    });
-
-    /**
-     * When an invalid token is passed, null should be returned.
-     */
-    it('', async () => {
-
-    });
-
-    /**
-     * When a valid token is passed a user should be returned.
-     */
-    it('', async () => {
-
-    });
-
-    /**
-    * When a valid token is passed a user should be returned with
-    * a user login that has a new JWT with it.
-    */
-    it('', async () => {
-
-    });
-
-    //logout user no user
-
-    //logout user no logged in user
-
-    //logout user valid
 });

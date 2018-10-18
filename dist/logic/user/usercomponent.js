@@ -19,5 +19,4 @@ class UserComponent extends logiccomponent_1.LogicComponent {
     }
 }
 exports.UserComponent = UserComponent;
-
 //# sourceMappingURL=usercomponent.js.map

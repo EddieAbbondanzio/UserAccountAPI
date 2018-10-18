@@ -39,5 +39,4 @@ class LogicHandler {
     }
 }
 exports.LogicHandler = LogicHandler;
-
 //# sourceMappingURL=logichandler.js.map

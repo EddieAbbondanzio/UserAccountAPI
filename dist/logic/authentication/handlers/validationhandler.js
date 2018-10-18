@@ -48,5 +48,4 @@ class ValidationHander extends logichandler_1.LogicHandler {
     }
 }
 exports.ValidationHander = ValidationHander;
-
 //# sourceMappingURL=validationhandler.js.map

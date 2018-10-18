@@ -24,5 +24,4 @@ class AuthenticationComponent extends logiccomponent_1.LogicComponent {
     }
 }
 exports.AuthenticationComponent = AuthenticationComponent;
-
 //# sourceMappingURL=authenticationcomponent.js.map

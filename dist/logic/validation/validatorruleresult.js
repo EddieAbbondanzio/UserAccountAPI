@@ -22,5 +22,4 @@ class ValidatorRuleResult {
     }
 }
 exports.ValidatorRuleResult = ValidatorRuleResult;
-
 //# sourceMappingURL=validatorruleresult.js.map

@@ -28,5 +28,4 @@ class UserEmailValidatorRule {
 UserEmailValidatorRule.EMAIL_MISSING_ERROR = 'Email is required.';
 UserEmailValidatorRule.EMAIL_TOO_LONG_ERROR = `Email must be ${user_1.User.MAX_EMAIL_LENGTH} characters or less.`;
 exports.UserEmailValidatorRule = UserEmailValidatorRule;
-
 //# sourceMappingURL=useremailvalidatorrule.js.map

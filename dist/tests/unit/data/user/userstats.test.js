@@ -26,5 +26,4 @@ describe('UserStats', () => {
         expect(userStats.joinedDate).toBeUndefined();
     });
 });
-
 //# sourceMappingURL=userstats.test.js.map

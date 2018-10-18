@@ -13,5 +13,4 @@ class AuthenticationError extends Error {
     }
 }
 exports.AuthenticationError = AuthenticationError;
-
 //# sourceMappingURL=authenticationerror.js.map

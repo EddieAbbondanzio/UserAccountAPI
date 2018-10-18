@@ -48,8 +48,8 @@ export class UserRepository extends AbstractRepository<User> {
      * @returns The user found. (if any)
      */
     public async findByUsername(username: string, includeDeleted?: boolean):Promise<User> {
-        if(!username){
-            return null;
+        if(username == undefined){
+            return undefined;
         }
 
         if(includeDeleted){
@@ -74,7 +74,7 @@ export class UserRepository extends AbstractRepository<User> {
      */
     public async findByEmail(email: string, includeDeleted?: boolean): Promise<User> {
         if(!email){
-            return null;
+            return null; 
         }
 
         if(includeDeleted){
@@ -128,7 +128,7 @@ export class UserRepository extends AbstractRepository<User> {
         let emailCount: number = await this.repository.createQueryBuilder()
         .select()
         .where('email = :email', user)
-        .andWhere('deleted = FALSE')
+        .andWhere('isDeleted = FALSE')
         .getCount();
 
         if(usernameCount || emailCount){
@@ -255,7 +255,7 @@ export class UserRepository extends AbstractRepository<User> {
         let foundCount: number = await this.repository.createQueryBuilder()
         .select()
         .where('email = :email', {email: email})
-        .andWhere('deleted = FALSE')
+        .andWhere('isDeleted = FALSE')
         .getCount();
 
         return foundCount == 1;

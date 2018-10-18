@@ -15,16 +15,10 @@ export class VerificationToken {
     public static CODE_LENGTH: number = 6;
 
     /**
-     * The unique id of the validation token.
-     */
-    @PrimaryGeneratedColumn()
-    public id: number;
-
-    /**
      * The user that this validation token belongs to.
      */
     @JoinColumn()
-    @OneToOne(type => User, user => user.stats, {primary: true})
+    @OneToOne(type => User, {primary: true})
     public user: User;
 
     /**

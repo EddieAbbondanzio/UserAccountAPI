@@ -35,5 +35,4 @@ describe('UserRegistration', () => {
         expect(registration.email).toBe('Email@domain.com');
     });
 });
-
 //# sourceMappingURL=userregistration.test.js.map

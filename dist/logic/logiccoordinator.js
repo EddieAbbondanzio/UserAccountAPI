@@ -19,5 +19,4 @@ class LogicCoordinator {
     }
 }
 exports.LogicCoordinator = LogicCoordinator;
-
 //# sourceMappingURL=logiccoordinator.js.map

@@ -20,5 +20,4 @@ class UserCreateValidator extends validator_1.Validator {
     }
 }
 exports.UserCreateValidator = UserCreateValidator;
-
 //# sourceMappingURL=usercreatevalidator.js.map

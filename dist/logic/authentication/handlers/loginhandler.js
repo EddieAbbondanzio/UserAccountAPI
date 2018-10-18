@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
 const datamodule_1 = require("../../../data/datamodule");
 const authenticationerror_1 = require("../common/authenticationerror");
+const stringutils_1 = require("../../../util/stringutils");
 /**
  * Business logic for the login portion of the
  * authentication component.
@@ -34,6 +35,9 @@ class LoginHandler extends logichandler_1.LogicHandler {
      */
     loginUserViaCredentials(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (stringutils_1.StringUtils.isEmpty(username) || stringutils_1.StringUtils.isEmpty(password)) {
+                throw new Error('No username or password passed in!');
+            }
             let user = yield this.userRepo.findByUsername(username);
             if (!user) {
                 return null;
@@ -87,5 +91,4 @@ class LoginHandler extends logichandler_1.LogicHandler {
     }
 }
 exports.LoginHandler = LoginHandler;
-
 //# sourceMappingURL=loginhandler.js.map

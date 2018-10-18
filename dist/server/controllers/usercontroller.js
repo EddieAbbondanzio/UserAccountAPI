@@ -96,5 +96,4 @@ class UserController extends baserouter_1.BaseController {
     }
 }
 exports.UserController = UserController;
-
 //# sourceMappingURL=usercontroller.js.map

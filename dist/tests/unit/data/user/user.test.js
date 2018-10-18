@@ -99,5 +99,4 @@ describe('Users', () => {
         yield expect(yield user.validatePassword('hunter2')).toBe(false);
     }));
 });
-
 //# sourceMappingURL=user.test.js.map

@@ -8,12 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const server_1 = require("./server/server");
-const datacontext_1 = require("./data/datacontext");
-const servicelocator_1 = require("./logic/servicelocator");
-const usercomponent_1 = require("./logic/user/usercomponent");
-const authenticationcomponent_1 = require("./logic/authentication/authenticationcomponent");
-const DotEnv = require("dotenv");
+const confighandler_1 = require("./config/confighandler");
+const configtype_1 = require("./config/configtype");
+const configtypeutils_1 = require("./config/configtypeutils");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -22,19 +19,20 @@ const DotEnv = require("dotenv");
 function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            //Pull in env vars
-            DotEnv.config();
             //Get the data connection ready to roll.
-            const connection = yield datacontext_1.DataContext.initializeDatabaseAsync();
-            // Set up the logic layer for use.
-            const serviceLocator = new servicelocator_1.ServiceLocator(connection);
-            //Spin up the server. This takes and handles the 
-            //HTTP Requests clients make.
-            const server = new server_1.Server(serviceLocator);
-            let userComp = new usercomponent_1.UserComponent(connection, serviceLocator);
-            let authComp = new authenticationcomponent_1.AuthenticationComponent(connection, serviceLocator);
-            let user = yield userComp.userHandler.findByUsername('EddieAbb95');
-            console.log(user);
+            // const connection = await DataContext.initializeDatabaseAsync();
+            // // Set up the logic layer for use.
+            // const serviceLocator = new ServiceLocator();
+            // //Spin up the server. This takes and handles the 
+            // //HTTP Requests clients make.
+            // const server = new Server(serviceLocator);
+            // let userReg = new UserRegistration('testuser', 'password', 'Test User', 'me@eddieabbondanz.io');
+            // let regHandler = new RegistrationHandler(connection, serviceLocator);
+            // await regHandler.registerNewUser(userReg);
+            //What method to run as?
+            let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(process.argv[2]);
+            let config = yield confighandler_1.ConfigHandler.getConfig(configtype_1.ConfigType.Development);
+            console.log('Config: ', config);
             console.log('Server ready...');
         }
         catch (error) {
@@ -44,5 +42,4 @@ function initialize() {
     });
 }
 initialize();
-
 //# sourceMappingURL=index.js.map

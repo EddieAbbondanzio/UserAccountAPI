@@ -52,5 +52,4 @@ ResetToken = ResetToken_1 = __decorate([
     __metadata("design:paramtypes", [user_1.User])
 ], ResetToken);
 exports.ResetToken = ResetToken;
-
 //# sourceMappingURL=resettoken.js.map

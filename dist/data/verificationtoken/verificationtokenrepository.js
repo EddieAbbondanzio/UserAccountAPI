@@ -79,5 +79,4 @@ VerificationTokenRepository = __decorate([
     typeorm_1.EntityRepository(verificationtoken_1.VerificationToken)
 ], VerificationTokenRepository);
 exports.VerificationTokenRepository = VerificationTokenRepository;
-
 //# sourceMappingURL=verificationtokenrepository.js.map

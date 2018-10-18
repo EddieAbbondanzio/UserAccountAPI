@@ -15,5 +15,4 @@ class UserDeleteValidator extends validator_1.Validator {
     }
 }
 exports.UserDeleteValidator = UserDeleteValidator;
-
 //# sourceMappingURL=userdeletevalidator.js.map

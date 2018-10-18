@@ -17,5 +17,4 @@ class LogicComponent {
     }
 }
 exports.LogicComponent = LogicComponent;
-
 //# sourceMappingURL=logiccomponent.js.map

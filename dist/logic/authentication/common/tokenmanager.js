@@ -22,6 +22,7 @@ class TokenManager {
      * @param secretKey The secret encryption key.
      */
     constructor(secretKey) {
+        console.log('Secret key is: ', secretKey);
         if (stringutils_1.StringUtils.isEmpty(secretKey)) {
             throw new Error('A secret key is required!');
         }
@@ -91,5 +92,4 @@ class TokenManager {
  */
 TokenManager.TOKEN_LIFESPAN = 15780000;
 exports.TokenManager = TokenManager;
-
 //# sourceMappingURL=tokenmanager.js.map

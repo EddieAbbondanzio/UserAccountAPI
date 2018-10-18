@@ -13,5 +13,4 @@ class TokenPayload {
     }
 }
 exports.TokenPayload = TokenPayload;
-
 //# sourceMappingURL=tokenpayload.js.map

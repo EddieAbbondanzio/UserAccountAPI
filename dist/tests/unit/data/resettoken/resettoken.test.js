@@ -53,5 +53,4 @@ describe('ResetToken', () => {
         expect(token.code).toHaveLength(datamodule_1.ResetToken.CODE_LENGTH);
     });
 });
-
 //# sourceMappingURL=resettoken.test.js.map

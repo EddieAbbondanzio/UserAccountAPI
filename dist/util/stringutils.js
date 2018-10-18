@@ -35,5 +35,4 @@ var StringUtils;
     }
     StringUtils.isAlphanumeric = isAlphanumeric;
 })(StringUtils = exports.StringUtils || (exports.StringUtils = {}));
-
 //# sourceMappingURL=stringutils.js.map

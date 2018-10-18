@@ -1,14 +1,4 @@
 # No Mans Blocks Master Server
-
-This project is a account server for my game No Mans Blocks. It uses the following dependencies:  
-
-* Express
-* TypeORM
-* Sqlite
-* Typescript
-* Body-parser
-* Gulp
-        
         
 Steps to run this project:
 

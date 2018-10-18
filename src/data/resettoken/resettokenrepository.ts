@@ -13,10 +13,10 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> {
      * @param user The user to look for a reset token for.
      * @returns The token found (or null).
      */
-    public async findByUser(user: User): Promise<ResetToken> {
+    public async findByUser(user: User): Promise<ResetToken|undefined> {
         //Stop bad data
-        if(!user){
-            return null;
+        if(user == undefined){
+            return undefined;
         }
 
         return this.repository.createQueryBuilder('token')

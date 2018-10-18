@@ -119,5 +119,4 @@ class AuthenticationController extends baserouter_1.BaseController {
     }
 }
 exports.AuthenticationController = AuthenticationController;
-
 //# sourceMappingURL=authenticationcontroller.js.map

@@ -1,5 +1,5 @@
 import { User } from "../user/user";
-import { ManyToOne, Index, PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, OneToOne } from "typeorm";
 import { RandomUtils } from "../../util/randomutils";
 
 /**

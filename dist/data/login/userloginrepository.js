@@ -28,8 +28,8 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                return null;
+            if (user == undefined) {
+                return undefined;
             }
             return this.repository.createQueryBuilder('login')
                 .leftJoinAndSelect('login.user', 'user')
@@ -104,5 +104,4 @@ UserLoginRepository = __decorate([
     typeorm_1.EntityRepository(userlogin_1.UserLogin)
 ], UserLoginRepository);
 exports.UserLoginRepository = UserLoginRepository;
-
 //# sourceMappingURL=userloginrepository.js.map

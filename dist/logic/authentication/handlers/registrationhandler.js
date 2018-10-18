@@ -136,5 +136,4 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
     }
 }
 exports.RegistrationHandler = RegistrationHandler;
-
 //# sourceMappingURL=registrationhandler.js.map

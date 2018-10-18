@@ -20,5 +20,4 @@ class UserNotDeletedValidatorRule {
     }
 }
 exports.UserNotDeletedValidatorRule = UserNotDeletedValidatorRule;
-
 //# sourceMappingURL=usernotdeletedvalidatorrule.js.map

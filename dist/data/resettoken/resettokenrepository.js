@@ -29,8 +29,8 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data
-            if (!user) {
-                return null;
+            if (user == undefined) {
+                return undefined;
             }
             return this.repository.createQueryBuilder('token')
                 .leftJoinAndSelect('token.user', 'user')
@@ -79,5 +79,4 @@ ResetTokenRespository = __decorate([
     typeorm_1.EntityRepository(resettoken_1.ResetToken)
 ], ResetTokenRespository);
 exports.ResetTokenRespository = ResetTokenRespository;
-
 //# sourceMappingURL=resettokenrepository.js.map

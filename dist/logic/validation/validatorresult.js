@@ -21,5 +21,4 @@ class ValidatorResult {
     }
 }
 exports.ValidatorResult = ValidatorResult;
-
 //# sourceMappingURL=validatorresult.js.map

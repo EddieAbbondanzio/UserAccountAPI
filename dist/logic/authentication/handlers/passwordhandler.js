@@ -76,5 +76,4 @@ class PasswordHandler extends logichandler_1.LogicHandler {
     }
 }
 exports.PasswordHandler = PasswordHandler;
-
 //# sourceMappingURL=passwordhandler.js.map

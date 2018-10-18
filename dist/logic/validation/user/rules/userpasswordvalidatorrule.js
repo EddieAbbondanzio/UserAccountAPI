@@ -24,5 +24,4 @@ class UserPasswordValidatorRule {
 }
 UserPasswordValidatorRule.PASSWORD_MISSING_ERROR = 'Password is required.';
 exports.UserPasswordValidatorRule = UserPasswordValidatorRule;
-
 //# sourceMappingURL=userpasswordvalidatorrule.js.map

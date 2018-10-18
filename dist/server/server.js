@@ -69,5 +69,4 @@ class Server {
  */
 Server.defaultPort = process.env.PORT || 3000;
 exports.Server = Server;
-
 //# sourceMappingURL=server.js.map

@@ -29,5 +29,4 @@ class UserNameValidatorRule {
 UserNameValidatorRule.NAME_MISSING_ERROR = 'Name is missing.';
 UserNameValidatorRule.NAME_TOO_LONG_ERROR = `Name must be ${user_1.User.MAX_NAME_LENGTH} characters or less.`;
 exports.UserNameValidatorRule = UserNameValidatorRule;
-
 //# sourceMappingURL=usernamevalidatorrule.js.map

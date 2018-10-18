@@ -13,12 +13,19 @@ class UserRegistration {
      * @param email Their contact email.
      */
     constructor(username, password, name, email) {
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.email = email;
+        if (username != undefined) {
+            this.username = username;
+        }
+        if (password != undefined) {
+            this.password = password;
+        }
+        if (name != undefined) {
+            this.name = name;
+        }
+        if (email != undefined) {
+            this.email = email;
+        }
     }
 }
 exports.UserRegistration = UserRegistration;
-
 //# sourceMappingURL=userregistration.js.map

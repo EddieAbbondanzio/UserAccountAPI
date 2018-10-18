@@ -39,5 +39,4 @@ UserUsernameValidatorRule.USERNAME_TOO_SHORT_ERROR = `Username must be at least 
 UserUsernameValidatorRule.USERNAME_TOO_LONG_ERROR = `Username must be ${user_1.User.MAX_USERNAME_LENGTH} characters or less.`;
 UserUsernameValidatorRule.USERNAME_BAD_CHARS_ERROR = 'Username may only contain alphanumeric, or underscore as characters';
 exports.UserUsernameValidatorRule = UserUsernameValidatorRule;
-
 //# sourceMappingURL=userusernamevalidatorrule.js.map

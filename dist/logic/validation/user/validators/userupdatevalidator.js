@@ -16,5 +16,4 @@ class UserUpdateValidator extends validator_1.Validator {
     }
 }
 exports.UserUpdateValidator = UserUpdateValidator;
-
 //# sourceMappingURL=userupdatevalidator.js.map

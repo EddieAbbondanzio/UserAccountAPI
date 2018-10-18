@@ -17,5 +17,4 @@ class EmailCredentials {
     }
 }
 exports.EmailCredentials = EmailCredentials;
-
 //# sourceMappingURL=emailcredentials.js.map

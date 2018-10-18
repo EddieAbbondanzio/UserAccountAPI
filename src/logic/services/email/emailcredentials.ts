@@ -20,7 +20,7 @@ export class EmailCredentials {
      * @param username The email account.
      * @param password The password to use.
      */
-    constructor(username: string, password: string) {
+    constructor(username?: string, password?: string) {
         this.user = username;
         this.pass = password;
     }

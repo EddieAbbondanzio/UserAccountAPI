@@ -23,5 +23,4 @@ class BaseController {
     }
 }
 exports.BaseController = BaseController;
-
 //# sourceMappingURL=baserouter.js.map

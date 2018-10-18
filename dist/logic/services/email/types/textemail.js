@@ -24,5 +24,4 @@ class TextEmail {
     }
 }
 exports.TextEmail = TextEmail;
-
 //# sourceMappingURL=textemail.js.map

@@ -25,5 +25,4 @@ class EmailOptions {
     }
 }
 exports.EmailOptions = EmailOptions;
-
 //# sourceMappingURL=emailoptions.js.map

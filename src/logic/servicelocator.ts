@@ -25,6 +25,7 @@ export class ServiceLocator implements IServiceLocator {
      * Create a new service locator.
      */
     constructor() {
+        console.log(process.env);
         this.emailService = new ZohoEmailService(process.env.EMAIL_USERNAME, process.env.EMAIL_PASSWORD);
         this.tokenManager = new TokenManager(process.env.TOKEN_SECRET_KEY);
     }

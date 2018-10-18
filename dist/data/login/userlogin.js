@@ -55,5 +55,4 @@ UserLogin = UserLogin_1 = __decorate([
     __metadata("design:paramtypes", [user_1.User])
 ], UserLogin);
 exports.UserLogin = UserLogin;
-
 //# sourceMappingURL=userlogin.js.map

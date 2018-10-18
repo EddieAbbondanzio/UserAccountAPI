@@ -15,14 +15,7 @@ describe('VerificationToken', () => {
     beforeEach(() => {
         token = new VerificationToken();
     });
-
-    /**
-     * Typeorm doesn't like predefined values.
-     */
-    it('Initialize id as undefined.', () => {
-        expect(token.id).toBeUndefined();
-    });
-
+    
     /**
      * Typeorm doesn't like predefined values.
      */

@@ -65,5 +65,4 @@ describe('UserLogin', () => {
         expect(login.code).toHaveLength(datamodule_1.UserLogin.CODE_LENGTH);
     });
 });
-
 //# sourceMappingURL=userlogin.test.js.map

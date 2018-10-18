@@ -63,8 +63,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!username) {
-                return null;
+            if (username == undefined) {
+                return undefined;
             }
             if (includeDeleted) {
                 return this.repository.createQueryBuilder('user')
@@ -139,7 +139,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             let emailCount = yield this.repository.createQueryBuilder()
                 .select()
                 .where('email = :email', user)
-                .andWhere('deleted = FALSE')
+                .andWhere('isDeleted = FALSE')
                 .getCount();
             if (usernameCount || emailCount) {
                 return false;
@@ -256,7 +256,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
             let foundCount = yield this.repository.createQueryBuilder()
                 .select()
                 .where('email = :email', { email: email })
-                .andWhere('deleted = FALSE')
+                .andWhere('isDeleted = FALSE')
                 .getCount();
             return foundCount == 1;
         });
@@ -266,5 +266,4 @@ UserRepository = __decorate([
     typeorm_1.EntityRepository(user_1.User)
 ], UserRepository);
 exports.UserRepository = UserRepository;
-
 //# sourceMappingURL=userrepository.js.map

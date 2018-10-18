@@ -18,7 +18,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
         if(!user){
             return null;
         }
-
+ 
         return this.repository.createQueryBuilder('token')
         .leftJoinAndSelect('token.user', 'user')
         .where('token.userId = :id', user)

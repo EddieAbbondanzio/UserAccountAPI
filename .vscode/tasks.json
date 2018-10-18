@@ -16,9 +16,34 @@
             }
         },
         {
-            "label": "Start",
+            "label": "Build: Continous Watch",
             "type": "shell",
-            "command": "npm start",
+            "command":"tsc --w",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Start: Dev",
+            "type": "shell",
+            "command": "npm start dev",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
+            "label": "Start: Test",
+            "type": "shell",
+            "command": "npm start test",
+            "problemMatcher": [
+                "$node-sass"
+            ]
+        },
+        {
+            "label": "Start: Production",
+            "type": "shell",
+            "command": "npm start prod",
             "problemMatcher": [
                 "$node-sass"
             ]
@@ -27,6 +52,7 @@
             "label": "Test: All",
             "type": "shell",
             "command": "npm test",
+            "group": "test",
             "problemMatcher": [
                 "$node-sass"
             ]
@@ -35,6 +61,7 @@
             "label": "Test: Unit",
             "type": "shell",
             "command": "npm test --path ./src/tests/unit",
+            "group": "test",
             "problemMatcher": [
                 "$node-sass"
             ]
@@ -43,14 +70,10 @@
             "label": "Test: Integration",
             "type": "shell",
             "command": "npm test --path ./src/tests/integration",
+            "group": "test",
             "problemMatcher": [
                 "$node-sass"
             ]
-        },
-        {
-            "label": "Clear",
-            "type": "shell",
-            "command": "clear",
         }
     ]
 }

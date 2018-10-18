@@ -121,5 +121,4 @@ class UserHandler extends logichandler_1.LogicHandler {
     }
 }
 exports.UserHandler = UserHandler;
-
 //# sourceMappingURL=userhandler.js.map

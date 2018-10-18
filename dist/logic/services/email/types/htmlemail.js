@@ -24,5 +24,4 @@ class HtmlEmail {
     }
 }
 exports.HtmlEmail = HtmlEmail;
-
 //# sourceMappingURL=htmlemail.js.map

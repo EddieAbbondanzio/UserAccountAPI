@@ -18,12 +18,6 @@ describe('VerificationToken', () => {
     /**
      * Typeorm doesn't like predefined values.
      */
-    it('Initialize id as undefined.', () => {
-        expect(token.id).toBeUndefined();
-    });
-    /**
-     * Typeorm doesn't like predefined values.
-     */
     it('Initialize user as undefined.', () => {
         expect(token.user).toBeUndefined();
     });
@@ -52,5 +46,4 @@ describe('VerificationToken', () => {
         expect(token.code).toHaveLength(datamodule_1.VerificationToken.CODE_LENGTH);
     });
 });
-
 //# sourceMappingURL=verificationtoken.test.js.map

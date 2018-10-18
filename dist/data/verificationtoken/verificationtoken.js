@@ -31,12 +31,8 @@ let VerificationToken = VerificationToken_1 = class VerificationToken {
  */
 VerificationToken.CODE_LENGTH = 6;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], VerificationToken.prototype, "id", void 0);
-__decorate([
     typeorm_1.JoinColumn(),
-    typeorm_1.OneToOne(type => user_1.User, user => user.stats, { primary: true }),
+    typeorm_1.OneToOne(type => user_1.User, { primary: true }),
     __metadata("design:type", user_1.User)
 ], VerificationToken.prototype, "user", void 0);
 __decorate([
@@ -48,5 +44,4 @@ VerificationToken = VerificationToken_1 = __decorate([
     __metadata("design:paramtypes", [user_1.User])
 ], VerificationToken);
 exports.VerificationToken = VerificationToken;
-
 //# sourceMappingURL=verificationtoken.js.map

@@ -6,6 +6,7 @@ import { UserRepository, UserLoginRepository, UserLogin } from "../../../data/da
 import { AuthenticationError } from "../common/authenticationerror";
 import { TokenManager } from "../common/tokenmanager";
 import { TokenPayload } from "../common/tokenpayload";
+import { StringUtils } from "../../../util/stringutils";
 
 /**
  * Business logic for the login portion of the
@@ -48,6 +49,10 @@ export class LoginHandler extends LogicHandler {
      * @returns The user if successful. Otherwise null.
      */
     public async loginUserViaCredentials(username: string, password: string): Promise<User> {
+        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
+            throw new Error('No username or password passed in!');
+        }
+
         let user = await this.userRepo.findByUsername(username);
 
         if(!user){

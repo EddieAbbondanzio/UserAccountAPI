@@ -26,5 +26,4 @@ var DataContext;
     }
     DataContext.initializeDatabaseAsync = initializeDatabaseAsync;
 })(DataContext = exports.DataContext || (exports.DataContext = {}));
-
 //# sourceMappingURL=datacontext.js.map
