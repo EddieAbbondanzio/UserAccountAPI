@@ -1,5 +1,5 @@
 import { User } from "../../../../data/user/user";
-import { UserLogin } from "../../../../data/datamodule";
+import { UserLogin } from "../../../../data/models";
 
 /**
  * Test module for the UserLogin data model.

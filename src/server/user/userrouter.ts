@@ -1,5 +1,5 @@
 import {Router, Request, Response } from 'express';
-import { User } from '../../data/datamodule';
+import { User } from '../../data/models';
 import { Server } from '../server'
 import { BaseController } from '../common/baserouter';
 import { IServiceLocator } from '../../logic/common/iservicelocator';

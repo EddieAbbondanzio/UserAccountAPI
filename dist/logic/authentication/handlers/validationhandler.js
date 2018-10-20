@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 /**
  * Business logic for validating users are who they
  * claim they are.
@@ -22,7 +22,7 @@ class ValidationHander extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
-        this.loginRepo = connection.getCustomRepository(datamodule_1.UserLoginRepository);
+        this.loginRepo = connection.getCustomRepository(models_1.UserLoginRepository);
     }
     /**
      * Validate that a user is who they claim to be. This will check their username

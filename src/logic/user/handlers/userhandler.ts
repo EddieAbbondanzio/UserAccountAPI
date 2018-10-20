@@ -2,7 +2,7 @@ import { LogicHandler } from "../../common/logichandler";
 import { User } from "../../../data/user/user";
 import { Connection } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
-import { UserRepository } from "../../../data/datamodule";
+import { UserRepository } from "../../../data/models";
 import { UserDeleteValidator } from "../../validation/user/validators/userdeletevalidator";
 import { ValidatorResult } from "../../validation/validatorresult";
 import { UserUpdateValidator } from "../../validation/user/validators/userupdatevalidator";

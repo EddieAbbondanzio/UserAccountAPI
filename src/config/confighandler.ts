@@ -12,7 +12,7 @@ export module ConfigHandler {
      * @param configType The type of config to get.
      * @returns The config to use.
      */
-    export async function getConfig(configType: ConfigType): Promise<Config> {
+    export async function loadConfig(configType: ConfigType): Promise<Config> {
         let rawConfig: any = await loadRawConfig(configType);
         
         //Need to recreate the object now
@@ -23,14 +23,17 @@ export module ConfigHandler {
         config.emailCredentials.user = rawConfig.email.username;
         config.emailCredentials.pass = rawConfig.email.password;
 
-        config.databaseConfig.connectionType = rawConfig.connectionType;
-        config.databaseConfig.host           = rawConfig.host;
-        config.databaseConfig.port           = rawConfig.port;
-        config.databaseConfig.autoSchemaSync = rawConfig.autoSchemaSync;
-        config.databaseConfig.entities       = rawConfig.entities;
-        config.databaseConfig.subscribers    = rawConfig.subscribers;
-        config.databaseConfig.migrations     = rawConfig.migrations;
+        config.database.host           = rawConfig.database.host;
+        config.database.port           = rawConfig.database.port;
+        config.database.username       = rawConfig.database.username;
+        config.database.password       = rawConfig.database.password;
+        config.database.database       = rawConfig.database.database;
+        config.database.autoSchemaSync = rawConfig.database.autoSchemaSync;
+        config.database.entities       = rawConfig.database.entities;
+        config.database.subscribers    = rawConfig.database.subscribers;
+        config.database.migrations     = rawConfig.database.migrations;
 
+        Config.current = config;
         return config;
     }
 

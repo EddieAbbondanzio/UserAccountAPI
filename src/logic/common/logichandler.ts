@@ -1,5 +1,3 @@
-import { Connection, EntityManager } from "typeorm";
-import { TransactionJob } from "./transactionjob";
 import { IServiceLocator } from "./iservicelocator";
 
 /**
@@ -7,11 +5,6 @@ import { IServiceLocator } from "./iservicelocator";
  * from.
  */
 export abstract class LogicHandler {
-    /**
-     * The database connection.
-     */
-    public connection: Connection;
-    
     /**
      * Handles finding all of the dependecies
      * that may be needed.
@@ -23,20 +16,7 @@ export abstract class LogicHandler {
      * @param connection The database connection.
      * @param serviceLocator The dependency locator.
      */
-    constructor(connection: Connection, serviceLocator: IServiceLocator) {
-        this.connection     = connection;
+    constructor(serviceLocator: IServiceLocator) {
         this.serviceLocator = serviceLocator;
-    }
-
-    /**
-     * Execute a database job within a transaction. If you need to keep
-     * this focused on the executing context be sure to pass this as an
-     * arrow function.
-     * @param job The job to execute.
-     */
-    protected async transaction<T>(job: TransactionJob<T>) {
-        return await this.connection.transaction(async function(manager: EntityManager):Promise<T> {
-            return await job(manager);
-        });
     }
 }

@@ -2,7 +2,7 @@ import { BaseController } from "../common/baserouter";
 import { IServiceLocator } from "../../logic/common/iservicelocator";
 import { Request, Response } from "express";
 import * as HttpStatus from 'http-status-codes';
-import { UserRegistration } from "../../data/datamodule";
+import { UserRegistration } from "../../data/models";
 
 /**
  * Controller for handling user related requests. This

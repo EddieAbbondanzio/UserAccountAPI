@@ -1,7 +1,7 @@
 import * as JWT from 'jsonwebtoken';
-import { UserLogin, User } from '../../../data/datamodule';
 import { TokenPayload } from './tokenpayload';
 import { StringUtils } from '../../../util/stringutils';
+import { User } from '../../../data/models';
 
 /**
  * Handles issuing and verifying jwt tokens to users. Use

@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const verificationtoken_1 = require("./verificationtoken");
+const inversify_1 = require("inversify");
 /**
  * Storage interface for validation tokens of users. Allows for basic
  * CRUD operations with the database.
@@ -41,41 +42,36 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
     /**
      * Add a new validation token to the database.
      * @param verificationToken The token to add to the database.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    add(verificationToken, transactionManager) {
+    add(verificationToken) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!verificationToken) {
                 return false;
             }
-            let tokenRepo = transactionManager ? transactionManager.getRepository(verificationtoken_1.VerificationToken) : this.repository;
-            let result = yield tokenRepo.insert(verificationToken);
+            let result = yield this.repository.insert(verificationToken);
             return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    delete(verificationToken, transactionManager) {
+    delete(verificationToken) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!verificationToken) {
                 return false;
             }
-            let tokenRepo = transactionManager ? transactionManager.getRepository(verificationtoken_1.VerificationToken) : this.repository;
-            let result = yield tokenRepo.delete(verificationToken);
+            let result = yield this.repository.delete(verificationToken);
             return result.raw.affectedRowCount == 1;
         });
     }
 };
 VerificationTokenRepository = __decorate([
+    inversify_1.injectable(),
     typeorm_1.EntityRepository(verificationtoken_1.VerificationToken)
 ], VerificationTokenRepository);
 exports.VerificationTokenRepository = VerificationTokenRepository;

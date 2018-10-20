@@ -1,7 +1,6 @@
 import { Request } from 'express';
 import { User } from "../../data/user/user";
 import { userInfo } from 'os';
-import { UserLogin } from '../../data/datamodule';
 
 declare global {
     namespace Express {

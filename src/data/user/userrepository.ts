@@ -1,14 +1,17 @@
 import { AbstractRepository, EntityRepository, Repository, UpdateResult, EntityManager } from "typeorm";
 import { User } from "./user";
 import { UserStats } from "./userstats";
+import { IUserRepository } from "./iuserrepository";
+import { injectable } from "inversify";
 
 /**
  * Storage interface for Users in the database. Handles loading
  * relationships with other objects such as roles during find operations,
  * and provides the ability to update and remove Users as well.
  */
+@injectable()
 @EntityRepository(User)
-export class UserRepository extends AbstractRepository<User> {
+export class UserRepository extends AbstractRepository<User> implements IUserRepository {
     /**
      * Search for a user via their automatically generated
      * id that is assigned to them after inserting them into
@@ -18,7 +21,7 @@ export class UserRepository extends AbstractRepository<User> {
      * in the search as well.
      * @returns The user found. (if any)
      */
-    public async findById(id: number, includeDeleted: boolean = false):Promise<User> {
+    public async findById(id: number, includeDeleted?: boolean):Promise<User> {
         //Why bother searching?
         if(isNaN(id)){
             return null;
@@ -96,27 +99,15 @@ export class UserRepository extends AbstractRepository<User> {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
-     * @param transactionManager The transaction manager to use when 
-     * a database transaction is in progress.
      * @returns True if no error.
      */
-    public async add(user: User, transactionManager?: EntityManager): Promise<boolean> {
+    public async add(user: User): Promise<boolean> {
         if(!user){
             return false;
         }
 
-        let userRepo:  Repository<User>;
-        let statsRepo: Repository<UserStats>;
-
-        //Are we running in a transaction?
-        if(transactionManager){
-            userRepo  = transactionManager.getRepository(User);
-            statsRepo = transactionManager.getRepository(UserStats);
-        }
-        else {
-            userRepo  = this.repository;
-            statsRepo = this.getRepositoryFor(UserStats);
-        }
+        let userRepo:  Repository<User> = this.repository;
+        let statsRepo: Repository<UserStats> = this.getRepositoryFor(UserStats);
 
         //Deleted users still reserve their username since we 
         //don't want any copy cats.
@@ -148,18 +139,14 @@ export class UserRepository extends AbstractRepository<User> {
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no error.
      */
-    public async update(user: User, transactionManager?: EntityManager): Promise<boolean> {
+    public async update(user: User): Promise<boolean> {
         if(!user){
             return false;
         }
 
-        let userRepo: Repository<User> = transactionManager ? transactionManager.getRepository(User) : this.repository;
-
-        let result: UpdateResult = await userRepo.createQueryBuilder()
+        let result: UpdateResult = await this.repository.createQueryBuilder()
         .update(User)
         .set({
             name: user.name, 
@@ -176,18 +163,14 @@ export class UserRepository extends AbstractRepository<User> {
      * Update an existing user's password in the database. This will
      * only update the password hash.
      * @param user The user to update their password.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no errors occured.
      */
-    public async updatePassword(user: User, transactionManager?: EntityManager): Promise<boolean>{
+    public async updatePassword(user: User): Promise<boolean> {
         if(!user){
             return false;
         }
 
-        let userRepo: Repository<User> = transactionManager ? transactionManager.getRepository(User) : this.repository;
-
-        let result: UpdateResult = await userRepo.createQueryBuilder()
+        let result: UpdateResult = await this.repository.createQueryBuilder()
         .update(User)
         .set({
             passwordHash: user.passwordHash,
@@ -202,19 +185,15 @@ export class UserRepository extends AbstractRepository<User> {
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no error.
      */
-    public async delete(user: User, transactionManager?: EntityManager): Promise<boolean> {
+    public async delete(user: User): Promise<boolean> {
         if(user == null){
             return false;
         }
 
-        let userRepo: Repository<User> = transactionManager ? transactionManager.getRepository(User) : this.repository;
-
         //We just need to mark the user as deleted
-        let result: UpdateResult = await userRepo.createQueryBuilder()
+        let result: UpdateResult = await this.repository.createQueryBuilder()
         .update()
         .set({isDeleted: true})
         .where('id = :id', {id: user.id}).execute();

@@ -1,7 +1,7 @@
 import { LogicHandler } from "../../common/logichandler";
 import { Connection, EntityManager } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
-import { UserRegistration, User, VerificationToken, UserRepository, VerificationTokenRepository, UserLogin, UserLoginRepository } from "../../../data/datamodule";
+import { UserRegistration, User, VerificationToken, UserRepository, VerificationTokenRepository, UserLogin, UserLoginRepository } from "../../../data/models";
 import { IEmailService } from "../../services/email/iemailservice";
 import { TokenManager } from "../common/tokenmanager";
 import { IEmail } from "../../services/email/types/iemail";

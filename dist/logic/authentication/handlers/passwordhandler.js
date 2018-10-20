@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
 const authenticationerror_1 = require("../common/authenticationerror");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 /**
  * Business logic for resetting or updating user passwords.
  */
@@ -22,8 +22,8 @@ class PasswordHandler extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
-        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
-        this.resetTokenRepo = connection.getCustomRepository(datamodule_1.ResetTokenRespository);
+        this.userRepo = connection.getCustomRepository(models_1.UserRepository);
+        this.resetTokenRepo = connection.getCustomRepository(models_1.ResetTokenRespository);
     }
     /**
      * Reset a user's password after verifying their token is valid.
@@ -43,8 +43,8 @@ class PasswordHandler extends logichandler_1.LogicHandler {
                 yield user.setPassword(newPassword);
                 //Don't want to fail to update the user but revoke their reset token.
                 return yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                    let rTokenRepo = manager.getCustomRepository(datamodule_1.ResetTokenRespository);
-                    let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                    let rTokenRepo = manager.getCustomRepository(models_1.ResetTokenRespository);
+                    let userRepo = manager.getCustomRepository(models_1.UserRepository);
                     yield Promise.all([rTokenRepo.delete(resetToken, manager), userRepo.updatePassword(user, manager)]);
                     return true;
                 }));

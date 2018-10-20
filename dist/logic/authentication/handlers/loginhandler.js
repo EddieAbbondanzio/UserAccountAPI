@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 const authenticationerror_1 = require("../common/authenticationerror");
 const stringutils_1 = require("../../../util/stringutils");
 /**
@@ -25,7 +25,7 @@ class LoginHandler extends logichandler_1.LogicHandler {
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
         this.tokenManager = serviceLocator.tokenManager;
-        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
+        this.userRepo = connection.getCustomRepository(models_1.UserRepository);
     }
     /**
      * Login a user via their credentials.
@@ -47,7 +47,7 @@ class LoginHandler extends logichandler_1.LogicHandler {
                 throw new authenticationerror_1.AuthenticationError('User is not authorized.');
             }
             //Issue them a login
-            let login = new datamodule_1.UserLogin(user);
+            let login = new models_1.UserLogin(user);
             login.token = yield this.tokenManager.issueToken(user);
             //Save it
             yield this.loginRepo.add(login);
@@ -65,7 +65,7 @@ class LoginHandler extends logichandler_1.LogicHandler {
             let payLoad = yield this.tokenManager.verifyToken(token);
             let user = yield this.userRepo.findById(payLoad.userId);
             //Issue them a login
-            let login = new datamodule_1.UserLogin(user);
+            let login = new models_1.UserLogin(user);
             login.token = yield this.tokenManager.issueToken(user);
             //Save it
             yield this.loginRepo.add(login);

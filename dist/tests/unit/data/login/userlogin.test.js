@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../../../../data/user/user");
-const datamodule_1 = require("../../../../data/datamodule");
+const models_1 = require("../../../../data/models");
 /**
  * Test module for the UserLogin data model.
  */
@@ -14,7 +14,7 @@ describe('UserLogin', () => {
      * Reset the login back to default before each use.
      */
     beforeEach(() => {
-        login = new datamodule_1.UserLogin();
+        login = new models_1.UserLogin();
     });
     /**
      * Typeorm doesn't like defaulted values.
@@ -52,7 +52,7 @@ describe('UserLogin', () => {
      */
     it('Generated logins should have the user passed in as .user.', () => {
         let user = new user_1.User();
-        login = new datamodule_1.UserLogin(user);
+        login = new models_1.UserLogin(user);
         expect(login.user).toBe(user);
     });
     /**
@@ -61,8 +61,8 @@ describe('UserLogin', () => {
      */
     it('Generated logins should have a unique code', () => {
         let user = new user_1.User();
-        login = new datamodule_1.UserLogin(user);
-        expect(login.code).toHaveLength(datamodule_1.UserLogin.CODE_LENGTH);
+        login = new models_1.UserLogin(user);
+        expect(login.code).toHaveLength(models_1.UserLogin.CODE_LENGTH);
     });
 });
 //# sourceMappingURL=userlogin.test.js.map

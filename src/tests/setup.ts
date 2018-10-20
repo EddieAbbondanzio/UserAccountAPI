@@ -1,1 +1,1 @@
-throw new Error('Fuck');
+throw new Error('Set up the test environment you dummy.');

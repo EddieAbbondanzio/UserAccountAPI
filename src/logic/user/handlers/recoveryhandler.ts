@@ -2,7 +2,7 @@ import { LogicHandler } from "../../common/logichandler";
 import { Connection } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
 import { User } from "../../../data/user/user";
-import { UserRepository, ResetToken, ResetTokenRespository } from "../../../data/datamodule";
+import { UserRepository, ResetToken, ResetTokenRespository } from "../../../data/models";
 import { IEmailService } from "../../services/email/iemailservice";
 import { TextEmail } from "../../services/email/types/textemail";
 

@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const confighandler_1 = require("./config/confighandler");
-const configtype_1 = require("./config/configtype");
 const configtypeutils_1 = require("./config/configtypeutils");
 const Minimist = require("minimist");
+const mysqldataaccesslayer_1 = require("./data/mysqldataaccesslayer");
+const models_1 = require("./data/models");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -22,6 +23,21 @@ function initialize() {
         try {
             //Get the command line arguments
             var parseArgs = Minimist(process.argv);
+            //Get the connections
+            let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(parseArgs.e);
+            let config = yield confighandler_1.ConfigHandler.loadConfig(configType);
+            let dal = new mysqldataaccesslayer_1.MysqlDataAccessLayer();
+            yield dal.initialize();
+            yield dal.startWork();
+            let user = new models_1.User();
+            user.username = 'BADDATA';
+            user.passwordHash = 'HAAHSHHSAH';
+            user.email = 'NoWAY';
+            user.name = 'BAD DATA';
+            user.stats = new models_1.UserStats();
+            user.stats.user = user;
+            yield dal.userRepo.add(user);
+            yield dal.commitWork();
             //Get the data connection ready to roll.
             // const connection = await DataContext.initializeDatabaseAsync();
             // // Set up the logic layer for use.
@@ -33,9 +49,10 @@ function initialize() {
             // let regHandler = new RegistrationHandler(connection, serviceLocator);
             // await regHandler.registerNewUser(userReg);
             //What method to run as?
-            let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(parseArgs.e);
-            let config = yield confighandler_1.ConfigHandler.getConfig(configtype_1.ConfigType.Development);
-            console.log('Config: ', config);
+            // let dataAccessLayer: DataAccessLayer = new DataAccessLayer();
+            // let loginRepo: IUserLoginRepository = dataAccessLayer.get<IUserLoginRepository>('IUserLoginRepository');
+            // console.log(loginRepo);
+            // console.log('Config: ', config); 
             console.log('Server ready...');
         }
         catch (error) {

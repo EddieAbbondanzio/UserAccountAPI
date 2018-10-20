@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const datamodule_1 = require("../../../../data/datamodule");
+const models_1 = require("../../../../data/models");
 /**
  * Test module for the Verification Token data model.
  */
@@ -13,7 +13,7 @@ describe('VerificationToken', () => {
      * Prepare the token for use.
      */
     beforeEach(() => {
-        token = new datamodule_1.VerificationToken();
+        token = new models_1.VerificationToken();
     });
     /**
      * Typeorm doesn't like predefined values.
@@ -32,8 +32,8 @@ describe('VerificationToken', () => {
      * constructor is applied to the token.
      */
     it('Ensure user is properly defined.', () => {
-        let user = new datamodule_1.User();
-        token = new datamodule_1.VerificationToken(user);
+        let user = new models_1.User();
+        token = new models_1.VerificationToken(user);
         expect(token.user).toBe(user);
     });
     /**
@@ -41,9 +41,9 @@ describe('VerificationToken', () => {
      * in a user to the constructor.
      */
     it('Ensure code is properly defined', () => {
-        let user = new datamodule_1.User();
-        token = new datamodule_1.VerificationToken(user);
-        expect(token.code).toHaveLength(datamodule_1.VerificationToken.CODE_LENGTH);
+        let user = new models_1.User();
+        token = new models_1.VerificationToken(user);
+        expect(token.code).toHaveLength(models_1.VerificationToken.CODE_LENGTH);
     });
 });
 //# sourceMappingURL=verificationtoken.test.js.map

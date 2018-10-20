@@ -2,7 +2,7 @@ import {Router, Request, Response, NextFunction } from 'express';
 import { Server } from '../server';
 import { BaseController } from '../common/baserouter';
 import * as HttpStatus from 'http-status-codes';
-import { UserLogin } from '../../data/datamodule';
+import { UserLogin } from '../../data/models';
 import { IServiceLocator } from '../../logic/common/iservicelocator';
 
 /**

@@ -6,17 +6,40 @@ import { ConfigHandler } from './config/confighandler';
 import { ConfigType } from './config/configtype';
 import { ConfigTypeUtils } from './config/configtypeutils';
 import * as Minimist from 'minimist';
+import { MysqlDataAccessLayer } from './data/mysqldataaccesslayer';
+import {IUserLoginRepository, UserLoginRepository, UserRegistration, User, UserStats } from './data/models';
+import { createConnection } from 'typeorm';
 
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
  * and lastly bring the server online.
  */
-
 async function initialize() {
   try {
     //Get the command line arguments
     var parseArgs = Minimist(process.argv);
+
+    //Get the connections
+    let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(parseArgs.e);
+    let config: Config = await ConfigHandler.loadConfig(configType);
+
+    let dal: MysqlDataAccessLayer = new MysqlDataAccessLayer();
+    await dal.initialize();
+
+    await dal.startWork();
+
+    let user: User = new User();
+    user.username = 'BADDATA';
+    user.passwordHash = 'HAAHSHHSAH';
+    user.email = 'NoWAY';
+    user.name = 'BAD DATA';
+    user.stats = new UserStats();
+    user.stats.user = user;
+
+    await dal.userRepo.add(user);
+
+    await dal.commitWork();
 
     //Get the data connection ready to roll.
     // const connection = await DataContext.initializeDatabaseAsync();
@@ -36,10 +59,15 @@ async function initialize() {
     //What method to run as?
 
 
-    let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(parseArgs.e);
-    let config: Config = await ConfigHandler.getConfig(ConfigType.Development);
+    // let dataAccessLayer: DataAccessLayer = new DataAccessLayer();
 
-    console.log('Config: ', config); 
+    // let loginRepo: IUserLoginRepository = dataAccessLayer.get<IUserLoginRepository>('IUserLoginRepository');
+
+    // console.log(loginRepo);
+
+
+
+    // console.log('Config: ', config); 
     console.log('Server ready...');
   }
   catch (error) {

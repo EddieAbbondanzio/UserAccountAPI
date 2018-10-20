@@ -1,5 +1,3 @@
-import { Connection } from "typeorm";
-import { TransactionJob } from "./transactionjob";
 import { IServiceLocator } from "./iservicelocator";
 
 /**
@@ -9,22 +7,15 @@ import { IServiceLocator } from "./iservicelocator";
  */
 export abstract class LogicComponent {
     /**
-     * The connection to the database.
-     */
-    protected connection: Connection;
-
-    /**
      * The dependency locator.
      */
     protected serviceLocator: IServiceLocator;
 
     /**
      * Create a new service to the db.
-     * @param connection The connection to cache.
      * @param serviceLocator The service locator.
      */
-    constructor(connection: Connection, serviceLocator: IServiceLocator){
-        this.connection = connection;
+    constructor(serviceLocator: IServiceLocator){
         this.serviceLocator = serviceLocator;
     }
 }

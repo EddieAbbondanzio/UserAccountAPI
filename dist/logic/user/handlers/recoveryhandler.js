@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 const textemail_1 = require("../../services/email/types/textemail");
 /**
  * Handler for recovering forgotten accounts.
@@ -30,7 +30,7 @@ class RecoveryHandler extends logichandler_1.LogicHandler {
      */
     emailUserTheirUsername(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            let userRepo = this.connection.getCustomRepository(datamodule_1.UserRepository);
+            let userRepo = this.connection.getCustomRepository(models_1.UserRepository);
             let user = yield userRepo.findByEmail(email);
             //Only proceed if a user was found.
             if (user) {
@@ -46,13 +46,13 @@ class RecoveryHandler extends logichandler_1.LogicHandler {
      */
     emailUserResetToken(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            let userRepo = this.connection.getCustomRepository(datamodule_1.UserRepository);
+            let userRepo = this.connection.getCustomRepository(models_1.UserRepository);
             let user = yield userRepo.findByUsername(username);
             //Only send an email if a user was found.
             if (user) {
                 //Generate them a reset token.
-                let tokenRepo = this.connection.getCustomRepository(datamodule_1.ResetTokenRespository);
-                let rToken = new datamodule_1.ResetToken(user);
+                let tokenRepo = this.connection.getCustomRepository(models_1.ResetTokenRespository);
+                let rToken = new models_1.ResetToken(user);
                 yield tokenRepo.add(rToken);
                 let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Password Reset', 'Hi, your password reset code is: ' + rToken.code);
                 yield this.emailService.sendEmail(resetEmail);

@@ -1,5 +1,5 @@
 import 'jest';
-import { UserRegistration, User } from '../../../../data/datamodule';
+import { UserRegistration, User } from '../../../../data/models';
 
 /**
  * Test module for the User Registration data model.

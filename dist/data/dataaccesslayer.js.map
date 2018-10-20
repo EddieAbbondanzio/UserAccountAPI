@@ -1,0 +1,1 @@
+{"version":3,"file":"dataaccesslayer.js","sourceRoot":"","sources":["../../src/data/dataaccesslayer.ts"],"names":[],"mappings":";;AAKA;;;GAGG;AACH,MAAsB,eAAe;IA2BjC;QACI,IAAG,eAAe,CAAC,OAAO,EAAC;YACvB,MAAM,IAAI,KAAK,CAAC,qCAAqC,CAAC,CAAC;SAC1D;QAED,eAAe,CAAC,OAAO,GAAG,IAAI,CAAC;IACnC,CAAC;CAyBJ;AA1DD,0CA0DC"}

@@ -7,9 +7,12 @@ const databaseconfig_1 = require("./databaseconfig");
  * database credentials, JWT key, and more.
  */
 class Config {
+    /**
+     * Create a new config setup.
+     */
     constructor() {
         this.emailCredentials = new emailcredentials_1.EmailCredentials();
-        this.databaseConfig = new databaseconfig_1.DatabaseConfig();
+        this.database = new databaseconfig_1.DatabaseConfig();
     }
 }
 exports.Config = Config;

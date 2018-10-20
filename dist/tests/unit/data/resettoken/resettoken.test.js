@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const datamodule_1 = require("../../../../data/datamodule");
+const models_1 = require("../../../../data/models");
 /**
  * Test module for the Reset Token data model.
  */
@@ -14,7 +14,7 @@ describe('ResetToken', () => {
      * each test occurs.
      */
     beforeEach(() => {
-        token = new datamodule_1.ResetToken();
+        token = new models_1.ResetToken();
     });
     /**
      * Typeorm doesn't like default values.
@@ -39,8 +39,8 @@ describe('ResetToken', () => {
      * passed into the constructor.
      */
     it('Properly assigns the user when passed.', () => {
-        let user = new datamodule_1.User();
-        token = new datamodule_1.ResetToken(user);
+        let user = new models_1.User();
+        token = new models_1.ResetToken(user);
         expect(token.user).toBe(user);
     });
     /**
@@ -48,9 +48,9 @@ describe('ResetToken', () => {
      * is passed into the constructor.
      */
     it('Properly assigns a code when a user is passed in.', () => {
-        let user = new datamodule_1.User();
-        token = new datamodule_1.ResetToken(user);
-        expect(token.code).toHaveLength(datamodule_1.ResetToken.CODE_LENGTH);
+        let user = new models_1.User();
+        token = new models_1.ResetToken(user);
+        expect(token.code).toHaveLength(models_1.ResetToken.CODE_LENGTH);
     });
 });
 //# sourceMappingURL=resettoken.test.js.map

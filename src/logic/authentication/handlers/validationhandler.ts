@@ -2,7 +2,7 @@ import { LogicHandler } from "../../common/logichandler";
 import { Connection } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
 import { User } from "../../../data/user/user";
-import { UserLoginRepository, UserLogin } from "../../../data/datamodule";
+import { UserLoginRepository, UserLogin } from "../../../data/models";
 import { AuthenticationError } from "../common/authenticationerror";
 
 /**

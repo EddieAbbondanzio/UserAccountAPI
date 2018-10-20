@@ -1,13 +1,16 @@
 import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repository, DeleteResult } from "typeorm";
 import { VerificationToken } from "./verificationtoken";
 import { User } from "../user/user";
+import { IVerificationTokenRepository } from "./iverificationtokenrepository";
+import { injectable } from "inversify";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic
  * CRUD operations with the database.
  */
+@injectable()
 @EntityRepository(VerificationToken)
-export class VerificationTokenRepository extends AbstractRepository<VerificationToken> {
+export class VerificationTokenRepository extends AbstractRepository<VerificationToken> implements IVerificationTokenRepository {
     /**
      * Searches for a user's validation token.
      * @param user The user to look for a validation token for.
@@ -28,18 +31,15 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
     /**
      * Add a new validation token to the database.
      * @param verificationToken The token to add to the database.
-     * @param transactionManager The transaction manager to use when 
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    public async add(verificationToken: VerificationToken, transactionManager?: EntityManager): Promise<boolean> {
+    public async add(verificationToken: VerificationToken): Promise<boolean> {
         //Stop bad data.
         if(!verificationToken) {
             return false;
         }
 
-        let tokenRepo: Repository<VerificationToken> = transactionManager ? transactionManager.getRepository(VerificationToken) : this.repository;
-        let result: InsertResult = await tokenRepo.insert(verificationToken);
+        let result: InsertResult = await this.repository.insert(verificationToken);
         
         return result.raw.affectedRowCount == 1;
     }
@@ -47,18 +47,15 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
-     * @param transactionManager The transaction manager to use when 
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    public async delete(verificationToken: VerificationToken, transactionManager?: EntityManager): Promise<boolean> {
+    public async delete(verificationToken: VerificationToken): Promise<boolean> {
         //Stop bad data.
         if(!verificationToken) {
             return false;
         }
 
-        let tokenRepo: Repository<VerificationToken> = transactionManager ? transactionManager.getRepository(VerificationToken) : this.repository;
-        let result: DeleteResult = await tokenRepo.delete(verificationToken);
+        let result: DeleteResult = await this.repository.delete(verificationToken);
 
         return result.raw.affectedRowCount == 1;
     }

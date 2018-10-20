@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const userlogin_1 = require("./userlogin");
+const inversify_1 = require("inversify");
 /**
  * Storage interface for logins of users. Allows for adding a new
  * login of a user, or removing every
@@ -41,66 +42,50 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
      * Add a new user login to the database.
      * @param userLogin The userlogin to add to the database.
      * @returns True if no errors.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      */
-    add(userLogin, transactionManager) {
+    add(userLogin) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userLogin) {
                 return false;
             }
-            let loginRepo = transactionManager ? transactionManager.getRepository(userlogin_1.UserLogin) : this.repository;
-            let result = yield loginRepo.insert(userLogin);
+            let result = yield this.repository.insert(userLogin);
             return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Remove an existing login from the database.
      * @param userlogin The userlogin to remove from the database.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    delete(userlogin, transactionManager) {
+    delete(userlogin) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userlogin) {
                 return false;
             }
-            let loginRepo = transactionManager ? transactionManager.getRepository(userlogin_1.UserLogin) : this.repository;
-            let result = yield loginRepo.delete(userlogin);
+            let result = yield this.repository.delete(userlogin);
             return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Remove an existing login from the database via it's id.
      * @param id The login id to look for.
-     * @param transactionManager The transaction manager to use when a database
-     * transaction is in progress.
      * @returns True if no errors.
      */
-    deleteById(id, transactionManager) {
+    deleteById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (isNaN) {
                 throw new Error('Invalid id passed.');
             }
-            let result;
-            if (transactionManager) {
-                result = yield transactionManager.createQueryBuilder()
-                    .delete()
-                    .where('id = :id', { id: id })
-                    .execute();
-            }
-            else {
-                result = yield this.repository.createQueryBuilder()
-                    .delete()
-                    .where('id = :id', { id: id })
-                    .execute();
-            }
+            let result = yield this.repository.createQueryBuilder()
+                .delete()
+                .where('id = :id', { id: id })
+                .execute();
             return result.raw.affectedRowCount == 1;
         });
     }
 };
 UserLoginRepository = __decorate([
+    inversify_1.injectable(),
     typeorm_1.EntityRepository(userlogin_1.UserLogin)
 ], UserLoginRepository);
 exports.UserLoginRepository = UserLoginRepository;

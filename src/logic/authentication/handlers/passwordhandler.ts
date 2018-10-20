@@ -3,7 +3,8 @@ import { Connection, EntityManager } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
 import { User } from "../../../data/user/user";
 import { AuthenticationError } from "../common/authenticationerror";
-import { UserRepository, ResetToken, ResetTokenRespository } from "../../../data/datamodule";
+import { UserRepository, ResetToken, IResetTokenRespository } from "../../../data/models";
+import { DataAccessLayer } from "../../../data/dataaccesslayer";
 
 /**
  * Business logic for resetting or updating user passwords.
@@ -19,17 +20,16 @@ export class PasswordHandler extends LogicHandler {
      * The reset token repository for CRUD
      * operations with the database.
      */
-    private resetTokenRepo: ResetTokenRespository;
+    private resetTokenRepo: IResetTokenRespository;
 
     /**
      * Create a new password handler.
-     * @param connection The database connection.
      * @param serviceLocator The depedency locator.
      */
-    constructor(connection: Connection, serviceLocator: IServiceLocator) {
-        super(connection, serviceLocator);
-        this.userRepo       = connection.getCustomRepository(UserRepository);
-        this.resetTokenRepo = connection.getCustomRepository(ResetTokenRespository);
+    constructor(serviceLocator: IServiceLocator) {
+        super(serviceLocator);
+        this.userRepo       = DataAccessLayer.current.userRepo;
+        this.resetTokenRepo = DataAccessLayer.current.resetTokenRepo;
     }
 
     /**
@@ -49,6 +49,8 @@ export class PasswordHandler extends LogicHandler {
 
         if(resetToken && resetToken.code == resetCode){
             await user.setPassword(newPassword);
+
+
 
             //Don't want to fail to update the user but revoke their reset token.
             return await this.transaction(async (manager: EntityManager): Promise<boolean> => {

@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const user_1 = require("./user");
 const userstats_1 = require("./userstats");
+const inversify_1 = require("inversify");
 /**
  * Storage interface for Users in the database. Handles loading
  * relationships with other objects such as roles during find operations,
@@ -32,7 +33,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * in the search as well.
      * @returns The user found. (if any)
      */
-    findById(id, includeDeleted = false) {
+    findById(id, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             //Why bother searching?
             if (isNaN(id)) {
@@ -110,26 +111,15 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no error.
      */
-    add(user, transactionManager) {
+    add(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user) {
                 return false;
             }
-            let userRepo;
-            let statsRepo;
-            //Are we running in a transaction?
-            if (transactionManager) {
-                userRepo = transactionManager.getRepository(user_1.User);
-                statsRepo = transactionManager.getRepository(userstats_1.UserStats);
-            }
-            else {
-                userRepo = this.repository;
-                statsRepo = this.getRepositoryFor(userstats_1.UserStats);
-            }
+            let userRepo = this.repository;
+            let statsRepo = this.getRepositoryFor(userstats_1.UserStats);
             //Deleted users still reserve their username since we 
             //don't want any copy cats.
             let usernameCount = yield userRepo.createQueryBuilder()
@@ -156,17 +146,14 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no error.
      */
-    update(user, transactionManager) {
+    update(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user) {
                 return false;
             }
-            let userRepo = transactionManager ? transactionManager.getRepository(user_1.User) : this.repository;
-            let result = yield userRepo.createQueryBuilder()
+            let result = yield this.repository.createQueryBuilder()
                 .update(user_1.User)
                 .set({
                 name: user.name,
@@ -182,17 +169,14 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * Update an existing user's password in the database. This will
      * only update the password hash.
      * @param user The user to update their password.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no errors occured.
      */
-    updatePassword(user, transactionManager) {
+    updatePassword(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user) {
                 return false;
             }
-            let userRepo = transactionManager ? transactionManager.getRepository(user_1.User) : this.repository;
-            let result = yield userRepo.createQueryBuilder()
+            let result = yield this.repository.createQueryBuilder()
                 .update(user_1.User)
                 .set({
                 passwordHash: user.passwordHash,
@@ -206,18 +190,15 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
-     * @param transactionManager The transaction manager to use
-     * when a database transaction is in progress.
      * @returns True if no error.
      */
-    delete(user, transactionManager) {
+    delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (user == null) {
                 return false;
             }
-            let userRepo = transactionManager ? transactionManager.getRepository(user_1.User) : this.repository;
             //We just need to mark the user as deleted
-            let result = yield userRepo.createQueryBuilder()
+            let result = yield this.repository.createQueryBuilder()
                 .update()
                 .set({ isDeleted: true })
                 .where('id = :id', { id: user.id }).execute();
@@ -263,6 +244,7 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
     }
 };
 UserRepository = __decorate([
+    inversify_1.injectable(),
     typeorm_1.EntityRepository(user_1.User)
 ], UserRepository);
 exports.UserRepository = UserRepository;

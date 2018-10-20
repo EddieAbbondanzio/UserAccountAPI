@@ -1,4 +1,4 @@
-import { VerificationToken, User } from "../../../../data/datamodule";
+import { VerificationToken, User } from "../../../../data/models";
 
 /**
  * Test module for the Verification Token data model.

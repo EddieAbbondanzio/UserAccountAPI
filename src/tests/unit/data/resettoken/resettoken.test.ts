@@ -1,4 +1,4 @@
-import { ResetToken, User, UserLogin } from "../../../../data/datamodule";
+import { ResetToken, User, UserLogin } from "../../../../data/models";
 
 /**
  * Test module for the Reset Token data model.

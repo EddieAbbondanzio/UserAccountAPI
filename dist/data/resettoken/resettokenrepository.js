@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const resettoken_1 = require("./resettoken");
+const inversify_1 = require("inversify");
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
  * operations with the database.
@@ -41,41 +42,36 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
     /**
      * Add a new reset token to the database.
      * @param resetToken The token to add to the database.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    add(resetToken, transactionManager) {
+    add(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!resetToken) {
                 return false;
             }
-            let tokenRepo = transactionManager ? transactionManager.getRepository(resettoken_1.ResetToken) : this.repository;
-            let result = yield tokenRepo.insert(resetToken);
+            let result = yield this.repository.insert(resetToken);
             return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Delete an existing reset token from the database.
      * @param resetToken The reset token to delete.
-     * @param transactionManager The transaction manager to use when
-     * a database transaction is in progress.
      * @returns True if no errors.
      */
-    delete(resetToken, transactionManager) {
+    delete(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
             //Stop bad data.
             if (!resetToken) {
                 return false;
             }
-            let tokenRepo = transactionManager ? transactionManager.getRepository(resettoken_1.ResetToken) : this.repository;
-            let result = yield tokenRepo.delete(resetToken);
+            let result = yield this.repository.delete(resetToken);
             return result.raw.affectedRowCount == 1;
         });
     }
 };
 ResetTokenRespository = __decorate([
+    inversify_1.injectable(),
     typeorm_1.EntityRepository(resettoken_1.ResetToken)
 ], ResetTokenRespository);
 exports.ResetTokenRespository = ResetTokenRespository;

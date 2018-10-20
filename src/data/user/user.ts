@@ -3,6 +3,7 @@ import { UserStats } from './userstats';
 import { UserRegistration } from './userregistration';
 import { UserLogin } from '../login/userlogin';
 import { PasswordHasher } from '../../logic/authentication/common/passwordhasher';
+import { injectable } from 'inversify';
 
 /**
  * User object of the service. Represents an individual that 

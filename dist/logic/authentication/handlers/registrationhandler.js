@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 const textemail_1 = require("../../services/email/types/textemail");
 const usercreatevalidator_1 = require("../../validation/user/validators/usercreatevalidator");
 const validationerror_1 = require("../../validation/validationerror");
@@ -40,7 +40,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             if (!registration) {
                 throw new Error('No registration passed in.');
             }
-            let user = yield datamodule_1.User.fromRegistration(registration);
+            let user = yield models_1.User.fromRegistration(registration);
             let vToken;
             //Is the user even valid?
             let validatorResult = this.userCreateValidator.validate(user);
@@ -48,15 +48,15 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
                 throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
             }
             yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
+                let userRepo = manager.getCustomRepository(models_1.UserRepository);
                 yield userRepo.add(user);
                 //Now generate a validation token.
-                vToken = new datamodule_1.VerificationToken(user);
-                let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
+                vToken = new models_1.VerificationToken(user);
+                let tokenRepo = manager.getCustomRepository(models_1.VerificationTokenRepository);
                 yield tokenRepo.add(vToken);
                 //Issue a login for the user
-                let loginRepo = manager.getCustomRepository(datamodule_1.UserLoginRepository);
-                let login = new datamodule_1.UserLogin(user);
+                let loginRepo = manager.getCustomRepository(models_1.UserLoginRepository);
+                let login = new models_1.UserLogin(user);
                 login.token = yield this.tokenManager.issueToken(user);
                 yield loginRepo.add(login);
                 //Set their login, and get ready to return things.
@@ -82,7 +82,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             if (user.isVerified) {
                 return true;
             }
-            let vTokenRepo = this.connection.getCustomRepository(datamodule_1.VerificationTokenRepository);
+            let vTokenRepo = this.connection.getCustomRepository(models_1.VerificationTokenRepository);
             let vToken = yield vTokenRepo.findByUser(user);
             //Not found, or bad match
             if (!vToken || vToken.code !== verificationCode) {
@@ -92,8 +92,8 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
                 user.isVerified = true;
             }
             yield this.transaction((manager) => __awaiter(this, void 0, void 0, function* () {
-                let userRepo = manager.getCustomRepository(datamodule_1.UserRepository);
-                let tokenRepo = manager.getCustomRepository(datamodule_1.VerificationTokenRepository);
+                let userRepo = manager.getCustomRepository(models_1.UserRepository);
+                let tokenRepo = manager.getCustomRepository(models_1.VerificationTokenRepository);
                 yield Promise.all([userRepo.update(user), tokenRepo.delete(vToken)]);
             }));
             return true;
@@ -114,7 +114,7 @@ class RegistrationHandler extends logichandler_1.LogicHandler {
             if (user.isVerified) {
                 return true;
             }
-            let vTokenRepo = this.connection.getCustomRepository(datamodule_1.VerificationTokenRepository);
+            let vTokenRepo = this.connection.getCustomRepository(models_1.VerificationTokenRepository);
             let vToken = yield vTokenRepo.findByUser(user);
             //Not found.
             if (!vToken) {

@@ -1,12 +1,12 @@
 import { LogicHandler } from "../../common/logichandler";
 import { Connection } from "typeorm";
 import { IServiceLocator } from "../../common/iservicelocator";
-import { User } from "../../../data/user/user";
-import { UserRepository, UserLoginRepository, UserLogin } from "../../../data/datamodule";
+import { User, UserLoginRepository, UserLogin, IUserRepository } from "../../../data/models";
 import { AuthenticationError } from "../common/authenticationerror";
 import { TokenManager } from "../common/tokenmanager";
 import { TokenPayload } from "../common/tokenpayload";
 import { StringUtils } from "../../../util/stringutils";
+import { DataAccessLayer } from "../../../data/dataaccesslayer";
 
 /**
  * Business logic for the login portion of the
@@ -22,7 +22,7 @@ export class LoginHandler extends LogicHandler {
      * The user repository for managing CRUD
      * operations with the database for users.
      */
-    private userRepo:UserRepository;
+    private userRepo: IUserRepository;
 
     /**
      * The login repository for managing CRUD
@@ -32,14 +32,13 @@ export class LoginHandler extends LogicHandler {
 
     /**
      * Create a new login handler.
-     * @param connection The database connection.
      * @param serviceLocator The dependency locator.
      */
-    constructor(connection: Connection, serviceLocator: IServiceLocator) {
-        super(connection, serviceLocator);
+    constructor(serviceLocator: IServiceLocator) {
+        super(serviceLocator);
 
         this.tokenManager = serviceLocator.tokenManager;
-        this.userRepo = connection.getCustomRepository(UserRepository);
+        this.userRepo = DataAccessLayer.current.userRepo;
     }
 
     /**

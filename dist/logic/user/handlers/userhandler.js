@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logichandler_1 = require("../../common/logichandler");
-const datamodule_1 = require("../../../data/datamodule");
+const models_1 = require("../../../data/models");
 const userdeletevalidator_1 = require("../../validation/user/validators/userdeletevalidator");
 const userupdatevalidator_1 = require("../../validation/user/validators/userupdatevalidator");
 const validationerror_1 = require("../../validation/validationerror");
@@ -25,7 +25,7 @@ class UserHandler extends logichandler_1.LogicHandler {
      */
     constructor(connection, serviceLocator) {
         super(connection, serviceLocator);
-        this.userRepo = connection.getCustomRepository(datamodule_1.UserRepository);
+        this.userRepo = connection.getCustomRepository(models_1.UserRepository);
         this.updateValidator = new userupdatevalidator_1.UserUpdateValidator();
         this.deleteValidator = new userdeletevalidator_1.UserDeleteValidator();
     }

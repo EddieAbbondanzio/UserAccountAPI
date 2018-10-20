@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const baserouter_1 = require("../common/baserouter");
 const HttpStatus = require("http-status-codes");
-const datamodule_1 = require("../../data/datamodule");
+const models_1 = require("../../data/models");
 /**
  * Controller for handling user related requests. This
  * offers functionality such as registering, retrieving
@@ -34,7 +34,7 @@ class UserController extends baserouter_1.BaseController {
      */
     registerUser(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            let userReg = new datamodule_1.UserRegistration();
+            let userReg = new models_1.UserRegistration();
             userReg.username = request.body.username;
             userReg.password = request.body.password;
             userReg.email = request.body.email;

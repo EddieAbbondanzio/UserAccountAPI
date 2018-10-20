@@ -22,7 +22,7 @@ var ConfigHandler;
      * @param configType The type of config to get.
      * @returns The config to use.
      */
-    function getConfig(configType) {
+    function loadConfig(configType) {
         return __awaiter(this, void 0, void 0, function* () {
             let rawConfig = yield loadRawConfig(configType);
             //Need to recreate the object now
@@ -31,17 +31,20 @@ var ConfigHandler;
             config.tokenSignature = rawConfig.tokenSignature;
             config.emailCredentials.user = rawConfig.email.username;
             config.emailCredentials.pass = rawConfig.email.password;
-            config.databaseConfig.connectionType = rawConfig.connectionType;
-            config.databaseConfig.host = rawConfig.host;
-            config.databaseConfig.port = rawConfig.port;
-            config.databaseConfig.autoSchemaSync = rawConfig.autoSchemaSync;
-            config.databaseConfig.entities = rawConfig.entities;
-            config.databaseConfig.subscribers = rawConfig.subscribers;
-            config.databaseConfig.migrations = rawConfig.migrations;
+            config.database.host = rawConfig.database.host;
+            config.database.port = rawConfig.database.port;
+            config.database.username = rawConfig.database.username;
+            config.database.password = rawConfig.database.password;
+            config.database.database = rawConfig.database.database;
+            config.database.autoSchemaSync = rawConfig.database.autoSchemaSync;
+            config.database.entities = rawConfig.database.entities;
+            config.database.subscribers = rawConfig.database.subscribers;
+            config.database.migrations = rawConfig.database.migrations;
+            config_1.Config.current = config;
             return config;
         });
     }
-    ConfigHandler.getConfig = getConfig;
+    ConfigHandler.loadConfig = loadConfig;
     /**
      * Loads in the config file. This will return 1 or more
      * configs based on what ever is in the file.

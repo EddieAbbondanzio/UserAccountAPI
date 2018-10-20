@@ -1,12 +1,9 @@
+import { ConnectionOptions, ConnectionOptionsReader } from "typeorm";
+
 /**
  * Class for the 
  */
 export class DatabaseConfig {
-    /**
-     * The type of database the ORM is connecting to.
-     */
-    connectionType: string;
-
     /**
      * The IP address of the database server.
      */
