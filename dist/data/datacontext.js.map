@@ -1,1 +1,0 @@
-{"version":3,"file":"datacontext.js","sourceRoot":"","sources":["../../src/data/datacontext.ts"],"names":[],"mappings":";;;;;;;;;;AAAA,4BAA0B;AAC1B,qCAAuD;AAEvD;;;GAGG;AACH,IAAc,WAAW,CAOxB;AAPD,WAAc,WAAW;IACrB;;OAEG;IACH,SAAsB,uBAAuB;;YACzC,OAAO,0BAAgB,EAAE,CAAC;QAC9B,CAAC;KAAA;IAFqB,mCAAuB,0BAE5C,CAAA;AACL,CAAC,EAPa,WAAW,GAAX,mBAAW,KAAX,mBAAW,QAOxB"}

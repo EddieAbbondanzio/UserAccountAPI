@@ -9,13 +9,11 @@ import { UserRepository } from './repositories/userrepository';
 import { UserLoginRepository } from './repositories/userloginrepository';
 import { ResetTokenRespository } from './repositories/resettokenrepository';
 import { VerificationTokenRepository } from './repositories/verificationtokenrepository';
-import { injectable } from 'inversify';
 
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
  */
-@injectable()
 export class MySqlDatabase implements IDatabase {
     /**
      * The repository for users.

@@ -8,8 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const textemail_1 = require("../email/types/textemail");
-const resettoken_1 = require("../models/resettoken");
 const validationerror_1 = require("../validation/validationerror");
 const userupdatevalidator_1 = require("../validation/user/validators/userupdatevalidator");
 const userdeletevalidator_1 = require("../validation/user/validators/userdeletevalidator");
@@ -21,49 +19,16 @@ const servicetype_1 = require("../common/servicetype");
 class UserService extends service_1.Service {
     /**
      * Create a new user service.
-     * @param emailService: The service for sending emails.
+     * @param database The current database.
      */
-    constructor(database, emailService) {
+    constructor(database) {
         super(database);
         /**
          * The type of service it is.
          */
         this.serviceType = servicetype_1.ServiceType.User;
-        this.emailService = emailService;
         this.userUpdateValidator = new userupdatevalidator_1.UserUpdateValidator();
         this.userDeleteValidator = new userdeletevalidator_1.UserDeleteValidator();
-    }
-    /**
-     * User forgot their username and wants it emailed to them.
-     * @param email The user's email to send it to.
-     */
-    emailUserTheirUsername(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.database.userRepo.findByEmail(email);
-            //Only proceed if a user was found.
-            if (user) {
-                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Username', 'Hi, your username is: ' + user.username);
-                yield this.emailService.sendEmail(resetEmail);
-            }
-        });
-    }
-    /**
-     * User forgot their email and wants a temporary access password
-     * emailed to them. This will not remove their existing password.
-     * @param username The username of the user to email.
-     */
-    emailUserResetToken(username) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.database.userRepo.findByUsername(username);
-            //Only send an email if a user was found.
-            if (user) {
-                //Generate them a reset token.
-                let rToken = new resettoken_1.ResetToken(user);
-                yield this.database.resetTokenRepo.add(rToken);
-                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Password Reset', 'Hi, your password reset code is: ' + rToken.code);
-                yield this.emailService.sendEmail(resetEmail);
-            }
-        });
     }
     /**
      * Checks if a username is available for taking.s
@@ -84,7 +49,7 @@ class UserService extends service_1.Service {
      * @param email The email to check.
      * @returns True if the email is being used.
      */
-    isEmailInUser(email) {
+    isEmailInUse(email) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!email) {
                 throw new Error('No email was passed in.');
@@ -113,7 +78,7 @@ class UserService extends service_1.Service {
      * @param includeDeleted If we should include deleted users in the results.
      * @returns The user if found.
      */
-    findById(id, includeDeleted = false) {
+    findById(id, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             if (isNaN(id)) {
                 throw new Error('No user id passed in.');

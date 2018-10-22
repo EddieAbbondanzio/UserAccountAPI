@@ -6,6 +6,13 @@ import * as Minimist from 'minimist';
 import { createConnection } from 'typeorm';
 import { IDatabase } from './logic/common/idatabase';
 import { MySqlDatabase } from './data/mysqldatabase';
+import { UserService } from './logic/services/userservice';
+import { ServiceLocator } from './logic/common/servicelocator';
+import { AuthService } from './logic/services/authservice';
+import { IEmailSender } from './logic/email/iemailsender';
+import { ZohoEmailService } from './logic/email/zohoemailsender';
+import { TokenManager } from './logic/helpers/tokenmanager';
+import { ServiceType } from './logic/common/servicetype';
 
 /**
  * Initialize the application for use. This first starts
@@ -26,11 +33,11 @@ async function initialize() {
     await database.initialize(config.database);
 
     //Set up the BLL.
+    let emailSender: IEmailSender = new ZohoEmailService(config.emailCredentials);
+    let tokenManager: TokenManager = new TokenManager(config.tokenSignature);
 
-    //Register the user service
-    //Register the auth service.
-
-
+    ServiceLocator.register(new AuthService(database, tokenManager, emailSender));
+    ServiceLocator.register(new UserService(database));
 
 
 

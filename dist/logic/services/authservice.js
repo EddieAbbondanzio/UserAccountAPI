@@ -12,6 +12,7 @@ const user_1 = require("../models/user");
 const stringutils_1 = require("../../util/stringutils");
 const authenticationerror_1 = require("../common/authenticationerror");
 const userlogin_1 = require("../models/userlogin");
+const resettoken_1 = require("../models/resettoken");
 const verificationtoken_1 = require("../models/verificationtoken");
 const textemail_1 = require("../email/types/textemail");
 const service_1 = require("../common/service");
@@ -27,16 +28,16 @@ class AuthService extends service_1.Service {
      * Create a new authentication service.
      * @param database The current database.
      * @param tokenManager The JWT manager.
-     * @param emailService The email sender service.
+     * @param emailSender The email sender service.
      */
-    constructor(database, tokenManager, emailService) {
+    constructor(database, tokenManager, emailSender) {
         super(database);
         /**
          * The type of service it is.
          */
         this.serviceType = servicetype_1.ServiceType.Auth;
         this.tokenManager = tokenManager;
-        this.emailService = emailService;
+        this.emailSender = emailSender;
         this.userCreateValidator = new usercreatevalidator_1.UserCreateValidator();
     }
     /**
@@ -102,12 +103,12 @@ class AuthService extends service_1.Service {
         });
     }
     /**
- * Reset a user's password after verifying their token is valid.
- * @param user The user.
- * @param resetCode Their temporary access password.
- * @param newPassword Their new desired password.
- * @returns True if the token was valid.
- */
+     * Reset a user's password after verifying their token is valid.
+     * @param user The user.
+     * @param resetCode Their temporary access password.
+     * @param newPassword Their new desired password.
+     * @returns True if the token was valid.
+     */
     resetPassword(user, resetCode, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user) {
@@ -236,17 +237,6 @@ class AuthService extends service_1.Service {
         });
     }
     /**
-     * Send the user their validation code via an email.
-     * @param user The user to re email.
-     * @param vToken Their validation code.
-     */
-    sendVerificationEmail(user, vToken) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let validationEmail = new textemail_1.TextEmail(user.email, "No Man's Blocks Account Confirmation.", "Thanks for joining! Your confirmation code is: " + vToken.code);
-            return this.emailService.sendEmail(validationEmail);
-        });
-    }
-    /**
      * Validate that a user is who they claim to be. This will check their username
      * against the login provided in the database.
      * @param user The user to validate.
@@ -266,6 +256,49 @@ class AuthService extends service_1.Service {
             else {
                 return false;
             }
+        });
+    }
+    /**
+     * User forgot their username and wants it emailed to them.
+     * @param email The user's email to send it to.
+     */
+    emailUserTheirUsername(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let user = yield this.database.userRepo.findByEmail(email);
+            //Only proceed if a user was found.
+            if (user) {
+                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Username', 'Hi, your username is: ' + user.username);
+                yield this.emailSender.sendEmail(resetEmail);
+            }
+        });
+    }
+    /**
+     * User forgot their email and wants a temporary access password
+     * emailed to them. This will not remove their existing password.
+     * @param username The username of the user to email.
+     */
+    emailUserResetToken(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let user = yield this.database.userRepo.findByUsername(username);
+            //Only send an email if a user was found.
+            if (user) {
+                //Generate them a reset token.
+                let rToken = new resettoken_1.ResetToken(user);
+                yield this.database.resetTokenRepo.add(rToken);
+                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Password Reset', 'Hi, your password reset code is: ' + rToken.code);
+                yield this.emailSender.sendEmail(resetEmail);
+            }
+        });
+    }
+    /**
+     * Send the user their validation code via an email.
+     * @param user The user to re email.
+     * @param vToken Their validation code.
+     */
+    sendVerificationEmail(user, vToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let validationEmail = new textemail_1.TextEmail(user.email, "No Man's Blocks Account Confirmation.", "Thanks for joining! Your confirmation code is: " + vToken.code);
+            return this.emailSender.sendEmail(validationEmail);
         });
     }
 }

@@ -1,25 +1,26 @@
 {
     "compilerOptions": {
-      "lib": [ "es6" ],
-      "types": [ "node" ],
-      "module": "commonjs",
-      "target": "es6",
-      "strict": false,
-      "moduleResolution": "node",
-      "noImplicitAny": true,
-      "pretty": true,
-      "allowUnreachableCode": false,
-      "noImplicitReturns": true,
-      "emitDecoratorMetadata": true,
-      "forceConsistentCasingInFileNames": true,
-      "experimentalDecorators": true,
-      "sourceMap": true,
-      "outDir": "dist"
+        "lib": [
+            "es6"
+        ],
+        "types": [
+            "node"
+        ],
+        "module": "commonjs",
+        "target": "es6",
+        "strict": false,
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "pretty": true,
+        "allowUnreachableCode": false,
+        "noImplicitReturns": true,
+        "emitDecoratorMetadata": true,
+        "forceConsistentCasingInFileNames": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "outDir": "dist"
     },
     "include": [
-        "src/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
+        "src/**/*.ts",
     ]
 }

@@ -5,7 +5,6 @@ import { AuthenticationError } from "../common/authenticationerror";
 import { UserLogin } from "../models/userlogin";
 import { TokenPayload } from "../common/tokenpayload";
 import { ResetToken } from "../models/resettoken";
-import { IEmailService } from "../email/iemailservice";
 import { VerificationToken } from "../models/verificationtoken";
 import { IEmail } from "../email/types/iemail";
 import { TextEmail } from "../email/types/textemail";
@@ -16,12 +15,14 @@ import { ValidatorResult } from "../validation/validatorresult";
 import { UserCreateValidator } from "../validation/user/validators/usercreatevalidator";
 import { ValidationError } from "../validation/validationerror";
 import { ServiceType } from "../common/servicetype";
+import { IAuthService } from "./iauthservice";
+import { IEmailSender } from "../email/iemailsender";
 
 /**
  * The authentication service of the system. This handles registering,
  * logging in, or updating user's passwords.
  */
-export class AuthService extends Service {
+export class AuthService extends Service implements IAuthService {
     /**
      * The type of service it is.
      */
@@ -35,7 +36,7 @@ export class AuthService extends Service {
     /**
      * The service for sending emails.
      */
-    private emailService: IEmailService;
+    private emailSender: IEmailSender;
 
     /**
      * The validator to validate users being created.
@@ -46,13 +47,13 @@ export class AuthService extends Service {
      * Create a new authentication service.
      * @param database The current database.
      * @param tokenManager The JWT manager.
-     * @param emailService The email sender service.
+     * @param emailSender The email sender service.
      */
-    constructor(database: IDatabase, tokenManager: TokenManager, emailService: IEmailService) {
+    constructor(database: IDatabase, tokenManager: TokenManager, emailSender: IEmailSender) {
         super(database);
 
         this.tokenManager = tokenManager;
-        this.emailService = emailService;
+        this.emailSender  = emailSender;
 
         this.userCreateValidator = new UserCreateValidator();
     }
@@ -127,7 +128,7 @@ export class AuthService extends Service {
         return success;
     }
 
-        /**
+    /**
      * Reset a user's password after verifying their token is valid.
      * @param user The user.
      * @param resetCode Their temporary access password.
@@ -179,7 +180,6 @@ export class AuthService extends Service {
 
         return false;
     }
-
     
     /**
      * Register a new user with the system. This will
@@ -285,20 +285,6 @@ export class AuthService extends Service {
         
         return this.sendVerificationEmail(user, vToken);
     }
-
-    /**
-     * Send the user their validation code via an email.
-     * @param user The user to re email.
-     * @param vToken Their validation code.
-     */
-    private async sendVerificationEmail(user: User, vToken: VerificationToken): Promise<boolean>{
-        let validationEmail: IEmail = new TextEmail(user.email,
-            "No Man's Blocks Account Confirmation.",
-            "Thanks for joining! Your confirmation code is: " + vToken.code
-        );
-
-        return this.emailService.sendEmail(validationEmail);
-    }
     
     /**
      * Validate that a user is who they claim to be. This will check their username
@@ -321,5 +307,62 @@ export class AuthService extends Service {
         else {
             return false;
         }
+    }
+
+    
+    /**
+     * User forgot their username and wants it emailed to them.
+     * @param email The user's email to send it to.
+     */
+    public async emailUserTheirUsername(email: string): Promise<void> {
+        let user: User = await this.database.userRepo.findByEmail(email);
+
+        //Only proceed if a user was found.
+        if(user){
+            let resetEmail: TextEmail = new TextEmail(user.email, 
+                'No Mans Blocks Username',
+                'Hi, your username is: ' + user.username    
+            );
+
+            await this.emailSender.sendEmail(resetEmail);
+        }
+    }
+
+    /**
+     * User forgot their email and wants a temporary access password
+     * emailed to them. This will not remove their existing password.
+     * @param username The username of the user to email.
+     */
+    public async emailUserResetToken(username: string): Promise<void> {
+        let user: User = await this.database.userRepo.findByUsername(username);
+
+        //Only send an email if a user was found.
+        if(user){
+            //Generate them a reset token.
+            let rToken: ResetToken = new ResetToken(user);
+            await this.database.resetTokenRepo.add(rToken);
+
+            let resetEmail: TextEmail = new TextEmail(user.email,
+                'No Mans Blocks Password Reset',
+                'Hi, your password reset code is: ' + rToken.code
+            );
+
+            await this.emailSender.sendEmail(resetEmail);
+        }
+    }
+
+    
+    /**
+     * Send the user their validation code via an email.
+     * @param user The user to re email.
+     * @param vToken Their validation code.
+     */
+    private async sendVerificationEmail(user: User, vToken: VerificationToken): Promise<boolean> {
+        let validationEmail: IEmail = new TextEmail(user.email,
+            "No Man's Blocks Account Confirmation.",
+            "Thanks for joining! Your confirmation code is: " + vToken.code
+        );
+
+        return this.emailSender.sendEmail(validationEmail);
     }
 }

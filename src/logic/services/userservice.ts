@@ -1,7 +1,6 @@
 import { ValidatorResult } from "../validation/validatorresult";
 import { User } from "../models/user";
 import { TextEmail } from "../email/types/textemail";
-import { IEmailService } from "../email/iemailservice";
 import { ResetToken } from "../models/resettoken";
 import { ValidationError } from "../validation/validationerror";
 import { UserUpdateValidator } from "../validation/user/validators/userupdatevalidator";
@@ -9,20 +8,16 @@ import { UserDeleteValidator } from "../validation/user/validators/userdeleteval
 import { Service } from "../common/service";
 import { IDatabase } from "../common/idatabase";
 import { ServiceType } from "../common/servicetype";
+import { IUserService } from "./iuserservice";
 
 /**
  * The user service for retrieving users from the system.
  */
-export class UserService extends Service {
+export class UserService extends Service implements IUserService {
     /**
      * The type of service it is.
      */
     readonly serviceType: ServiceType = ServiceType.User;
-
-    /**
-     * The service for sending out emails.
-     */
-    private emailService: IEmailService;
 
     /**
      * The validator to validate a user being updated.
@@ -36,57 +31,14 @@ export class UserService extends Service {
 
     /**
      * Create a new user service.
-     * @param emailService: The service for sending emails.
+     * @param database The current database.
      */
-    constructor(database: IDatabase, emailService: IEmailService) {
+    constructor(database: IDatabase) {
         super(database);
-        this.emailService = emailService;
         
         this.userUpdateValidator = new UserUpdateValidator();
         this.userDeleteValidator = new UserDeleteValidator();
     }
-
-    /**
-     * User forgot their username and wants it emailed to them.
-     * @param email The user's email to send it to.
-     */
-    public async emailUserTheirUsername(email: string): Promise<void> {
-        let user: User = await this.database.userRepo.findByEmail(email);
-
-        //Only proceed if a user was found.
-        if(user){
-            let resetEmail: TextEmail = new TextEmail(user.email, 
-                'No Mans Blocks Username',
-                'Hi, your username is: ' + user.username    
-            );
-
-            await this.emailService.sendEmail(resetEmail);
-        }
-    }
-
-    /**
-     * User forgot their email and wants a temporary access password
-     * emailed to them. This will not remove their existing password.
-     * @param username The username of the user to email.
-     */
-    public async emailUserResetToken(username: string): Promise<void> {
-        let user: User = await this.database.userRepo.findByUsername(username);
-
-        //Only send an email if a user was found.
-        if(user){
-            //Generate them a reset token.
-            let rToken: ResetToken = new ResetToken(user);
-            await this.database.resetTokenRepo.add(rToken);
-
-            let resetEmail: TextEmail = new TextEmail(user.email,
-                'No Mans Blocks Password Reset',
-                'Hi, your password reset code is: ' + rToken.code
-            );
-
-            await this.emailService.sendEmail(resetEmail);
-        }
-    }
-
     
     /**
      * Checks if a username is available for taking.s
@@ -107,7 +59,7 @@ export class UserService extends Service {
      * @param email The email to check.
      * @returns True if the email is being used.
      */
-    public async isEmailInUser(email: string): Promise<boolean> {
+    public async isEmailInUse(email: string): Promise<boolean> {
         if(!email){
             throw new Error('No email was passed in.');
         }
@@ -136,7 +88,7 @@ export class UserService extends Service {
      * @param includeDeleted If we should include deleted users in the results.
      * @returns The user if found.
      */
-    public async findById(id: number, includeDeleted: boolean = false):Promise<User> {
+    public async findById(id: number, includeDeleted?: boolean):Promise<User> {
         if(isNaN(id)){
             throw new Error('No user id passed in.');
         }
