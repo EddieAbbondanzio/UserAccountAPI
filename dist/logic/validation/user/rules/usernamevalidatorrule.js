@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const stringutils_1 = require("../../../../util/stringutils");
-const user_1 = require("../../../../data/user/user");
 const validatorruleresult_1 = require("../../../validation/validatorruleresult");
+const user_1 = require("../../../models/user");
 /**
  * Validates the user's real name to ensure it's not missing,
  * and it's not too long.

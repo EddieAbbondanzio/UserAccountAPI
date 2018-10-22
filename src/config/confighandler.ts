@@ -33,7 +33,6 @@ export module ConfigHandler {
         config.database.subscribers    = rawConfig.database.subscribers;
         config.database.migrations     = rawConfig.database.migrations;
 
-        Config.current = config;
         return config;
     }
 

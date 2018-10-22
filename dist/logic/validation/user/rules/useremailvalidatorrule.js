@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const stringutils_1 = require("../../../../util/stringutils");
-const user_1 = require("../../../../data/user/user");
 const validatorruleresult_1 = require("../../../validation/validatorruleresult");
+const user_1 = require("../../../models/user");
 /**
  * Validates that a user's email is not too long, or missing.
  */

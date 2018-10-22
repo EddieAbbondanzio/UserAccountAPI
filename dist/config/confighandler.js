@@ -40,7 +40,6 @@ var ConfigHandler;
             config.database.entities = rawConfig.database.entities;
             config.database.subscribers = rawConfig.database.subscribers;
             config.database.migrations = rawConfig.database.migrations;
-            config_1.Config.current = config;
             return config;
         });
     }

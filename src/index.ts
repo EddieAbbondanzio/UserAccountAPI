@@ -1,14 +1,11 @@
-import { Server } from './server/server';
-import { DataContext } from './data/datacontext';
-import { ServiceLocator } from './logic/servicelocator';
 import { Config } from './config/config';
 import { ConfigHandler } from './config/confighandler';
 import { ConfigType } from './config/configtype';
 import { ConfigTypeUtils } from './config/configtypeutils';
 import * as Minimist from 'minimist';
-import { MysqlDataAccessLayer } from './data/mysqldataaccesslayer';
-import {IUserLoginRepository, UserLoginRepository, UserRegistration, User, UserStats } from './data/models';
 import { createConnection } from 'typeorm';
+import { IDatabase } from './logic/common/idatabase';
+import { MySqlDatabase } from './data/mysqldatabase';
 
 /**
  * Initialize the application for use. This first starts
@@ -20,26 +17,28 @@ async function initialize() {
     //Get the command line arguments
     var parseArgs = Minimist(process.argv);
 
-    //Get the connections
+    //Load in the config to run with
     let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(parseArgs.e);
     let config: Config = await ConfigHandler.loadConfig(configType);
 
-    let dal: MysqlDataAccessLayer = new MysqlDataAccessLayer();
-    await dal.initialize();
+    //Get the database up
+    let database: IDatabase = new MySqlDatabase();
+    await database.initialize(config.database);
 
-    await dal.startWork();
+    //Set up the BLL.
 
-    let user: User = new User();
-    user.username = 'BADDATA';
-    user.passwordHash = 'HAAHSHHSAH';
-    user.email = 'NoWAY';
-    user.name = 'BAD DATA';
-    user.stats = new UserStats();
-    user.stats.user = user;
+    //Register the user service
+    //Register the auth service.
 
-    await dal.userRepo.add(user);
 
-    await dal.commitWork();
+
+
+
+
+    // //Set up the data layer
+    // AppDomain.dataAccessLayer = new MysqlDataAccessLayer();
+    // await AppDomain.dataAccessLayer.initialize();
+
 
     //Get the data connection ready to roll.
     // const connection = await DataContext.initializeDatabaseAsync();

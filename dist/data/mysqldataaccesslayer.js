@@ -9,29 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-const dataaccesslayer_1 = require("./dataaccesslayer");
-const config_1 = require("../config/config");
 const userrepository_1 = require("./user/userrepository");
 const userloginrepository_1 = require("./login/userloginrepository");
 const verificationtokenrepository_1 = require("./verificationtoken/verificationtokenrepository");
 const resettokenrepository_1 = require("./resettoken/resettokenrepository");
+const appdomain_1 = require("../appdomain");
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
  */
-class MysqlDataAccessLayer extends dataaccesslayer_1.DataAccessLayer {
-    /**
-     * Create a new data access layer.
-     */
-    constructor() {
-        super();
-    }
+class MysqlDataAccessLayer {
     /**
      * Initialize the data layer for use.
      */
     initialize() {
         return __awaiter(this, void 0, void 0, function* () {
-            let dbConfig = config_1.Config.current.database;
+            let dbConfig = appdomain_1.AppDomain.config.database;
             this.connection = yield typeorm_1.createConnection({
                 type: 'mysql',
                 host: dbConfig.host,

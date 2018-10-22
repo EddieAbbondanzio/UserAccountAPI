@@ -1,6 +1,6 @@
-import { EmailCredentials } from "../logic/services/email/emailcredentials";
 import { DatabaseConfig } from "./databaseconfig";
 import { ConfigType } from "./configtype";
+import { EmailCredentials } from "../logic/email/emailcredentials";
 
 /**
  * Configuration settings for the app. This contains the
@@ -8,7 +8,7 @@ import { ConfigType } from "./configtype";
  */
 export class Config {
     /**
-     * The reference to the current config to work with.
+     * The current config to use.
      */
     public static current: Config;
 
@@ -38,7 +38,13 @@ export class Config {
      * Create a new config setup.
      */
     constructor() {
+        if(Config.current){
+            throw new Error('A config already exists?');
+        }
+
+        Config.current = this;
+
         this.emailCredentials = new EmailCredentials();
-        this.database   = new DatabaseConfig();
+        this.database         = new DatabaseConfig();
     }
 }

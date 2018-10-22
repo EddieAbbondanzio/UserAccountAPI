@@ -11,8 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const confighandler_1 = require("./config/confighandler");
 const configtypeutils_1 = require("./config/configtypeutils");
 const Minimist = require("minimist");
-const mysqldataaccesslayer_1 = require("./data/mysqldataaccesslayer");
-const models_1 = require("./data/models");
+const mysqldatabase_1 = require("./data/mysqldatabase");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -23,21 +22,18 @@ function initialize() {
         try {
             //Get the command line arguments
             var parseArgs = Minimist(process.argv);
-            //Get the connections
+            //Load in the config to run with
             let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(parseArgs.e);
             let config = yield confighandler_1.ConfigHandler.loadConfig(configType);
-            let dal = new mysqldataaccesslayer_1.MysqlDataAccessLayer();
-            yield dal.initialize();
-            yield dal.startWork();
-            let user = new models_1.User();
-            user.username = 'BADDATA';
-            user.passwordHash = 'HAAHSHHSAH';
-            user.email = 'NoWAY';
-            user.name = 'BAD DATA';
-            user.stats = new models_1.UserStats();
-            user.stats.user = user;
-            yield dal.userRepo.add(user);
-            yield dal.commitWork();
+            //Get the database up
+            let database = new mysqldatabase_1.MySqlDatabase();
+            yield database.initialize(config.database);
+            //Set up the BLL.
+            //Register the user service
+            //Register the auth service.
+            // //Set up the data layer
+            // AppDomain.dataAccessLayer = new MysqlDataAccessLayer();
+            // await AppDomain.dataAccessLayer.initialize();
             //Get the data connection ready to roll.
             // const connection = await DataContext.initializeDatabaseAsync();
             // // Set up the logic layer for use.

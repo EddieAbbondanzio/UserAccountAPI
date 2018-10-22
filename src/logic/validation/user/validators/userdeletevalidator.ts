@@ -1,6 +1,6 @@
 import { UserNotDeletedValidatorRule } from "../rules/usernotdeletedvalidatorrule";
 import { Validator } from "../../validator";
-import { User } from "../../../../data/user/user";
+import { User } from "../../../models/user";
 
 /**
  * Validator to check that a user can be deleted.

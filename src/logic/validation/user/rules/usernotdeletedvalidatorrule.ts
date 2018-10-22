@@ -1,6 +1,6 @@
 import { IValidatorRule } from "../../ivalidatorrule";
-import { User } from "../../../../data/user/user";
 import { ValidatorRuleResult } from "../../validatorruleresult";
+import { User } from "../../../models/user";
 
 /**
  * Validator rule to check that a user hasn't already been deleted.

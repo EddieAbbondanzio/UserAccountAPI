@@ -1,7 +1,7 @@
 import { StringUtils } from "../../../../util/stringutils";
-import { User } from "../../../../data/user/user";
 import { IValidatorRule } from "../../../validation/ivalidatorrule";
 import { ValidatorRuleResult } from "../../../validation/validatorruleresult";
+import { User } from "../../../models/user";
 
 /**
  * Validates the user's real name to ensure it's not missing,
