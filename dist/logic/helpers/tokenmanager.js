@@ -22,7 +22,6 @@ class TokenManager {
      * @param secretKey The secret encryption key.
      */
     constructor(secretKey) {
-        console.log('Secret key is: ', secretKey);
         if (stringutils_1.StringUtils.isEmpty(secretKey)) {
             throw new Error('A secret key is required!');
         }

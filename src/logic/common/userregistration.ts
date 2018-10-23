@@ -38,20 +38,9 @@ export class UserRegistration {
      * @param email Their contact email.
      */
     constructor(username?: string, password?: string, name?: string, email?: string) {
-        if(username != undefined){
-            this.username = username;
-        }
-
-        if(password != undefined){
-            this.password = password;
-        }
-
-        if(name != undefined){
-            this.name  = name;
-        }
-
-        if(email != undefined){
-            this.email = email;
-        }
+        this.username = username;
+        this.password = password;
+        this.name  = name;
+        this.email = email;
     }
 }

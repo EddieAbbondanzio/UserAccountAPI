@@ -34,7 +34,6 @@ export class ZohoEmailService implements IEmailSender {
             secure: true,
             auth: this.credentials
         });
-
     }
 
     /**

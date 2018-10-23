@@ -94,7 +94,8 @@ export class TokenManager {
         return new Promise<any>((resolve, reject) => {
             JWT.verify(token, this.secretKey, this.verifyOptions, (error, decoded) => {
                 if(error){
-                    reject(error);
+                    resolve(null);
+                    // reject(error);
                 }
                 else {
                     let payload: TokenPayload = new TokenPayload(parseInt((decoded as any).userId, 10));
