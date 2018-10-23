@@ -14,7 +14,8 @@ export class ValidationError extends Error {
      * @param message Summary of the issue.
      * @param validatorResult The validator's output.
      */
-    constructor(message: string, validatorResult: ValidatorResult){
+    constructor(message: string, validatorResult?: ValidatorResult){
         super(message);
+        this.validatorResult = validatorResult;
     }
 }
