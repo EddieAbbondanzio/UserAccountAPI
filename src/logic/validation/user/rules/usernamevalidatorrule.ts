@@ -18,6 +18,10 @@ export class UserNameValidatorRule implements IValidatorRule<User> {
      * @returns The rule's result.
      */
     public validate(user: User): ValidatorRuleResult {
+        if(!user){
+            throw new Error('No user passed in.');
+        }
+
         //Any name?
         if(StringUtils.isEmpty(user.name)){
             return new ValidatorRuleResult(false, UserNameValidatorRule.NAME_MISSING_ERROR);

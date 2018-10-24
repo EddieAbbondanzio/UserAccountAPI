@@ -25,6 +25,10 @@ export abstract class Validator<T> {
      * @returns The validation result.
      */
     public validate(entity: T): ValidatorResult {
+        if(entity == null){
+            throw new Error('No entity passed in');
+        }
+
         let result: ValidatorResult = new ValidatorResult();
         
         for(let i = 0; i < this.rules.length; i++){

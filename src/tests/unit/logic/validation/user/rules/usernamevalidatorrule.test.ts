@@ -11,6 +11,10 @@ describe('UserNameValidatorRule', () => {
 
     describe('validate()', () => {
         let user: User = new User();
+
+        it('throws an error if no user', () => {
+            expect(() => { validatorRule.validate(undefined)}).to.throw();
+        });
         
         it('returns false for no name', () => {
             expect(validatorRule.validate(user).isValid).to.be.false;

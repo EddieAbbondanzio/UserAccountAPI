@@ -20,9 +20,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns The user found. (if any)
      */
     public async findById(id: number, includeDeleted?: boolean):Promise<User> {
-        //Why bother searching?
         if(isNaN(id)){
-            return null;
+            throw new Error('No id passed in.');
         }
 
         if(includeDeleted){
@@ -49,8 +48,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns The user found. (if any)
      */
     public async findByUsername(username: string, includeDeleted?: boolean):Promise<User> {
-        if(username == undefined){
-            return undefined;
+        if(username == null){
+            throw new Error('No username passed in.');
         }
 
         if(includeDeleted){
@@ -74,8 +73,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns User with matching email, or null.
      */
     public async findByEmail(email: string, includeDeleted?: boolean): Promise<User> {
-        if(!email){
-            return null; 
+        if(email == null){
+            throw new Error('No email passed in.');
         }
 
         if(includeDeleted){
@@ -100,8 +99,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns True if no error.
      */
     public async add(user: User): Promise<boolean> {
-        if(!user){
-            return false;
+        if(user == null){
+            throw new Error('No user passed in.');
         }
 
         let userRepo:  Repository<User> = this.repository;
@@ -140,8 +139,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns True if no error.
      */
     public async update(user: User): Promise<boolean> {
-        if(!user){
-            return false;
+        if(user == null){
+            throw new Error('No user passed in.');
         }
 
         let result: UpdateResult = await this.repository.createQueryBuilder()
@@ -164,8 +163,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns True if no errors occured.
      */
     public async updatePassword(user: User): Promise<boolean> {
-        if(!user){
-            return false;
+        if(user == null){
+            throw new Error('No user passed in.');
         }
 
         let result: UpdateResult = await this.repository.createQueryBuilder()
@@ -187,7 +186,7 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      */
     public async delete(user: User): Promise<boolean> {
         if(user == null){
-            return false;
+            throw new Error('No user passed in.');
         }
 
         //We just need to mark the user as deleted
@@ -206,8 +205,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * for the grabbing.
      */
     public async isUsernameAvailable(username: string):Promise<boolean> {
-        if(!username){
-            return false;
+        if(username == null){
+            throw new Error('No username passed in.');
         }
 
         //Deleted users still reserve their username
@@ -225,8 +224,8 @@ export class UserRepository  extends AbstractRepository<User> implements IUserRe
      * @returns True if the email exists.
      */
     public async isEmailInUse(email: string): Promise<boolean> {
-        if(!email){
-            return false;
+        if(email == null){
+            throw new Error('No email passed in.');
         }
 
         let foundCount: number = await this.repository.createQueryBuilder()

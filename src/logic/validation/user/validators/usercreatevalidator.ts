@@ -2,7 +2,6 @@ import { UserUsernameValidatorRule } from "../rules/userusernamevalidatorrule";
 import { UserPasswordValidatorRule } from "../rules/userpasswordvalidatorrule";
 import { UserEmailValidatorRule } from "../rules/useremailvalidatorrule";
 import { UserNameValidatorRule } from "../rules/usernamevalidatorrule";
-import { IValidatorRule } from "../../ivalidatorrule";
 import { Validator } from "../../validator";
 import { User } from "../../../models/user";
 

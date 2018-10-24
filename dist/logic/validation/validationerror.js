@@ -11,6 +11,7 @@ class ValidationError extends Error {
      */
     constructor(message, validatorResult) {
         super(message);
+        this.validatorResult = validatorResult;
     }
 }
 exports.ValidationError = ValidationError;

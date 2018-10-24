@@ -8,4 +8,10 @@ import { UserUsernameValidatorRule } from '../../../../../../logic/validation/us
 describe('UserUsernameValidatorRule', () => {
     let validatorRule: UserUsernameValidatorRule = new UserUsernameValidatorRule();
     
+    describe('validate()', () => {
+        it('throws an error if no user', () => {
+            expect(() => { validatorRule.validate(undefined)}).to.throw();
+        });
+        
+    });
 });

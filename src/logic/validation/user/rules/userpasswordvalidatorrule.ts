@@ -16,6 +16,10 @@ export class UserPasswordValidatorRule implements IValidatorRule<User> {
      * @returns The validation result.
      */
     public validate(user: User): ValidatorRuleResult {
+        if(!user){
+            throw new Error('No user passed in.');
+        }
+
         //Any password?
         if(StringUtils.isEmpty(user.passwordHash)) {
             return new ValidatorRuleResult(false, UserPasswordValidatorRule.PASSWORD_MISSING_ERROR);

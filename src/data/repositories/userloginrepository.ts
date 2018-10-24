@@ -15,8 +15,8 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
      * @returns The login found (or null).
      */
     public async findByUser(user: User): Promise<UserLogin> {
-        if(user == undefined){
-            return undefined;
+        if(user == null) {
+            throw new Error('No user passed in.');
         }
 
         return this.repository.createQueryBuilder('login')
@@ -31,8 +31,8 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
      * @returns True if no errors.
      */
     public async add(userLogin: UserLogin): Promise<boolean> {
-        if(!userLogin){
-            return false;
+        if(userLogin == null) {
+            throw new Error('No userLogin passed in.');
         }
 
         let result: InsertResult = await this.repository.insert(userLogin);
@@ -45,8 +45,8 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
      * @returns True if no errors.
      */
     public async delete(userlogin: UserLogin): Promise<boolean> {
-        if(!userlogin){
-            return false;
+        if(userlogin == null) {
+            throw new Error('No userLogin passed in.');
         }
 
         let result: DeleteResult = await this.repository.delete(userlogin);

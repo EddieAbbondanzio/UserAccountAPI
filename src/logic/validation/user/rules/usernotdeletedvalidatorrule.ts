@@ -12,6 +12,10 @@ export class UserNotDeletedValidatorRule implements IValidatorRule<User> {
      * @returns The validation result.
      */
     public validate(user: User): ValidatorRuleResult {
+        if(!user){
+            throw new Error('No user passed in.');
+        }
+
         if(user.isDeleted){
             return new ValidatorRuleResult(false, 'User has already been deleted.');
         }

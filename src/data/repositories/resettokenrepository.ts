@@ -2,6 +2,7 @@ import { AbstractRepository, EntityRepository, EntityManager, Repository, Delete
 import { ResetToken } from "../../logic/models/resettoken";
 import { IResetTokenRepository } from "../../logic/repositories/iresettokenrepository";
 import { User } from "../../logic/models/user";
+import { ArgumentError } from "../../common/errors/argumenterror";
 
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
@@ -15,9 +16,8 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * @returns The token found (or null).
      */
     public async findByUser(user: User): Promise<ResetToken> {
-        //Stop bad data
-        if(user == undefined){
-            return undefined;
+        if(user == null){
+            throw new ArgumentError('user', 'is missing');
         }
 
         return this.repository.createQueryBuilder('token')
@@ -32,9 +32,8 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * @returns True if no errors.
      */
     public async add(resetToken: ResetToken): Promise<boolean> {
-        //Stop bad data.
-        if(!resetToken) {
-            return false;
+        if(resetToken == null) {
+            throw new ErrAor('No resetToken passed in.');
         }
 
         let result: InsertResult = await this.repository.insert(resetToken);
@@ -48,9 +47,8 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * @returns True if no errors.
      */
     public async delete(resetToken: ResetToken): Promise<boolean> {
-        //Stop bad data.
-        if(!resetToken) {
-            return false;
+        if(resetToken == null) {
+            throw new Error('No resetToken passed in.');
         }
 
         let result: DeleteResult = await this.repository.delete(resetToken);

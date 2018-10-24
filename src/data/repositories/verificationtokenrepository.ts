@@ -15,8 +15,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
      * @returns The token found (or null).
      */
     public async findByUser(user: User): Promise<VerificationToken> {
-        //Stop bad data
-        if(!user){
+        if(user == null){
             return null;
         }
  
@@ -32,8 +31,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
      * @returns True if no errors.
      */
     public async add(verificationToken: VerificationToken): Promise<boolean> {
-        //Stop bad data.
-        if(!verificationToken) {
+        if(verificationToken == null) {
             return false;
         }
 
@@ -48,8 +46,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
      * @returns True if no errors.
      */
     public async delete(verificationToken: VerificationToken): Promise<boolean> {
-        //Stop bad data.
-        if(!verificationToken) {
+        if(verificationToken == null) {
             return false;
         }
 

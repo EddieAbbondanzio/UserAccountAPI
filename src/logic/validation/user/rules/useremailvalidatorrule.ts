@@ -18,6 +18,10 @@ export class UserEmailValidatorRule implements IValidatorRule<User> {
      * @returns The rule's result.
      */
     public validate(user: User): ValidatorRuleResult {
+        if(!user){
+            throw new Error('No user passed in.');
+        }
+
         //Any email?
         if(StringUtils.isEmpty(user.email)){
             return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_MISSING_ERROR);

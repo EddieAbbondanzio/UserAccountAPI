@@ -70,8 +70,8 @@ export class MySqlDatabase implements IDatabase {
         new EntityManager(this.connection, this.queryRunner);
 
         //Get the repos
-        this.userRepo = this.queryRunner.manager.getCustomRepository(UserRepository);
-        this.loginRepo = this.queryRunner.manager.getCustomRepository(UserLoginRepository);
+        this.userRepo       = this.queryRunner.manager.getCustomRepository(UserRepository);
+        this.loginRepo      = this.queryRunner.manager.getCustomRepository(UserLoginRepository);
         this.resetTokenRepo = this.queryRunner.manager.getCustomRepository(ResetTokenRespository);
         this.verificationTokenRepo = this.queryRunner.manager.getCustomRepository(VerificationTokenRepository);
     }
