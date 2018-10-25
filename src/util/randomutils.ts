@@ -1,3 +1,4 @@
+import { ArgumentError } from "../common/errors/argumenterror";
 
 /**
  * Utility methods related to generating random
@@ -11,7 +12,7 @@ export module RandomUtils {
      */
     export function generateRandomString(length: number):string {
         if(length < 1){
-            throw new Error('Length must be greater than 1!');
+            throw new ArgumentError('length', 'must be greater than 1');
         }
 
         let text = '';

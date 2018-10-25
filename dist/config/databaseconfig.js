@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Class for the
+ * All of the various database configuration settings.
  */
 class DatabaseConfig {
 }

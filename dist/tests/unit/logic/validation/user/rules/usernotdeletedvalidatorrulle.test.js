@@ -10,8 +10,8 @@ const user_1 = require("../../../../../../logic/models/user");
 describe('UserNotDeletedValidatorRule', () => {
     let validatorRule = new usernotdeletedvalidatorrule_1.UserNotDeletedValidatorRule();
     describe('validate()', () => {
-        it('throws an error if no user passed', () => {
-            chai_1.expect(validatorRule.validate(undefined).isValid).to.be.false;
+        it('throws an error if no user', () => {
+            chai_1.expect(() => { validatorRule.validate(undefined); }).to.throw();
         });
         it('returns false for a deleted user', () => {
             let user = new user_1.User();

@@ -15,16 +15,14 @@ export interface IResetTokenRepository {
     /**
      * Add a new reset token to the database.
      * @param resetToken The token to add to the database.
-     * @returns True if no errors.
      */
-    add(resetToken: ResetToken): Promise<boolean>;
+    add(resetToken: ResetToken): Promise<void>;
 
     /**
      * Delete an existing reset token from the database.
      * @param resetToken The reset token to delete.
      * @param transactionManager The transaction manager to use when 
      * a database transaction is in progress.
-     * @returns True if no errors.
      */
-    delete(resetToken: ResetToken): Promise<boolean>;
+    delete(resetToken: ResetToken): Promise<void>;
 }

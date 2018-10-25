@@ -16,6 +16,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const userlogin_1 = require("../../logic/models/userlogin");
+const argumenterror_1 = require("../../common/errors/argumenterror");
+const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const mysqlerror_1 = require("../mysqlerror");
+const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
 /**
  * Storage interface for logins of users. Allows for adding a new
  * login of a user, or removing every
@@ -28,8 +32,11 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (user == undefined) {
-                return undefined;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
+            }
+            else if (isNaN(user.id)) {
+                throw new argumenterror_1.ArgumentError('user', 'does not have an id');
             }
             return this.repository.createQueryBuilder('login')
                 .leftJoinAndSelect('login.user', 'user')
@@ -40,46 +47,38 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
     /**
      * Add a new user login to the database.
      * @param userLogin The userlogin to add to the database.
-     * @returns True if no errors.
      */
     add(userLogin) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userLogin) {
-                return false;
+            if (userLogin == null) {
+                throw new nullargumenterror_1.NullArgumentError('userLogin');
             }
-            let result = yield this.repository.insert(userLogin);
-            return result.raw.affectedRowCount == 1;
+            try {
+                yield this.repository.insert(userLogin);
+            }
+            catch (error) {
+                //Is it an error we know about?
+                if (error instanceof typeorm_1.QueryFailedError) {
+                    let errorCode = error.errno;
+                    if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
+                        throw new duplicateentityerror_1.DuplicateEntityError('A login for the user already exists');
+                    }
+                }
+                //Pass it higher up, no clue what it is.
+                throw error;
+            }
         });
     }
     /**
      * Remove an existing login from the database.
      * @param userlogin The userlogin to remove from the database.
-     * @returns True if no errors.
      */
     delete(userlogin) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userlogin) {
-                return false;
+            if (userlogin == null) {
+                throw new nullargumenterror_1.NullArgumentError('userLogin');
             }
-            let result = yield this.repository.delete(userlogin);
-            return result.raw.affectedRowCount == 1;
-        });
-    }
-    /**
-     * Remove an existing login from the database via it's id.
-     * @param id The login id to look for.
-     * @returns True if no errors.
-     */
-    deleteById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (isNaN) {
-                throw new Error('Invalid id passed.');
-            }
-            let result = yield this.repository.createQueryBuilder()
-                .delete()
-                .where('id = :id', { id: id })
-                .execute();
-            return result.raw.affectedRowCount == 1;
+            yield this.repository.delete(userlogin);
         });
     }
 };

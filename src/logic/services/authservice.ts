@@ -116,16 +116,14 @@ export class AuthService extends Service implements IAuthService {
      * @param user The username to log out.
      * @returns True if logged out.
      */
-    public async logoutUser(user: User): Promise<boolean> {
+    public async logoutUser(user: User): Promise<void> {
         if(!user.login){
             throw new Error('User is not logged in!');
         }
 
         //Delete it from the db
-        let success = await this.database.loginRepo.delete(user.login);
+        await this.database.loginRepo.delete(user.login);
         user.login = null;
-
-        return success;
     }
 
     /**
@@ -133,9 +131,8 @@ export class AuthService extends Service implements IAuthService {
      * @param user The user.
      * @param resetCode Their temporary access password.
      * @param newPassword Their new desired password.
-     * @returns True if the token was valid.
      */
-    public async resetPassword(user: User, resetCode: string, newPassword: string): Promise<boolean> {
+    public async resetPassword(user: User, resetCode: string, newPassword: string): Promise<void> {
         if(!user){
             throw new Error('No user passed in');
         }
@@ -150,11 +147,7 @@ export class AuthService extends Service implements IAuthService {
             await Promise.all([this.database.resetTokenRepo.delete(resetToken),
                 this.database.userRepo.updatePassword(user)]);
             await this.database.commitTransaction();
-
-            return true;
         }
-
-        return false;
     }
 
     /**
@@ -163,9 +156,8 @@ export class AuthService extends Service implements IAuthService {
      * @param user The user to update.
      * @param currPassword Their current password.
      * @param newPassword Their new desired password.
-     * @returns True if successful.
      */
-    public async updatePassword(user: User, currPassword: string, newPassword: string): Promise<boolean> {
+    public async updatePassword(user: User, currPassword: string, newPassword: string): Promise<void> {
         if(!user){
             throw new Error('No user passed in.');
         }
@@ -177,8 +169,6 @@ export class AuthService extends Service implements IAuthService {
         //Gotta update the password before we can update the user in the db.
         await user.setPassword(newPassword);
         await this.database.userRepo.updatePassword(user);
-
-        return false;
     }
     
     /**
@@ -264,26 +254,19 @@ export class AuthService extends Service implements IAuthService {
      * The user didn't recieve their validation code. Resend them an
      * email with it again.
      * @param user The user to re email.
-     * @returns True if no error.
      */
-    public async resendVerificationEmail(user: User): Promise<boolean> {
+    public async resendVerificationEmail(user: User): Promise<void> {
         if(!user){
             throw new Error('No user passed in.');
         }
 
         //User has already been verified.
         if(user.isVerified){
-            return true;
+            return;
         }
 
         let vToken: VerificationToken = await this.database.verificationTokenRepo.findByUser(user);
-
-        //Not found.
-        if(!vToken){
-            return false;
-        }
-        
-        return this.sendVerificationEmail(user, vToken);
+        await this.sendVerificationEmail(user, vToken);
     }
     
     /**
@@ -291,7 +274,6 @@ export class AuthService extends Service implements IAuthService {
      * against the login provided in the database.
      * @param user The user to validate.
      * @param loginCode Their login guid.
-     * @returns True if the user is who they claim to be.
      */
     public async validateUser(user: User, loginCode: string): Promise<boolean> {
         if(!user){

@@ -35,10 +35,6 @@ let ResetToken = ResetToken_1 = class ResetToken {
  */
 ResetToken.CODE_LENGTH = 8;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], ResetToken.prototype, "id", void 0);
-__decorate([
     typeorm_1.JoinColumn(),
     typeorm_1.OneToOne(type => user_1.User, user => user.stats, { primary: true }),
     __metadata("design:type", user_1.User)

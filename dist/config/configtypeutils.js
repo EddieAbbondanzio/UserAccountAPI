@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const configtype_1 = require("./configtype");
+const argumenterror_1 = require("../common/errors/argumenterror");
 /**
  * Helper utility methods related to the ConfigType enum.
  */
@@ -21,7 +22,7 @@ var ConfigTypeUtils;
             case 'test':
                 return configtype_1.ConfigType.Test;
             default:
-                throw new Error('Invalid config type of: ' + arg);
+                throw new argumenterror_1.ArgumentError('Invalid config type of: ' + arg);
         }
     }
     ConfigTypeUtils.fromCommandArgument = fromCommandArgument;

@@ -36,9 +36,8 @@ export interface IAuthService {
     /**
      * Log out a user that is currently logged in.
      * @param user The username to log out.
-     * @returns True if logged out.
      */
-    logoutUser(user: User): Promise<boolean>;
+    logoutUser(user: User): Promise<void>;
 
     /**
      * Reset a user's password after verifying their token is valid.
@@ -47,7 +46,7 @@ export interface IAuthService {
      * @param newPassword Their new desired password.
      * @returns True if the token was valid.
      */
-    resetPassword(user: User, resetCode: string, newPassword: string): Promise<boolean>
+    resetPassword(user: User, resetCode: string, newPassword: string): Promise<void>
 
     /**
      * Update a user's password. This only proceeds if their current
@@ -57,7 +56,7 @@ export interface IAuthService {
      * @param newPassword Their new desired password.
      * @returns True if successful.
      */
-    updatePassword(user: User, currPassword: string, newPassword: string): Promise<boolean>
+    updatePassword(user: User, currPassword: string, newPassword: string): Promise<void>
 
     /**
      * Register a new user with the system. This will
@@ -81,7 +80,7 @@ export interface IAuthService {
      * @param user The user to re email.
      * @returns True if no error.
      */
-    resendVerificationEmail(user: User): Promise<boolean>;
+    resendVerificationEmail(user: User): Promise<void>;
 
     /**
      * Validate that a user is who they claim to be. This will check their username

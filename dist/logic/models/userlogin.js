@@ -35,11 +35,8 @@ let UserLogin = UserLogin_1 = class UserLogin {
  */
 UserLogin.CODE_LENGTH = 16;
 __decorate([
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], UserLogin.prototype, "id", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => user_1.User),
+    typeorm_1.JoinColumn(),
+    typeorm_1.OneToOne(type => user_1.User, { primary: true }),
     __metadata("design:type", user_1.User)
 ], UserLogin.prototype, "user", void 0);
 __decorate([

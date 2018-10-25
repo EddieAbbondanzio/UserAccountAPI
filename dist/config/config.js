@@ -12,7 +12,7 @@ class Config {
      */
     constructor() {
         if (Config.current) {
-            throw new Error('A config already exists?');
+            throw new Error('A config already exists');
         }
         Config.current = this;
         this.emailCredentials = new emailcredentials_1.EmailCredentials();

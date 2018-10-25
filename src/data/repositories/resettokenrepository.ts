@@ -1,8 +1,11 @@
-import { AbstractRepository, EntityRepository, EntityManager, Repository, DeleteResult, InsertResult } from "typeorm";
+import { AbstractRepository, EntityRepository, EntityManager, Repository, DeleteResult, InsertResult, QueryFailedError } from "typeorm";
 import { ResetToken } from "../../logic/models/resettoken";
 import { IResetTokenRepository } from "../../logic/repositories/iresettokenrepository";
 import { User } from "../../logic/models/user";
+import { NullArgumentError } from "../../common/errors/nullargumenterror";
 import { ArgumentError } from "../../common/errors/argumenterror";
+import { MySqlErrorCode } from "../mysqlerror";
+import { DuplicateEntityError } from "../../common/errors/duplicateentityerror";
 
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
@@ -14,15 +17,18 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * Searches for a user's reset token.
      * @param user The user to look for a reset token for.
      * @returns The token found (or null).
-     */
+     */ 
     public async findByUser(user: User): Promise<ResetToken> {
         if(user == null){
-            throw new ArgumentError('user', 'is missing');
+            throw new NullArgumentError('user');
+        }
+        else if(isNaN(user.id)){
+            throw new ArgumentError('user', 'does not have an id');
         }
 
         return this.repository.createQueryBuilder('token')
         .leftJoinAndSelect('token.user', 'user')
-        .where('token.userId = :id', {user})
+        .where('token.userId = :id', user)
         .getOne();
     }
 
@@ -31,14 +37,28 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * @param resetToken The token to add to the database.
      * @returns True if no errors.
      */
-    public async add(resetToken: ResetToken): Promise<boolean> {
+    public async add(resetToken: ResetToken): Promise<void> {
         if(resetToken == null) {
-            throw new ErrAor('No resetToken passed in.');
+            throw new NullArgumentError('resetToken');
         }
 
-        let result: InsertResult = await this.repository.insert(resetToken);
-        
-        return result.raw.affectedRowCount == 1;
+        //Should more than one be allowed per user?
+        try {
+            await this.repository.insert(resetToken);
+        }
+        catch(error){
+            //Is it an error we know about?
+            if(error instanceof QueryFailedError){
+                let errorCode: MySqlErrorCode = (error as any).errno;
+
+                if(errorCode == MySqlErrorCode.DuplicateKey){
+                    throw new DuplicateEntityError('A reset token for the user already exists.');
+                }
+            }
+
+            //Pass it higher up, no clue what it is.
+            throw error;
+        }
     }
 
     /**
@@ -46,13 +66,11 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
      * @param resetToken The reset token to delete.
      * @returns True if no errors.
      */
-    public async delete(resetToken: ResetToken): Promise<boolean> {
+    public async delete(resetToken: ResetToken): Promise<void> {
         if(resetToken == null) {
-            throw new Error('No resetToken passed in.');
+            throw new NullArgumentError('resetToken');
         }
 
-        let result: DeleteResult = await this.repository.delete(resetToken);
-
-        return result.raw.affectedRowCount == 1;
+        await this.repository.delete(resetToken);
     }
 }

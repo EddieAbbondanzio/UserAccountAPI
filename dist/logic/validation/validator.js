@@ -18,6 +18,9 @@ class Validator {
      * @returns The validation result.
      */
     validate(entity) {
+        if (entity == null) {
+            throw new Error('No entity passed in');
+        }
         let result = new validatorresult_1.ValidatorResult();
         for (let i = 0; i < this.rules.length; i++) {
             let ruleResult = this.rules[i].validate(entity);

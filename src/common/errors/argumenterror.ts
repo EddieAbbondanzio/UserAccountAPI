@@ -16,7 +16,7 @@ export class ArgumentError extends Error {
      * @param message The error message.
      */
     constructor(argument: string, message?: string){
-        super(argument + (message ? message : 'is invalid.'));
+        super(argument + ' ' + (message ? message : 'is invalid.'));
         this.argument = argument;
     }
 }

@@ -15,6 +15,9 @@ class UserNameValidatorRule {
      * @returns The rule's result.
      */
     validate(user) {
+        if (!user) {
+            throw new Error('No user passed in.');
+        }
         //Any name?
         if (stringutils_1.StringUtils.isEmpty(user.name)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserNameValidatorRule.NAME_MISSING_ERROR);

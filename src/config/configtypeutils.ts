@@ -1,4 +1,5 @@
 import { ConfigType } from "./configtype";
+import { ArgumentError } from "../common/errors/argumenterror";
 
 /**
  * Helper utility methods related to the ConfigType enum.
@@ -19,7 +20,7 @@ export module ConfigTypeUtils {
             case 'test':
                 return ConfigType.Test;
             default:
-                throw new Error('Invalid config type of: ' + arg);
+                throw new ArgumentError('Invalid config type of: ' + arg);
         }
     }
 }

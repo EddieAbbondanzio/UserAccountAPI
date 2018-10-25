@@ -1,7 +1,7 @@
 import { ConnectionOptions, ConnectionOptionsReader } from "typeorm";
 
 /**
- * Class for the 
+ * All of the various database configuration settings.
  */
 export class DatabaseConfig {
     /**

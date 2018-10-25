@@ -11,6 +11,9 @@ class UserNotDeletedValidatorRule {
      * @returns The validation result.
      */
     validate(user) {
+        if (!user) {
+            throw new Error('No user passed in.');
+        }
         if (user.isDeleted) {
             return new validatorruleresult_1.ValidatorRuleResult(false, 'User has already been deleted.');
         }

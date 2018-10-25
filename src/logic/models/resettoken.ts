@@ -15,12 +15,6 @@ export class ResetToken {
     public static CODE_LENGTH: number = 8;
 
     /**
-     * The unique id of the reset token.
-     */
-    @PrimaryGeneratedColumn()
-    public id: number;
-
-    /**
      * The user that this reset token belongs to.
      */
     @JoinColumn()

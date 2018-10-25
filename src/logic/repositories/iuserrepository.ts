@@ -36,34 +36,30 @@ export interface IUserRepository {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
-     * @returns True if no error.
      */
-    add(user: User): Promise<boolean>;
+    add(user: User): Promise<void>;
 
     /**
      * Update an existing user in the database. This will
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
-     * @returns True if no error.
      */
-    update(user: User): Promise<boolean>;
+    update(user: User): Promise<void>;
 
     /**
      * Update an existing user's password in the database. This will
      * only update the password hash.
      * @param user The user to update their password.
-     * @returns True if no errors occured.
      */
-    updatePassword(user: User): Promise<boolean>;
+    updatePassword(user: User): Promise<void>;
 
     /**
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
-     * @returns True if no error.
      */
-    delete(user: User): Promise<boolean>;
+    delete(user: User): Promise<void>;
 
     /**
      * Checks if a username is free for use.

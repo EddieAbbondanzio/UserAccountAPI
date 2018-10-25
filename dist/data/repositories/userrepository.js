@@ -17,6 +17,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const user_1 = require("../../logic/models/user");
 const userstats_1 = require("../../logic/models/userstats");
+const argumenterror_1 = require("../../common/errors/argumenterror");
+const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
 /**
  * Storage interface for Users in the database. Handles loading
  * relationships with other objects such as roles during find operations,
@@ -34,9 +36,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     findById(id, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Why bother searching?
             if (isNaN(id)) {
-                return null;
+                throw new argumenterror_1.ArgumentError('id');
             }
             if (includeDeleted) {
                 return this.repository.createQueryBuilder('user')
@@ -63,8 +64,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (username == undefined) {
-                return undefined;
+            if (username == null) {
+                throw new nullargumenterror_1.NullArgumentError('username');
             }
             if (includeDeleted) {
                 return this.repository.createQueryBuilder('user')
@@ -88,8 +89,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     findByEmail(email, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!email) {
-                return null;
+            if (email == null) {
+                throw new nullargumenterror_1.NullArgumentError('email');
             }
             if (includeDeleted) {
                 return this.repository.createQueryBuilder('user')
@@ -110,34 +111,25 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * Add a new user to the database. This automatically generates
      * a unique id for them after being inserted.
      * @param user The user to add to the database.
-     * @returns True if no error.
      */
     add(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                return false;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
             let userRepo = this.repository;
             let statsRepo = this.getRepositoryFor(userstats_1.UserStats);
-            //Deleted users still reserve their username since we 
-            //don't want any copy cats.
-            let usernameCount = yield userRepo.createQueryBuilder()
-                .select()
-                .where('LOWER(username) = LOWER(:username)', user).getCount();
-            //Check to ensure the email isn't being used by someone else.
-            let emailCount = yield this.repository.createQueryBuilder()
-                .select()
-                .where('email = :email', user)
-                .andWhere('isDeleted = FALSE')
-                .getCount();
-            if (usernameCount || emailCount) {
-                return false;
+            try {
+                //DO NOT use Promise.all()! We need to wait for a
+                //user id before we can insert the stats.
+                yield userRepo.insert(user);
+                yield statsRepo.insert(user.stats);
             }
-            //DO NOT use Promise.all()! We need to wait for a
-            //user id before we can insert the stats.
-            yield userRepo.insert(user);
-            yield statsRepo.insert(user.stats);
-            return true;
+            catch (error) {
+                //TODO: REVISE THIS
+                //Pass it higher up, no clue what it is.
+                throw error;
+            }
         });
     }
     /**
@@ -145,63 +137,57 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      * not allow for changing of usernames or id since these
      * are considered primary keys.
      * @param user The user to update.
-     * @returns True if no error.
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                return false;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            let result = yield this.repository.createQueryBuilder()
+            yield this.repository.createQueryBuilder()
                 .update(user_1.User)
                 .set({
                 name: user.name,
                 email: user.email,
                 isVerified: user.isVerified
             })
-                .where('id = :id', { id: user.id })
+                .where('id = :id', user)
                 .execute();
-            return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Update an existing user's password in the database. This will
      * only update the password hash.
      * @param user The user to update their password.
-     * @returns True if no errors occured.
      */
     updatePassword(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                return false;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            let result = yield this.repository.createQueryBuilder()
+            yield this.repository.createQueryBuilder()
                 .update(user_1.User)
                 .set({
                 passwordHash: user.passwordHash,
             })
-                .where('id = :id', { id: user.id })
+                .where('id = :id', user)
                 .execute();
-            return result.raw.affectedRowCount == 1;
         });
     }
     /**
      * Mark a user as deleted. This will prevent them from being
      * included in any search results when using the find functions.
      * @param user The user to delete.
-     * @returns True if no error.
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (user == null) {
-                return false;
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
             //We just need to mark the user as deleted
-            let result = yield this.repository.createQueryBuilder()
+            yield this.repository.createQueryBuilder()
                 .update()
                 .set({ isDeleted: true })
-                .where('id = :id', { id: user.id }).execute();
-            return result.raw.affectedRowCount == 1;
+                .where('id = :id', user).execute();
         });
     }
     /**
@@ -212,8 +198,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!username) {
-                return false;
+            if (username == null) {
+                throw new nullargumenterror_1.NullArgumentError('username');
             }
             //Deleted users still reserve their username
             let foundCount = yield this.repository.createQueryBuilder()
@@ -230,8 +216,8 @@ let UserRepository = class UserRepository extends typeorm_1.AbstractRepository {
      */
     isEmailInUse(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!email) {
-                return false;
+            if (email == null) {
+                throw new nullargumenterror_1.NullArgumentError('email');
             }
             let foundCount = yield this.repository.createQueryBuilder()
                 .select()

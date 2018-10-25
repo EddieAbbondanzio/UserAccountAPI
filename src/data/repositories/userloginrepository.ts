@@ -1,7 +1,11 @@
-import { AbstractRepository, EntityRepository, EntityManager, Repository, InsertResult, DeleteResult } from 'typeorm';
+import { AbstractRepository, EntityRepository, EntityManager, Repository, InsertResult, DeleteResult, QueryFailedError } from 'typeorm';
 import { User } from '../../logic/models/user';
 import { UserLogin } from '../../logic/models/userlogin';
 import { IUserLoginRepository } from '../../logic/repositories/iuserloginrepository';
+import { ArgumentError } from '../../common/errors/argumenterror';
+import { NullArgumentError } from '../../common/errors/nullargumenterror';
+import { MySqlErrorCode } from '../mysqlerror';
+import { DuplicateEntityError } from '../../common/errors/duplicateentityerror';
 
 /**
  * Storage interface for logins of users. Allows for adding a new
@@ -16,7 +20,10 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
      */
     public async findByUser(user: User): Promise<UserLogin> {
         if(user == null) {
-            throw new Error('No user passed in.');
+            throw new NullArgumentError('user');
+        }
+        else if(isNaN(user.id)){
+            throw new ArgumentError('user', 'does not have an id');
         }
 
         return this.repository.createQueryBuilder('login')
@@ -28,46 +35,39 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
     /**
      * Add a new user login to the database.
      * @param userLogin The userlogin to add to the database.
-     * @returns True if no errors.
      */
-    public async add(userLogin: UserLogin): Promise<boolean> {
+    public async add(userLogin: UserLogin): Promise<void> {
         if(userLogin == null) {
-            throw new Error('No userLogin passed in.');
+            throw new NullArgumentError('userLogin');
         }
 
-        let result: InsertResult = await this.repository.insert(userLogin);
-        return result.raw.affectedRowCount == 1;
+        try {
+            await this.repository.insert(userLogin);
+        }
+        catch(error) {
+            //Is it an error we know about?
+            if(error instanceof QueryFailedError){
+                let errorCode: MySqlErrorCode = (error as any).errno;
+
+                if(errorCode == MySqlErrorCode.DuplicateKey){
+                    throw new DuplicateEntityError('A login for the user already exists');
+                }
+            }
+
+            //Pass it higher up, no clue what it is.
+            throw error;
+        }
     }
 
     /**
      * Remove an existing login from the database.
      * @param userlogin The userlogin to remove from the database.
-     * @returns True if no errors.
      */
-    public async delete(userlogin: UserLogin): Promise<boolean> {
+    public async delete(userlogin: UserLogin): Promise<void> {
         if(userlogin == null) {
-            throw new Error('No userLogin passed in.');
+            throw new NullArgumentError('userLogin');
         }
 
-        let result: DeleteResult = await this.repository.delete(userlogin);
-        return result.raw.affectedRowCount == 1;
-    }
-
-    /**
-     * Remove an existing login from the database via it's id.
-     * @param id The login id to look for.
-     * @returns True if no errors.
-     */
-    public async deleteById(id: number): Promise<boolean> {
-        if(isNaN){
-            throw new Error('Invalid id passed.');
-        }
-
-        let result: DeleteResult = await this.repository.createQueryBuilder()
-            .delete()
-            .where('id = :id', {id: id})
-            .execute();
-
-        return result.raw.affectedRowCount == 1;
+        await this.repository.delete(userlogin);
     }
 }

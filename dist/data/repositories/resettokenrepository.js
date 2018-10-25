@@ -16,6 +16,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const resettoken_1 = require("../../logic/models/resettoken");
+const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const argumenterror_1 = require("../../common/errors/argumenterror");
+const mysqlerror_1 = require("../mysqlerror");
+const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
  * operations with the database.
@@ -28,13 +32,15 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data
-            if (user == undefined) {
-                return undefined;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
+            }
+            else if (isNaN(user.id)) {
+                throw new argumenterror_1.ArgumentError('user', 'does not have an id');
             }
             return this.repository.createQueryBuilder('token')
                 .leftJoinAndSelect('token.user', 'user')
-                .where('token.userId = :id', { user })
+                .where('token.userId = :id', user)
                 .getOne();
         });
     }
@@ -45,12 +51,24 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
      */
     add(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data.
-            if (!resetToken) {
-                return false;
+            if (resetToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('resetToken');
             }
-            let result = yield this.repository.insert(resetToken);
-            return result.raw.affectedRowCount == 1;
+            //Should more than one be allowed per user?
+            try {
+                yield this.repository.insert(resetToken);
+            }
+            catch (error) {
+                //Is it an error we know about?
+                if (error instanceof typeorm_1.QueryFailedError) {
+                    let errorCode = error.errno;
+                    if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
+                        throw new duplicateentityerror_1.DuplicateEntityError('A reset token for the user already exists.');
+                    }
+                }
+                //Pass it higher up, no clue what it is.
+                throw error;
+            }
         });
     }
     /**
@@ -60,12 +78,10 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
      */
     delete(resetToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data.
-            if (!resetToken) {
-                return false;
+            if (resetToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('resetToken');
             }
-            let result = yield this.repository.delete(resetToken);
-            return result.raw.affectedRowCount == 1;
+            yield this.repository.delete(resetToken);
         });
     }
 };

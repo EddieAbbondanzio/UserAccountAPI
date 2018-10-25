@@ -39,14 +39,12 @@ export interface IUserService {
     /**
      * Update an existing user in the database.
      * @param user The user to update
-     * @returns True if no errors occured.
      */
-    update(user: User): Promise<boolean>;
+    update(user: User): Promise<void>;
 
     /**
      * Delete a user from the database
      * @param user The user to delete
-     * @returns True if no errors occured.
      */
-    delete(user: User): Promise<boolean>
+    delete(user: User): Promise<void>
 }

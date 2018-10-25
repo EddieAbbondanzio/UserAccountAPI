@@ -1,7 +1,10 @@
-import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repository, DeleteResult } from "typeorm";
+import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repository, DeleteResult, QueryFailedError } from "typeorm";
 import { VerificationToken } from "../../logic/models/verificationtoken";
 import { IVerificationTokenRepository } from "../../logic/repositories/iverificationtokenrepository";
 import { User } from "../../logic/models/user";
+import { NullArgumentError } from "../../common/errors/nullargumenterror";
+import { MySqlErrorCode } from "../mysqlerror";
+import { DuplicateEntityError } from "../../common/errors/duplicateentityerror";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic
@@ -16,7 +19,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
      */
     public async findByUser(user: User): Promise<VerificationToken> {
         if(user == null){
-            return null;
+            throw new NullArgumentError('user');
         }
  
         return this.repository.createQueryBuilder('token')
@@ -28,30 +31,39 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
     /**
      * Add a new validation token to the database.
      * @param verificationToken The token to add to the database.
-     * @returns True if no errors.
      */
-    public async add(verificationToken: VerificationToken): Promise<boolean> {
+    public async add(verificationToken: VerificationToken): Promise<void> {
         if(verificationToken == null) {
-            return false;
+            throw new NullArgumentError('verificationToken');
         }
 
-        let result: InsertResult = await this.repository.insert(verificationToken);
-        
-        return result.raw.affectedRowCount == 1;
+        try {
+            await this.repository.insert(verificationToken);
+        }
+        catch(error) {
+            //Is it an error we know about?
+            if(error instanceof QueryFailedError){
+                let errorCode: MySqlErrorCode = (error as any).errno;
+
+                if(errorCode == MySqlErrorCode.DuplicateKey){
+                    throw new DuplicateEntityError('A verification token for the user already exists.');
+                }
+            }
+
+            //Pass it higher up, no clue what it is.
+            throw error;
+        }
     }
 
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
-     * @returns True if no errors.
      */
-    public async delete(verificationToken: VerificationToken): Promise<boolean> {
+    public async delete(verificationToken: VerificationToken): Promise<void> {
         if(verificationToken == null) {
-            return false;
+            throw new NullArgumentError('verificationToken');
         }
 
-        let result: DeleteResult = await this.repository.delete(verificationToken);
-
-        return result.raw.affectedRowCount == 1;
+        await this.repository.delete(verificationToken);
     }
 }

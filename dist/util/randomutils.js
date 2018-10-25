@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const argumenterror_1 = require("../common/errors/argumenterror");
 /**
  * Utility methods related to generating random
  * based values.
@@ -13,7 +14,7 @@ var RandomUtils;
      */
     function generateRandomString(length) {
         if (length < 1) {
-            throw new Error('Length must be greater than 1!');
+            throw new argumenterror_1.ArgumentError('length', 'must be greater than 1');
         }
         let text = '';
         let possibleChars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789';

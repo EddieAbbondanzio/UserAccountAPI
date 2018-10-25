@@ -15,21 +15,12 @@ export interface IUserLoginRepository {
     /**
      * Add a new user login to the database.
      * @param userLogin The userlogin to add to the database.
-     * @returns True if no errors.
      */
-    add(userLogin: UserLogin): Promise<boolean>;
+    add(userLogin: UserLogin): Promise<void>;
 
     /**
      * Remove an existing login from the database.
      * @param userlogin The userlogin to remove from the database.
-     * @returns True if no errors.
      */
-    delete(userLogin: UserLogin): Promise<boolean>;
-
-    /**
-     * Remove an existing login from the database via it's id.
-     * @param id The login id to look for.
-     * @returns True if no errors.
-     */
-    deleteById(id: number): Promise<boolean>;
+    delete(userLogin: UserLogin): Promise<void>;
 }

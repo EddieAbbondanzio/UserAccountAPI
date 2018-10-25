@@ -16,6 +16,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const verificationtoken_1 = require("../../logic/models/verificationtoken");
+const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const mysqlerror_1 = require("../mysqlerror");
+const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
 /**
  * Storage interface for validation tokens of users. Allows for basic
  * CRUD operations with the database.
@@ -28,9 +31,8 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
      */
     findByUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data
-            if (!user) {
-                return null;
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
             return this.repository.createQueryBuilder('token')
                 .leftJoinAndSelect('token.user', 'user')
@@ -41,31 +43,38 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
     /**
      * Add a new validation token to the database.
      * @param verificationToken The token to add to the database.
-     * @returns True if no errors.
      */
     add(verificationToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data.
-            if (!verificationToken) {
-                return false;
+            if (verificationToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('verificationToken');
             }
-            let result = yield this.repository.insert(verificationToken);
-            return result.raw.affectedRowCount == 1;
+            try {
+                yield this.repository.insert(verificationToken);
+            }
+            catch (error) {
+                //Is it an error we know about?
+                if (error instanceof typeorm_1.QueryFailedError) {
+                    let errorCode = error.errno;
+                    if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
+                        throw new duplicateentityerror_1.DuplicateEntityError('A verification token for the user already exists.');
+                    }
+                }
+                //Pass it higher up, no clue what it is.
+                throw error;
+            }
         });
     }
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
-     * @returns True if no errors.
      */
     delete(verificationToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Stop bad data.
-            if (!verificationToken) {
-                return false;
+            if (verificationToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('verificationToken');
             }
-            let result = yield this.repository.delete(verificationToken);
-            return result.raw.affectedRowCount == 1;
+            yield this.repository.delete(verificationToken);
         });
     }
 };

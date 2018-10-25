@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { userInfo } from 'os';
-import { User } from '../../logic/models/user';
+import { User } from '../../../logic/models/user';
 
 declare global {
     namespace Express {

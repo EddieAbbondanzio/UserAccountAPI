@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, OneToOne } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, OneToOne, JoinColumn } from "typeorm";
 import { RandomUtils } from "../../util/randomutils";
 import { User } from "./user";
 
@@ -15,17 +15,11 @@ export class UserLogin {
     public static CODE_LENGTH: number = 16;
 
     /**
-     * Database table index for the login. This 
-     * is only used by the foreign key relationship.
-     */
-    @PrimaryGeneratedColumn()
-    public id: number;
-
-    /**
      * The user that this login belongs to. A user may
      * only have one login at a time.
      */
-    @OneToOne(type => User)
+    @JoinColumn()
+    @OneToOne(type => User, {primary: true})
     public user: User;
 
     /**

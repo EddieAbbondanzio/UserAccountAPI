@@ -13,6 +13,8 @@ import { IEmailSender } from './logic/email/iemailsender';
 import { ZohoEmailService } from './logic/email/zohoemailsender';
 import { TokenManager } from './logic/helpers/tokenmanager';
 import { ServiceType } from './logic/common/servicetype';
+import { User } from './logic/models/user';
+import { ResetToken } from './logic/models/resettoken';
 
 /**
  * Initialize the application for use. This first starts
@@ -31,6 +33,7 @@ async function initialize() {
     //Get the database up
     let database: IDatabase = new MySqlDatabase();
     await database.initialize(config.database);
+
 
     //Set up the BLL.
     let emailSender: IEmailSender = new ZohoEmailService(config.emailCredentials);

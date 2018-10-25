@@ -99,9 +99,8 @@ export class UserService extends Service implements IUserService {
     /**
      * Update an existing user in the database.
      * @param user The user to update
-     * @returns True if no errors occured.
      */
-    public async update(user: User): Promise<boolean> {
+    public async update(user: User): Promise<void> {
         if(!user || isNaN(user.id)){
             throw new Error('No user passed in, or user has no id.');
         }
@@ -112,15 +111,14 @@ export class UserService extends Service implements IUserService {
             throw new ValidationError('Failed to update user.', validatorResult);
         }
         
-        return this.database.userRepo.update(user);
+        await this.database.userRepo.update(user);
     }
 
     /**
      * Delete a user from the database
      * @param user The user to delete
-     * @returns True if no errors occured.
      */
-    public async delete(user: User): Promise<boolean> {
+    public async delete(user: User): Promise<void> {
         if(!user || isNaN(user.id)){
             throw new Error('No user passed in, or user has no id.');
         }
@@ -131,6 +129,6 @@ export class UserService extends Service implements IUserService {
             throw new ValidationError('Failed to delete user.', validatorResult);
         }
 
-        return this.database.userRepo.delete(user);
+        await this.database.userRepo.delete(user);
     }
 }

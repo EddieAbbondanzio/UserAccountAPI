@@ -14,6 +14,9 @@ class UserEmailValidatorRule {
      * @returns The rule's result.
      */
     validate(user) {
+        if (!user) {
+            throw new Error('No user passed in.');
+        }
         //Any email?
         if (stringutils_1.StringUtils.isEmpty(user.email)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_MISSING_ERROR);

@@ -89,7 +89,6 @@ class UserService extends service_1.Service {
     /**
      * Update an existing user in the database.
      * @param user The user to update
-     * @returns True if no errors occured.
      */
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -100,13 +99,12 @@ class UserService extends service_1.Service {
             if (!validatorResult.isValid) {
                 throw new validationerror_1.ValidationError('Failed to update user.', validatorResult);
             }
-            return this.database.userRepo.update(user);
+            yield this.database.userRepo.update(user);
         });
     }
     /**
      * Delete a user from the database
      * @param user The user to delete
-     * @returns True if no errors occured.
      */
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -117,7 +115,7 @@ class UserService extends service_1.Service {
             if (!validatorResult.isValid) {
                 throw new validationerror_1.ValidationError('Failed to delete user.', validatorResult);
             }
-            return this.database.userRepo.delete(user);
+            yield this.database.userRepo.delete(user);
         });
     }
 }

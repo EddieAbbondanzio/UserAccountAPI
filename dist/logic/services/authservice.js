@@ -97,9 +97,8 @@ class AuthService extends service_1.Service {
                 throw new Error('User is not logged in!');
             }
             //Delete it from the db
-            let success = yield this.database.loginRepo.delete(user.login);
+            yield this.database.loginRepo.delete(user.login);
             user.login = null;
-            return success;
         });
     }
     /**
@@ -107,7 +106,6 @@ class AuthService extends service_1.Service {
      * @param user The user.
      * @param resetCode Their temporary access password.
      * @param newPassword Their new desired password.
-     * @returns True if the token was valid.
      */
     resetPassword(user, resetCode, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -122,9 +120,7 @@ class AuthService extends service_1.Service {
                 yield Promise.all([this.database.resetTokenRepo.delete(resetToken),
                     this.database.userRepo.updatePassword(user)]);
                 yield this.database.commitTransaction();
-                return true;
             }
-            return false;
         });
     }
     /**
@@ -133,7 +129,6 @@ class AuthService extends service_1.Service {
      * @param user The user to update.
      * @param currPassword Their current password.
      * @param newPassword Their new desired password.
-     * @returns True if successful.
      */
     updatePassword(user, currPassword, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -146,7 +141,6 @@ class AuthService extends service_1.Service {
             //Gotta update the password before we can update the user in the db.
             yield user.setPassword(newPassword);
             yield this.database.userRepo.updatePassword(user);
-            return false;
         });
     }
     /**
@@ -217,7 +211,6 @@ class AuthService extends service_1.Service {
      * The user didn't recieve their validation code. Resend them an
      * email with it again.
      * @param user The user to re email.
-     * @returns True if no error.
      */
     resendVerificationEmail(user) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -226,14 +219,10 @@ class AuthService extends service_1.Service {
             }
             //User has already been verified.
             if (user.isVerified) {
-                return true;
+                return;
             }
             let vToken = yield this.database.verificationTokenRepo.findByUser(user);
-            //Not found.
-            if (!vToken) {
-                return false;
-            }
-            return this.sendVerificationEmail(user, vToken);
+            yield this.sendVerificationEmail(user, vToken);
         });
     }
     /**
@@ -241,7 +230,6 @@ class AuthService extends service_1.Service {
      * against the login provided in the database.
      * @param user The user to validate.
      * @param loginCode Their login guid.
-     * @returns True if the user is who they claim to be.
      */
     validateUser(user, loginCode) {
         return __awaiter(this, void 0, void 0, function* () {

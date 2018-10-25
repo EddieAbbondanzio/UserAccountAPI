@@ -13,6 +13,9 @@ class UserPasswordValidatorRule {
      * @returns The validation result.
      */
     validate(user) {
+        if (!user) {
+            throw new Error('No user passed in.');
+        }
         //Any password?
         if (stringutils_1.StringUtils.isEmpty(user.passwordHash)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserPasswordValidatorRule.PASSWORD_MISSING_ERROR);

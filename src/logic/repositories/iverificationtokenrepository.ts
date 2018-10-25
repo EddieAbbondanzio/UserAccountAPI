@@ -16,14 +16,12 @@ export interface IVerificationTokenRepository {
     /**
      * Add a new validation token to the database.
      * @param verificationToken The token to add to the database.
-     * @returns True if no errors.
      */
-    add(verificationToken: VerificationToken): Promise<boolean>;
+    add(verificationToken: VerificationToken): Promise<void>;
 
     /**
      * Delete an existing validation token from the database.
      * @param validationtoken The validation token to delete.
-     * @returns True if no errors.
      */
-    delete(verificationToken: VerificationToken): Promise<boolean>;
+    delete(verificationToken: VerificationToken): Promise<void>;
 }

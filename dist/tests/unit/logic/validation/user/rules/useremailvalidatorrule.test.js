@@ -10,6 +10,9 @@ const useremailvalidatorrule_1 = require("../../../../../../logic/validation/use
 describe('UserEmailValidatorRule', () => {
     let validatorRule = new useremailvalidatorrule_1.UserEmailValidatorRule();
     describe('validate()', () => {
+        it('throws an error if no user', () => {
+            chai_1.expect(() => { validatorRule.validate(undefined); }).to.throw();
+        });
         it('returns false for no email', () => {
             let user = new user_1.User();
             chai_1.expect(validatorRule.validate(user).isValid).to.be.false;
