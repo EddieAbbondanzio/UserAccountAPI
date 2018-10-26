@@ -1,6 +1,5 @@
 import { Connection, createConnection, QueryRunner, EntityManager } from 'typeorm';
 import { DatabaseConfig } from '../config/databaseconfig';
-import { IDatabase } from '../logic/common/idatabase';
 import { IUserRepository } from '../logic/repositories/iuserrepository';
 import { IUserLoginRepository } from '../logic/repositories/iuserloginrepository';
 import { IResetTokenRepository } from '../logic/repositories/iresettokenrepository';
@@ -9,12 +8,13 @@ import { UserRepository } from './repositories/userrepository';
 import { UserLoginRepository } from './repositories/userloginrepository';
 import { ResetTokenRespository } from './repositories/resettokenrepository';
 import { VerificationTokenRepository } from './repositories/verificationtokenrepository';
+import { Database } from '../logic/common/database';
 
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
  */
-export class MySqlDatabase implements IDatabase {
+export class MySqlDatabase extends Database {
     /**
      * The repository for users.
      */

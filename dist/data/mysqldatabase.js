@@ -13,11 +13,12 @@ const userrepository_1 = require("./repositories/userrepository");
 const userloginrepository_1 = require("./repositories/userloginrepository");
 const resettokenrepository_1 = require("./repositories/resettokenrepository");
 const verificationtokenrepository_1 = require("./repositories/verificationtokenrepository");
+const database_1 = require("../logic/common/database");
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
  */
-class MySqlDatabase {
+class MySqlDatabase extends database_1.Database {
     /**
      * Initialize the data layer for use.
      * @param config The config to use for the database.

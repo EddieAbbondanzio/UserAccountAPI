@@ -6,14 +6,13 @@ import { ValidationError } from "../validation/validationerror";
 import { UserUpdateValidator } from "../validation/user/validators/userupdatevalidator";
 import { UserDeleteValidator } from "../validation/user/validators/userdeletevalidator";
 import { Service } from "../common/service";
-import { IDatabase } from "../common/idatabase";
+import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
-import { IUserService } from "./iuserservice";
 
 /**
  * The user service for retrieving users from the system.
  */
-export class UserService extends Service implements IUserService {
+export class UserService extends Service{
     /**
      * The type of service it is.
      */
@@ -33,7 +32,7 @@ export class UserService extends Service implements IUserService {
      * Create a new user service.
      * @param database The current database.
      */
-    constructor(database: IDatabase) {
+    constructor(database: Database) {
         super(database);
         
         this.userUpdateValidator = new UserUpdateValidator();

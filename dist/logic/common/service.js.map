@@ -1,1 +1,1 @@
-{"version":3,"file":"service.js","sourceRoot":"","sources":["../../../src/logic/common/service.ts"],"names":[],"mappings":";;AAGA;;GAEG;AACH,MAAsB,OAAO;IAWzB;;;OAGG;IACH,YAAY,QAAmB;QAC3B,IAAI,CAAC,QAAQ,GAAG,QAAQ,CAAC;IAC7B,CAAC;CACJ;AAlBD,0BAkBC"}
+{"version":3,"file":"service.js","sourceRoot":"","sources":["../../../src/logic/common/service.ts"],"names":[],"mappings":";;AAGA;;GAEG;AACH,MAAsB,OAAO;IAWzB;;;OAGG;IACH,YAAY,QAAkB;QAC1B,IAAI,CAAC,QAAQ,GAAG,QAAQ,CAAC;IAC7B,CAAC;CACJ;AAlBD,0BAkBC"}

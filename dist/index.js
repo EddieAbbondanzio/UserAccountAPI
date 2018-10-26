@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const confighandler_1 = require("./config/confighandler");
+const configtype_1 = require("./config/configtype");
 const configtypeutils_1 = require("./config/configtypeutils");
 const Minimist = require("minimist");
 const mysqldatabase_1 = require("./data/mysqldatabase");
@@ -30,6 +31,7 @@ function initialize() {
             //Load in the config to run with
             let configType = configtypeutils_1.ConfigTypeUtils.fromCommandArgument(parseArgs.e);
             let config = yield confighandler_1.ConfigHandler.loadConfig(configType);
+            console.log('Server mode: ', configtype_1.ConfigType[configType]);
             //Get the database up
             let database = new mysqldatabase_1.MySqlDatabase();
             yield database.initialize(config.database);
@@ -38,25 +40,7 @@ function initialize() {
             let tokenManager = new tokenmanager_1.TokenManager(config.tokenSignature);
             servicelocator_1.ServiceLocator.register(new authservice_1.AuthService(database, tokenManager, emailSender));
             servicelocator_1.ServiceLocator.register(new userservice_1.UserService(database));
-            // //Set up the data layer
-            // AppDomain.dataAccessLayer = new MysqlDataAccessLayer();
-            // await AppDomain.dataAccessLayer.initialize();
-            //Get the data connection ready to roll.
-            // const connection = await DataContext.initializeDatabaseAsync();
-            // // Set up the logic layer for use.
-            // const serviceLocator = new ServiceLocator();
-            // //Spin up the server. This takes and handles the 
-            // //HTTP Requests clients make.
-            // const server = new Server(serviceLocator);
-            // let userReg = new UserRegistration('testuser', 'password', 'Test User', 'me@eddieabbondanz.io');
-            // let regHandler = new RegistrationHandler(connection, serviceLocator);
-            // await regHandler.registerNewUser(userReg);
-            //What method to run as?
-            // let dataAccessLayer: DataAccessLayer = new DataAccessLayer();
-            // let loginRepo: IUserLoginRepository = dataAccessLayer.get<IUserLoginRepository>('IUserLoginRepository');
-            // console.log(loginRepo);
-            // console.log('Config: ', config); 
-            console.log('Server ready...');
+            console.log('Ready...');
         }
         catch (error) {
             console.error('Failed to init app.');

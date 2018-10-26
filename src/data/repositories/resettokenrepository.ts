@@ -5,7 +5,7 @@ import { User } from "../../logic/models/user";
 import { NullArgumentError } from "../../common/errors/nullargumenterror";
 import { ArgumentError } from "../../common/errors/argumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
-import { DuplicateEntityError } from "../../common/errors/duplicateentityerror";
+import { DuplicateError } from "../../common/errors/duplicateerror";
 
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
@@ -41,6 +41,12 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
         if(resetToken == null) {
             throw new NullArgumentError('resetToken');
         }
+        else if(resetToken.user == null){
+            throw new ArgumentError('resetToken', 'no user for this token');
+        }
+        else if(isNaN(resetToken.user.id)) {
+            throw new ArgumentError('resetToken', 'no id on the user of the token');
+        }
 
         //Should more than one be allowed per user?
         try {
@@ -52,7 +58,7 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
                 let errorCode: MySqlErrorCode = (error as any).errno;
 
                 if(errorCode == MySqlErrorCode.DuplicateKey){
-                    throw new DuplicateEntityError('A reset token for the user already exists.');
+                    throw new DuplicateError('A reset token for the user already exists.');
                 }
             }
 
@@ -69,6 +75,12 @@ export class ResetTokenRespository extends AbstractRepository<ResetToken> implem
     public async delete(resetToken: ResetToken): Promise<void> {
         if(resetToken == null) {
             throw new NullArgumentError('resetToken');
+        }
+        else if(resetToken.user == null){
+            throw new ArgumentError('resetToken', 'no user for this token');
+        }
+        else if(isNaN(resetToken.user.id)) {
+            throw new ArgumentError('resetToken', 'no id on the user of the token');
         }
 
         await this.repository.delete(resetToken);

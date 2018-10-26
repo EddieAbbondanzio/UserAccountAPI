@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const BcryptJS = require("bcryptjs");
-const stringutils_1 = require("../../util/stringutils");
+const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
 /**
  * Hasher utility for creating new password hashes and
  * validating passed in passwords.
@@ -22,8 +22,8 @@ var PasswordHasher;
      */
     function generateHash(password) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (stringutils_1.StringUtils.isBlank(password)) {
-                throw new Error('No password, or blank password passed in!');
+            if (password == null) {
+                throw new nullargumenterror_1.NullArgumentError('password');
             }
             //The # is saltRounds. Currently 10 is default.
             return yield BcryptJS.hash(password, 10);
@@ -38,8 +38,11 @@ var PasswordHasher;
      */
     function validateHash(password, hash) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof password !== 'string' || typeof hash !== 'string') {
-                throw new Error('Bad password, or hashed passed in!');
+            if (password == null) {
+                throw new nullargumenterror_1.NullArgumentError('password');
+            }
+            else if (hash == null) {
+                throw new nullargumenterror_1.NullArgumentError('hash');
             }
             return yield BcryptJS.compare(password, hash);
         });

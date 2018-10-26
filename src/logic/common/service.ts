@@ -1,5 +1,5 @@
-import { IDatabase } from "./idatabase";
 import { ServiceType } from "./servicetype";
+import { Database } from "./database";
 
 /**
  * A business logic layer service.
@@ -13,13 +13,13 @@ export abstract class Service {
     /**
      * The current database being used.
      */
-    protected database: IDatabase;
+    protected database: Database;
 
     /**
      * Create a new BLL service.
      * @param database The current database.
      */
-    constructor(database: IDatabase){
+    constructor(database: Database){
         this.database = database;
     }
 }

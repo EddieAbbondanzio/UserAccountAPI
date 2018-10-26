@@ -9,20 +9,19 @@ import { VerificationToken } from "../models/verificationtoken";
 import { IEmail } from "../email/types/iemail";
 import { TextEmail } from "../email/types/textemail";
 import { Service } from "../common/service";
-import { IDatabase } from "../common/idatabase";
+import { Database } from "../common/database";
 import { UserRegistration } from "../common/userregistration";
 import { ValidatorResult } from "../validation/validatorresult";
 import { UserCreateValidator } from "../validation/user/validators/usercreatevalidator";
 import { ValidationError } from "../validation/validationerror";
 import { ServiceType } from "../common/servicetype";
-import { IAuthService } from "./iauthservice";
 import { IEmailSender } from "../email/iemailsender";
 
 /**
  * The authentication service of the system. This handles registering,
  * logging in, or updating user's passwords.
  */
-export class AuthService extends Service implements IAuthService {
+export class AuthService extends Service {
     /**
      * The type of service it is.
      */
@@ -49,7 +48,7 @@ export class AuthService extends Service implements IAuthService {
      * @param tokenManager The JWT manager.
      * @param emailSender The email sender service.
      */
-    constructor(database: IDatabase, tokenManager: TokenManager, emailSender: IEmailSender) {
+    constructor(database: Database, tokenManager: TokenManager, emailSender: IEmailSender) {
         super(database);
 
         this.tokenManager = tokenManager;

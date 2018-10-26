@@ -4,7 +4,7 @@ import { ConfigType } from './config/configtype';
 import { ConfigTypeUtils } from './config/configtypeutils';
 import * as Minimist from 'minimist';
 import { createConnection } from 'typeorm';
-import { IDatabase } from './logic/common/idatabase';
+import { Database } from './logic/common/database';
 import { MySqlDatabase } from './data/mysqldatabase';
 import { UserService } from './logic/services/userservice';
 import { ServiceLocator } from './logic/common/servicelocator';
@@ -23,17 +23,19 @@ import { ResetToken } from './logic/models/resettoken';
  */
 async function initialize() {
   try {
+    console.log('Starting Server');
+
     //Get the command line arguments
     var parseArgs = Minimist(process.argv);
 
     //Load in the config to run with
     let configType: ConfigType = ConfigTypeUtils.fromCommandArgument(parseArgs.e);
     let config: Config = await ConfigHandler.loadConfig(configType);
+    console.log('Mode: ', ConfigType[configType]);
 
     //Get the database up
-    let database: IDatabase = new MySqlDatabase();
+    let database: Database = new MySqlDatabase();
     await database.initialize(config.database);
-
 
     //Set up the BLL.
     let emailSender: IEmailSender = new ZohoEmailService(config.emailCredentials);
@@ -42,42 +44,7 @@ async function initialize() {
     ServiceLocator.register(new AuthService(database, tokenManager, emailSender));
     ServiceLocator.register(new UserService(database));
 
-
-
-
-    // //Set up the data layer
-    // AppDomain.dataAccessLayer = new MysqlDataAccessLayer();
-    // await AppDomain.dataAccessLayer.initialize();
-
-
-    //Get the data connection ready to roll.
-    // const connection = await DataContext.initializeDatabaseAsync();
-
-    // // Set up the logic layer for use.
-    // const serviceLocator = new ServiceLocator();
-
-    // //Spin up the server. This takes and handles the 
-    // //HTTP Requests clients make.
-    // const server = new Server(serviceLocator);
-
-    // let userReg = new UserRegistration('testuser', 'password', 'Test User', 'me@eddieabbondanz.io');
-
-    // let regHandler = new RegistrationHandler(connection, serviceLocator);
-    // await regHandler.registerNewUser(userReg);
-
-    //What method to run as?
-
-
-    // let dataAccessLayer: DataAccessLayer = new DataAccessLayer();
-
-    // let loginRepo: IUserLoginRepository = dataAccessLayer.get<IUserLoginRepository>('IUserLoginRepository');
-
-    // console.log(loginRepo);
-
-
-
-    // console.log('Config: ', config); 
-    console.log('Server ready...');
+    console.log('Ready...');
   }
   catch (error) {
     console.error('Failed to init app.');

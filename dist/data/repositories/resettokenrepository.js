@@ -19,7 +19,7 @@ const resettoken_1 = require("../../logic/models/resettoken");
 const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
 const argumenterror_1 = require("../../common/errors/argumenterror");
 const mysqlerror_1 = require("../mysqlerror");
-const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
+const duplicateerror_1 = require("../../common/errors/duplicateerror");
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
  * operations with the database.
@@ -54,6 +54,12 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
             if (resetToken == null) {
                 throw new nullargumenterror_1.NullArgumentError('resetToken');
             }
+            else if (resetToken.user == null) {
+                throw new argumenterror_1.ArgumentError('resetToken', 'no user for this token');
+            }
+            else if (isNaN(resetToken.user.id)) {
+                throw new argumenterror_1.ArgumentError('resetToken', 'no id on the user of the token');
+            }
             //Should more than one be allowed per user?
             try {
                 yield this.repository.insert(resetToken);
@@ -63,7 +69,7 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
                 if (error instanceof typeorm_1.QueryFailedError) {
                     let errorCode = error.errno;
                     if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
-                        throw new duplicateentityerror_1.DuplicateEntityError('A reset token for the user already exists.');
+                        throw new duplicateerror_1.DuplicateError('A reset token for the user already exists.');
                     }
                 }
                 //Pass it higher up, no clue what it is.
@@ -80,6 +86,12 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
         return __awaiter(this, void 0, void 0, function* () {
             if (resetToken == null) {
                 throw new nullargumenterror_1.NullArgumentError('resetToken');
+            }
+            else if (resetToken.user == null) {
+                throw new argumenterror_1.ArgumentError('resetToken', 'no user for this token');
+            }
+            else if (isNaN(resetToken.user.id)) {
+                throw new argumenterror_1.ArgumentError('resetToken', 'no id on the user of the token');
             }
             yield this.repository.delete(resetToken);
         });

@@ -4,7 +4,7 @@ import { IVerificationTokenRepository } from "../../logic/repositories/iverifica
 import { User } from "../../logic/models/user";
 import { NullArgumentError } from "../../common/errors/nullargumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
-import { DuplicateEntityError } from "../../common/errors/duplicateentityerror";
+import { DuplicateError } from "../../common/errors/duplicateerror";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic
@@ -46,7 +46,7 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
                 let errorCode: MySqlErrorCode = (error as any).errno;
 
                 if(errorCode == MySqlErrorCode.DuplicateKey){
-                    throw new DuplicateEntityError('A verification token for the user already exists.');
+                    throw new DuplicateError('A verification token for the user already exists.');
                 }
             }
 

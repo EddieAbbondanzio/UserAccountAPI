@@ -1,5 +1,7 @@
 import { Service } from "./service";
 import { ServiceType } from "./servicetype";
+import { DuplicateError } from "../../common/errors/duplicateerror";
+import { NullArgumentError } from "../../common/errors/nullargumenterror";
 
 /**
  * The service resolver. Allows for register services,
@@ -16,9 +18,13 @@ export class ServiceLocator {
      * @param service The service to register.
      */
     public static register<T extends Service>(service: T)  {
+        if(service == null){
+            throw new NullArgumentError('service');
+        }
+
         //If the service type already exists, go boom!
         if(this.services.some(s => s.serviceType == service.serviceType)) {
-            throw new Error('A service with type: ' + service.serviceType + ' already exists!');
+            throw new DuplicateError('A service with type: ' + service.serviceType + ' already exists!');
         }
 
         this.services.push(service);
@@ -29,13 +35,25 @@ export class ServiceLocator {
      * @param type The service type to look for.
      */
     public static get<T extends Service>(type: ServiceType) {
+        if(type == null){
+            throw new NullArgumentError('type');
+        }
+
         for(let i = 0; i < this.services.length; i++){
             if(this.services[i].serviceType == type){
-                return this.services[i];
+                return this.services[i] as T;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Clear out any services that have been registered
+     * with the locator.
+     */
+    public static clear() {
+        this.services = [];
     }
 }
 

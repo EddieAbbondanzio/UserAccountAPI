@@ -8,45 +8,57 @@ import { IVerificationTokenRepository } from "../repositories/iverificationtoken
  * The data persistance container. This should be able to store and retrieve
  * models that are stored in it at any time.
  */
-export interface IDatabase {
+export abstract class Database {
+    /**
+     * The singleton database reference.
+     */
+    public static current: Database;
+
     /**
      * The repository for users.
      */
-    userRepo: IUserRepository;
+    public abstract userRepo: IUserRepository;
 
     /**
      * The repository for user logins.
      */
-    loginRepo: IUserLoginRepository;
+    public abstract loginRepo: IUserLoginRepository;
 
     /**
      * The repository for reset tokens.
      */
-    resetTokenRepo: IResetTokenRepository;
+    public abstract resetTokenRepo: IResetTokenRepository;
 
     /**
      * The repository for verification tokens.
      */
-    verificationTokenRepo: IVerificationTokenRepository;
+    public abstract verificationTokenRepo: IVerificationTokenRepository;
 
     /**
      * Initialize the database using the config file passed in.
      * @param config The config to use with the database.
      */
-    initialize(config: DatabaseConfig): Promise<void>;
+    public abstract initialize(config: DatabaseConfig): Promise<void>;
 
     /**
      * Start a new transaction with the database.
      */
-    startTransaction(): Promise<void>;
+    public abstract startTransaction(): Promise<void>;
 
     /**
      * Commit the current transaction.
      */
-    commitTransaction(): Promise<void>;
+    public abstract commitTransaction(): Promise<void>;
 
     /**
      * Roll back the current transaction.
      */
-    rollbackTransaction(): Promise<void>;
+    public abstract rollbackTransaction(): Promise<void>;
+
+    /**
+     * Create a new database.
+     */
+    constructor(){
+        Database.current = this;
+    }
 }

@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const chai_1 = require("chai");
-require("mocha");
-const config_1 = require("../../../config/config");
-/**
- * Test module for Config.
- */
-describe('config', () => {
-    describe('constructor()', () => {
-        let config = new config_1.Config();
-        it('assigns Config.current', () => {
-            chai_1.expect(config_1.Config.current).to.equal(config);
-        });
-        it('throws an error if a config alread exists', () => {
-            chai_1.expect(() => { new config_1.Config(); }).to.throw();
-        });
-    });
-});
+// import { expect } from 'chai';
+// import 'mocha';
+// import { Config } from '../../../config/config';
+// import { ConfigType } from '../../../config/configtype';
+// /**
+//  * Test module for Config.
+//  */
+// describe('config', () => {
+//     describe('constructor()', () => {
+//         let config: Config = new Config();
+//         config.configType = ConfigType.Development;
+//         it('assigns Config.current', () => {
+//             expect(Config.current).to.equal(config);
+//         });
+//     });
+// });
 //# sourceMappingURL=config.test.js.map

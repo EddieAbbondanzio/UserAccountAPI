@@ -38,10 +38,6 @@ export class Config {
      * Create a new config setup.
      */
     constructor() {
-        if(Config.current){
-            throw new Error('A config already exists');
-        }
-
         Config.current = this;
 
         this.emailCredentials = new EmailCredentials();

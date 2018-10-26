@@ -19,7 +19,7 @@ const userlogin_1 = require("../../logic/models/userlogin");
 const argumenterror_1 = require("../../common/errors/argumenterror");
 const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
 const mysqlerror_1 = require("../mysqlerror");
-const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
+const duplicateerror_1 = require("../../common/errors/duplicateerror");
 /**
  * Storage interface for logins of users. Allows for adding a new
  * login of a user, or removing every
@@ -61,7 +61,7 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
                 if (error instanceof typeorm_1.QueryFailedError) {
                     let errorCode = error.errno;
                     if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
-                        throw new duplicateentityerror_1.DuplicateEntityError('A login for the user already exists');
+                        throw new duplicateerror_1.DuplicateError('A login for the user already exists');
                     }
                 }
                 //Pass it higher up, no clue what it is.

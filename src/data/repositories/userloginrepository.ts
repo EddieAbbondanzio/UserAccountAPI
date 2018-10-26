@@ -5,7 +5,7 @@ import { IUserLoginRepository } from '../../logic/repositories/iuserloginreposit
 import { ArgumentError } from '../../common/errors/argumenterror';
 import { NullArgumentError } from '../../common/errors/nullargumenterror';
 import { MySqlErrorCode } from '../mysqlerror';
-import { DuplicateEntityError } from '../../common/errors/duplicateentityerror';
+import { DuplicateError } from '../../common/errors/duplicateerror';
 
 /**
  * Storage interface for logins of users. Allows for adding a new
@@ -50,7 +50,7 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
                 let errorCode: MySqlErrorCode = (error as any).errno;
 
                 if(errorCode == MySqlErrorCode.DuplicateKey){
-                    throw new DuplicateEntityError('A login for the user already exists');
+                    throw new DuplicateError('A login for the user already exists');
                 }
             }
 

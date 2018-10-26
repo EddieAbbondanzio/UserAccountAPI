@@ -13,6 +13,7 @@ require("mocha");
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const passwordhasher_1 = require("../../../../logic/helpers/passwordhasher");
+const nullargumenterror_1 = require("../../../../common/errors/nullargumenterror");
 describe('PasswordHasher', () => {
     /**
      * Need to register middleware
@@ -20,17 +21,20 @@ describe('PasswordHasher', () => {
     before(() => {
         chai.use(chaiAsPromised);
     });
-    describe('generateHash()', () => {
+    describe('generateHash()', () => __awaiter(this, void 0, void 0, function* () {
         it('throws an error when no password passed', () => __awaiter(this, void 0, void 0, function* () {
-            chai_1.expect(passwordhasher_1.PasswordHasher.generateHash(undefined)).to.eventually.be.rejected;
+            chai_1.expect(passwordhasher_1.PasswordHasher.generateHash(undefined)).to.be.rejectedWith(nullargumenterror_1.NullArgumentError, 'password');
         }));
         it('generates a hash when a password is given', () => __awaiter(this, void 0, void 0, function* () {
             chai_1.expect(passwordhasher_1.PasswordHasher.generateHash('password')).to.eventually.be.fulfilled;
         }));
-    });
-    describe('validateHash()', () => {
-        it('throws an error when no password, or hash is given', () => __awaiter(this, void 0, void 0, function* () {
-            chai_1.expect(passwordhasher_1.PasswordHasher.validateHash(undefined, undefined)).to.eventually.be.rejected;
+    }));
+    describe('validateHash()', () => __awaiter(this, void 0, void 0, function* () {
+        it('throws an error when no password', () => __awaiter(this, void 0, void 0, function* () {
+            chai_1.expect(passwordhasher_1.PasswordHasher.validateHash(undefined, 'hash')).to.be.rejectedWith(nullargumenterror_1.NullArgumentError, 'password');
+        }));
+        it('throws an error when no hash is given', () => __awaiter(this, void 0, void 0, function* () {
+            chai_1.expect(passwordhasher_1.PasswordHasher.validateHash('pass', undefined)).to.be.rejectedWith(nullargumenterror_1.NullArgumentError, 'hash');
         }));
         it('returns true for a valid password', () => __awaiter(this, void 0, void 0, function* () {
             let hash = yield passwordhasher_1.PasswordHasher.generateHash('password');
@@ -40,6 +44,6 @@ describe('PasswordHasher', () => {
             let hash = yield passwordhasher_1.PasswordHasher.generateHash('password');
             chai_1.expect(passwordhasher_1.PasswordHasher.validateHash('notit', hash)).to.eventually.be.fulfilled.and.be.false;
         }));
-    });
+    }));
 });
 //# sourceMappingURL=passwordhasher.test.js.map

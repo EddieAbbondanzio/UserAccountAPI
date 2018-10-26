@@ -3,6 +3,7 @@ import 'mocha';
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised';
 import { PasswordHasher } from '../../../../logic/helpers/passwordhasher';
+import { NullArgumentError } from '../../../../common/errors/nullargumenterror';
 
 describe('PasswordHasher', () => {
     /**
@@ -10,11 +11,11 @@ describe('PasswordHasher', () => {
      */
     before(() => {
         chai.use(chaiAsPromised);
-    })
+    });
 
-    describe('generateHash()', () => {
+    describe('generateHash()', async () => {
         it('throws an error when no password passed', async () => {
-            expect(PasswordHasher.generateHash(undefined)).to.eventually.be.rejected;
+            expect(PasswordHasher.generateHash(undefined)).to.be.rejectedWith(NullArgumentError, 'password');
         });
 
         it('generates a hash when a password is given', async () => {
@@ -22,9 +23,13 @@ describe('PasswordHasher', () => {
         });
     });
 
-    describe('validateHash()', () => {
-        it('throws an error when no password, or hash is given', async () => {
-            expect(PasswordHasher.validateHash(undefined, undefined)).to.eventually.be.rejected;
+    describe('validateHash()', async () => {
+        it('throws an error when no password', async () => {
+            expect(PasswordHasher.validateHash(undefined, 'hash')).to.be.rejectedWith(NullArgumentError, 'password');
+        });
+
+        it('throws an error when no hash is given', async () => {
+            expect(PasswordHasher.validateHash('pass', undefined)).to.be.rejectedWith(NullArgumentError, 'hash');
         });
 
         it('returns true for a valid password', async () => {

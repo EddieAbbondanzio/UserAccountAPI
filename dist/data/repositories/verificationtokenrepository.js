@@ -18,7 +18,7 @@ const typeorm_1 = require("typeorm");
 const verificationtoken_1 = require("../../logic/models/verificationtoken");
 const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
 const mysqlerror_1 = require("../mysqlerror");
-const duplicateentityerror_1 = require("../../common/errors/duplicateentityerror");
+const duplicateerror_1 = require("../../common/errors/duplicateerror");
 /**
  * Storage interface for validation tokens of users. Allows for basic
  * CRUD operations with the database.
@@ -57,7 +57,7 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
                 if (error instanceof typeorm_1.QueryFailedError) {
                     let errorCode = error.errno;
                     if (errorCode == mysqlerror_1.MySqlErrorCode.DuplicateKey) {
-                        throw new duplicateentityerror_1.DuplicateEntityError('A verification token for the user already exists.');
+                        throw new duplicateerror_1.DuplicateError('A verification token for the user already exists.');
                     }
                 }
                 //Pass it higher up, no clue what it is.
