@@ -8,6 +8,8 @@ import { UserDeleteValidator } from "../validation/user/validators/userdeleteval
 import { Service } from "../common/service";
 import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
+import { ArgumentError } from "../../common/errors/argumenterror";
+import { StringUtils } from "../../util/stringutils";
 
 /**
  * The user service for retrieving users from the system.
@@ -46,7 +48,7 @@ export class UserService extends Service{
      */
     public async isUsernameAvailable(username: string):Promise<boolean> {
         if(!username){
-            throw new Error('No username was passed in.');
+            throw new ArgumentError('No username was passed in.');
         }
         
         return this.database.userRepo.isUsernameAvailable(username);
@@ -60,7 +62,7 @@ export class UserService extends Service{
      */
     public async isEmailInUse(email: string): Promise<boolean> {
         if(!email){
-            throw new Error('No email was passed in.');
+            throw new ArgumentError('No email was passed in.');
         }
 
         return this.database.userRepo.isEmailInUse(email);
@@ -74,7 +76,7 @@ export class UserService extends Service{
      */
     public async findByUsername(username: string, includeDeleted?: boolean):Promise<User> {
         if(!username){
-            throw new Error('No username was passed in');
+            throw new ArgumentError('No username was passed in');
         }
 
         return this.database.userRepo.findByUsername(username, includeDeleted);
@@ -89,10 +91,23 @@ export class UserService extends Service{
      */
     public async findById(id: number, includeDeleted?: boolean):Promise<User> {
         if(isNaN(id)){
-            throw new Error('No user id passed in.');
+            throw new ArgumentError('id');
         }
         
         return this.database.userRepo.findById(id, includeDeleted);
+    }
+
+    /**
+     * Search for a user via their email.
+     * @param email The email to look for.
+     * @param includeDeleted If deleted users should be included in the result.
+     */
+    public async findByEmail(email: string, includeDeleted?: boolean): Promise<User> {
+        if(StringUtils.isBlank(email)){
+            throw new ArgumentError('email');
+        }
+
+        return this.database.userRepo.findByEmail(email, includeDeleted);
     }
 
     /**
@@ -101,7 +116,7 @@ export class UserService extends Service{
      */
     public async update(user: User): Promise<void> {
         if(!user || isNaN(user.id)){
-            throw new Error('No user passed in, or user has no id.');
+            throw new ArgumentError('user');
         }
         
         let validatorResult: ValidatorResult = this.userUpdateValidator.validate(user);
@@ -119,7 +134,7 @@ export class UserService extends Service{
      */
     public async delete(user: User): Promise<void> {
         if(!user || isNaN(user.id)){
-            throw new Error('No user passed in, or user has no id.');
+            throw new ArgumentError('user');
         }
 
         let validatorResult: ValidatorResult = this.userDeleteValidator.validate(user);

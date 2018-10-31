@@ -29,6 +29,11 @@ export class Config {
     public emailCredentials: EmailCredentials;
 
     /**
+     * The port to listen for incoming requests on.
+     */
+    public port: Number;
+
+    /**
      * The configuration to use to work with the 
      * database.
      */

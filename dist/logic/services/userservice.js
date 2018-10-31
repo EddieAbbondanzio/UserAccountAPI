@@ -13,6 +13,8 @@ const userupdatevalidator_1 = require("../validation/user/validators/userupdatev
 const userdeletevalidator_1 = require("../validation/user/validators/userdeletevalidator");
 const service_1 = require("../common/service");
 const servicetype_1 = require("../common/servicetype");
+const argumenterror_1 = require("../../common/errors/argumenterror");
+const stringutils_1 = require("../../util/stringutils");
 /**
  * The user service for retrieving users from the system.
  */
@@ -38,7 +40,7 @@ class UserService extends service_1.Service {
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
-                throw new Error('No username was passed in.');
+                throw new argumenterror_1.ArgumentError('No username was passed in.');
             }
             return this.database.userRepo.isUsernameAvailable(username);
         });
@@ -52,7 +54,7 @@ class UserService extends service_1.Service {
     isEmailInUse(email) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!email) {
-                throw new Error('No email was passed in.');
+                throw new argumenterror_1.ArgumentError('No email was passed in.');
             }
             return this.database.userRepo.isEmailInUse(email);
         });
@@ -66,7 +68,7 @@ class UserService extends service_1.Service {
     findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username) {
-                throw new Error('No username was passed in');
+                throw new argumenterror_1.ArgumentError('No username was passed in');
             }
             return this.database.userRepo.findByUsername(username, includeDeleted);
         });
@@ -81,9 +83,22 @@ class UserService extends service_1.Service {
     findById(id, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
             if (isNaN(id)) {
-                throw new Error('No user id passed in.');
+                throw new argumenterror_1.ArgumentError('id');
             }
             return this.database.userRepo.findById(id, includeDeleted);
+        });
+    }
+    /**
+     * Search for a user via their email.
+     * @param email The email to look for.
+     * @param includeDeleted If deleted users should be included in the result.
+     */
+    findByEmail(email, includeDeleted) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (stringutils_1.StringUtils.isBlank(email)) {
+                throw new argumenterror_1.ArgumentError('email');
+            }
+            return this.database.userRepo.findByEmail(email, includeDeleted);
         });
     }
     /**
@@ -93,7 +108,7 @@ class UserService extends service_1.Service {
     update(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user || isNaN(user.id)) {
-                throw new Error('No user passed in, or user has no id.');
+                throw new argumenterror_1.ArgumentError('user');
             }
             let validatorResult = this.userUpdateValidator.validate(user);
             if (!validatorResult.isValid) {
@@ -109,7 +124,7 @@ class UserService extends service_1.Service {
     delete(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user || isNaN(user.id)) {
-                throw new Error('No user passed in, or user has no id.');
+                throw new argumenterror_1.ArgumentError('user');
             }
             let validatorResult = this.userDeleteValidator.validate(user);
             if (!validatorResult.isValid) {

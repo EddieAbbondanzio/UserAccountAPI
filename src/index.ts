@@ -15,6 +15,12 @@ import { TokenManager } from './logic/helpers/tokenmanager';
 import { ServiceType } from './logic/common/servicetype';
 import { User } from './logic/models/user';
 import { ResetToken } from './logic/models/resettoken';
+import { IAuthService } from './logic/services/iauthservice';
+import { Server } from './server/server';
+import { IUserHandler } from './server/handlers/iuserhandler';
+import { UserHandler } from './server/handlers/userhandler';
+import { IAuthHandler } from './server/handlers/iauthhandler';
+import { AuthHandler } from './server/handlers/authhandler';
 
 /**
  * Initialize the application for use. This first starts
@@ -43,6 +49,11 @@ async function initialize() {
 
     ServiceLocator.register(new AuthService(database, tokenManager, emailSender));
     ServiceLocator.register(new UserService(database));
+
+    let userHandler: IUserHandler = new UserHandler(ServiceLocator.get(ServiceType.User));
+    let authHandler: IAuthHandler = new AuthHandler();
+
+    let server: Server = new Server(userHandler, authHandler);
 
     console.log('Ready...');
   }

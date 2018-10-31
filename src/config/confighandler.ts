@@ -23,6 +23,8 @@ export module ConfigHandler {
         config.emailCredentials.user = rawConfig.email.username;
         config.emailCredentials.pass = rawConfig.email.password;
 
+        config.port = rawConfig.port;
+
         config.database.host           = rawConfig.database.host;
         config.database.port           = rawConfig.database.port;
         config.database.username       = rawConfig.database.username;

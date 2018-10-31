@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const chai_1 = require("chai");
+require("mocha");
 const servicelocator_1 = require("../../../../logic/common/servicelocator");
 const service_1 = require("../../../../logic/common/service");
 const servicetype_1 = require("../../../../logic/common/servicetype");
-const chai_1 = require("chai");
-require("mocha");
 const nullargumenterror_1 = require("../../../../common/errors/nullargumenterror");
 const duplicateerror_1 = require("../../../../common/errors/duplicateerror");
 /**
