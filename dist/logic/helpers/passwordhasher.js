@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const BcryptJS = require("bcryptjs");
-const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 /**
  * Hasher utility for creating new password hashes and
  * validating passed in passwords.

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const configtype_1 = require("./configtype");
-const argumenterror_1 = require("../common/errors/argumenterror");
+const argumenterror_1 = require("../common/error/types/argumenterror");
 /**
  * Helper utility methods related to the ConfigType enum.
  */

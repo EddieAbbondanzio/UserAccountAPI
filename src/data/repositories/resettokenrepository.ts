@@ -2,10 +2,10 @@ import { AbstractRepository, EntityRepository, EntityManager, Repository, Delete
 import { ResetToken } from "../../logic/models/resettoken";
 import { IResetTokenRepository } from "../../logic/repositories/iresettokenrepository";
 import { User } from "../../logic/models/user";
-import { NullArgumentError } from "../../common/errors/nullargumenterror";
-import { ArgumentError } from "../../common/errors/argumenterror";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
+import { ArgumentError } from "../../common/error/types/argumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
-import { DuplicateError } from "../../common/errors/duplicateerror";
+import { DuplicateError } from "../../common/error/types/duplicateerror";
 
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD

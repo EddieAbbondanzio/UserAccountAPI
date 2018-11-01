@@ -1,4 +1,4 @@
-import { ArgumentError } from "../common/errors/argumenterror";
+import { ArgumentError } from "../common/error/types/argumenterror";
 
 /**
  * Utility methods related to generating random

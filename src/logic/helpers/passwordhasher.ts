@@ -1,7 +1,7 @@
 import * as BcryptJS from 'bcryptjs';
 import { StringUtils } from '../../util/stringutils';
-import { ArgumentError } from '../../common/errors/argumenterror';
-import { NullArgumentError } from '../../common/errors/nullargumenterror';
+import { ArgumentError } from '../../common/error/types/argumenterror';
+import { NullArgumentError } from '../../common/error/types/nullargumenterror';
 
 /**
  * Hasher utility for creating new password hashes and

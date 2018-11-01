@@ -1,5 +1,5 @@
 import { ConfigType } from "./configtype";
-import { ArgumentError } from "../common/errors/argumenterror";
+import { ArgumentError } from "../common/error/types/argumenterror";
 
 /**
  * Helper utility methods related to the ConfigType enum.

@@ -2,8 +2,8 @@ import { AbstractRepository, EntityRepository, Repository, UpdateResult, EntityM
 import { User } from "../../logic/models/user";
 import { IUserRepository } from "../../logic/repositories/iuserrepository";
 import { UserStats } from "../../logic/models/userstats";
-import { ArgumentError } from "../../common/errors/argumenterror";
-import { NullArgumentError } from "../../common/errors/nullargumenterror";
+import { ArgumentError } from "../../common/error/types/argumenterror";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 
 /**
  * Storage interface for Users in the database. Handles loading

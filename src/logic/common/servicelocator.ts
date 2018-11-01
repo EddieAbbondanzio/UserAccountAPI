@@ -1,7 +1,7 @@
 import { Service } from "./service";
 import { ServiceType } from "./servicetype";
-import { DuplicateError } from "../../common/errors/duplicateerror";
-import { NullArgumentError } from "../../common/errors/nullargumenterror";
+import { DuplicateError } from "../../common/error/types/duplicateerror";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 
 /**
  * The service resolver. Allows for register services,

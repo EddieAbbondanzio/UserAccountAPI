@@ -2,6 +2,8 @@ import * as Express from 'express';
 import { IUserHandler } from './handlers/iuserhandler';
 import { IAuthHandler } from './handlers/iauthhandler';
 import { Config } from '../config/config';
+import bodyParser = require('body-parser');
+import * as HttpStatusCodes from 'http-status-codes';
 
 /**
  * The HTTP server that handles incoming requests, and
@@ -55,5 +57,13 @@ export class Server {
      */
     private initRoutes(): void {    
         this.userHandler.initRoutes(this.express);
+
+        /**
+         * On auth errors, reject them with a status of 401.
+         */
+        this.express.use((err: Error, req: Express.Request, res: Express.Response, next: Function) => {
+            console.log('CAUGHT AN ERROR');
+            res.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+        });
     }
 }

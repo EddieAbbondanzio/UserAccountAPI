@@ -16,10 +16,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const resettoken_1 = require("../../logic/models/resettoken");
-const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
-const argumenterror_1 = require("../../common/errors/argumenterror");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
+const argumenterror_1 = require("../../common/error/types/argumenterror");
 const mysqlerror_1 = require("../mysqlerror");
-const duplicateerror_1 = require("../../common/errors/duplicateerror");
+const duplicateerror_1 = require("../../common/error/types/duplicateerror");
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
  * operations with the database.

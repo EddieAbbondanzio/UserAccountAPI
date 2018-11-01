@@ -2,10 +2,10 @@ import { AbstractRepository, EntityRepository, EntityManager, Repository, Insert
 import { User } from '../../logic/models/user';
 import { UserLogin } from '../../logic/models/userlogin';
 import { IUserLoginRepository } from '../../logic/repositories/iuserloginrepository';
-import { ArgumentError } from '../../common/errors/argumenterror';
-import { NullArgumentError } from '../../common/errors/nullargumenterror';
+import { ArgumentError } from '../../common/error/types/argumenterror';
+import { NullArgumentError } from '../../common/error/types/nullargumenterror';
 import { MySqlErrorCode } from '../mysqlerror';
-import { DuplicateError } from '../../common/errors/duplicateerror';
+import { DuplicateError } from '../../common/error/types/duplicateerror';
 
 /**
  * Storage interface for logins of users. Allows for adding a new

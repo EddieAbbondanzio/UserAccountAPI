@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const argumenterror_1 = require("../common/errors/argumenterror");
+const argumenterror_1 = require("../common/error/types/argumenterror");
 /**
  * Utility methods related to generating random
  * based values.

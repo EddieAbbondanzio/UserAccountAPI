@@ -1,0 +1,1 @@
+{"version":3,"file":"errorinfo.js","sourceRoot":"","sources":["../../../src/common/error/errorinfo.ts"],"names":[],"mappings":";;AACA;;;GAGG;AACH,MAAa,SAAS;IAWlB;;;;OAIG;IACH,YAAY,SAAiB,EAAE,QAAgB;QAC3C,IAAI,CAAC,SAAS,GAAG,SAAS,CAAC;QAC3B,IAAI,CAAC,YAAY,GAAG,QAAQ,CAAC;IACjC,CAAC;CACJ;AApBD,8BAoBC"}

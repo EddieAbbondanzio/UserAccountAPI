@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const duplicateerror_1 = require("../../common/errors/duplicateerror");
-const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const duplicateerror_1 = require("../../common/error/types/duplicateerror");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 /**
  * The service resolver. Allows for register services,
  * and finding them later on.

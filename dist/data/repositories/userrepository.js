@@ -17,8 +17,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const user_1 = require("../../logic/models/user");
 const userstats_1 = require("../../logic/models/userstats");
-const argumenterror_1 = require("../../common/errors/argumenterror");
-const nullargumenterror_1 = require("../../common/errors/nullargumenterror");
+const argumenterror_1 = require("../../common/error/types/argumenterror");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 /**
  * Storage interface for Users in the database. Handles loading
  * relationships with other objects such as roles during find operations,

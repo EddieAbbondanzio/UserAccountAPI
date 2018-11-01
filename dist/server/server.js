@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Express = require("express");
 const config_1 = require("../config/config");
+const HttpStatusCodes = require("http-status-codes");
 /**
  * The HTTP server that handles incoming requests, and
  * builds responses to send back to them.
@@ -32,6 +33,13 @@ class Server {
      */
     initRoutes() {
         this.userHandler.initRoutes(this.express);
+        /**
+         * On auth errors, reject them with a status of 401.
+         */
+        this.express.use((err, req, res, next) => {
+            console.log('CAUGHT AN ERROR');
+            res.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+        });
     }
 }
 exports.Server = Server;

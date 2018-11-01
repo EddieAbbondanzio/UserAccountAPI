@@ -13,8 +13,9 @@ const userupdatevalidator_1 = require("../validation/user/validators/userupdatev
 const userdeletevalidator_1 = require("../validation/user/validators/userdeletevalidator");
 const service_1 = require("../common/service");
 const servicetype_1 = require("../common/servicetype");
-const argumenterror_1 = require("../../common/errors/argumenterror");
+const argumenterror_1 = require("../../common/error/types/argumenterror");
 const stringutils_1 = require("../../util/stringutils");
+const userusernamevalidatorrule_1 = require("../validation/user/rules/userusernamevalidatorrule");
 /**
  * The user service for retrieving users from the system.
  */
@@ -39,10 +40,19 @@ class UserService extends service_1.Service {
      */
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!username) {
-                throw new argumenterror_1.ArgumentError('No username was passed in.');
+            let usernameValRule = new userusernamevalidatorrule_1.UserUsernameValidatorRule();
+            if (username == null) {
+                throw new argumenterror_1.ArgumentError('username');
             }
-            return this.database.userRepo.isUsernameAvailable(username);
+            else {
+                let validateResult = usernameValRule.validate(username);
+                if (validateResult.isValid) {
+                    return this.database.userRepo.isUsernameAvailable(username);
+                }
+                else {
+                    throw new validationerror_1.ValidationError(validateResult.error);
+                }
+            }
         });
     }
     /**
@@ -53,8 +63,8 @@ class UserService extends service_1.Service {
      */
     isEmailInUse(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!email) {
-                throw new argumenterror_1.ArgumentError('No email was passed in.');
+            if (email == null) {
+                throw new argumenterror_1.ArgumentError('email');
             }
             return this.database.userRepo.isEmailInUse(email);
         });
@@ -67,8 +77,8 @@ class UserService extends service_1.Service {
      */
     findByUsername(username, includeDeleted) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!username) {
-                throw new argumenterror_1.ArgumentError('No username was passed in');
+            if (username == null) {
+                throw new argumenterror_1.ArgumentError('username');
             }
             return this.database.userRepo.findByUsername(username, includeDeleted);
         });

@@ -5,8 +5,8 @@ require("mocha");
 const servicelocator_1 = require("../../../../logic/common/servicelocator");
 const service_1 = require("../../../../logic/common/service");
 const servicetype_1 = require("../../../../logic/common/servicetype");
-const nullargumenterror_1 = require("../../../../common/errors/nullargumenterror");
-const duplicateerror_1 = require("../../../../common/errors/duplicateerror");
+const nullargumenterror_1 = require("../../../../common/error/types/nullargumenterror");
+const duplicateerror_1 = require("../../../../common/error/types/duplicateerror");
 /**
  * Mock class to test with.
  */

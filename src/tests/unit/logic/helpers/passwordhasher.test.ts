@@ -3,7 +3,7 @@ import 'mocha';
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised';
 import { PasswordHasher } from '../../../../logic/helpers/passwordhasher';
-import { NullArgumentError } from '../../../../common/errors/nullargumenterror';
+import { NullArgumentError } from '../../../../common/error/types/nullargumenterror';
 
 describe('PasswordHasher', () => {
     /**

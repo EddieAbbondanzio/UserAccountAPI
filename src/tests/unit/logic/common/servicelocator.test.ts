@@ -3,8 +3,8 @@ import 'mocha';
 import { ServiceLocator } from "../../../../logic/common/servicelocator";
 import { Service } from "../../../../logic/common/service";
 import { ServiceType } from "../../../../logic/common/servicetype";
-import { NullArgumentError } from "../../../../common/errors/nullargumenterror";
-import { DuplicateError } from "../../../../common/errors/duplicateerror";
+import { NullArgumentError } from "../../../../common/error/types/nullargumenterror";
+import { DuplicateError } from "../../../../common/error/types/duplicateerror";
 
 /**
  * Mock class to test with.

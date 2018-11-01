@@ -2,9 +2,9 @@ import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repo
 import { VerificationToken } from "../../logic/models/verificationtoken";
 import { IVerificationTokenRepository } from "../../logic/repositories/iverificationtokenrepository";
 import { User } from "../../logic/models/user";
-import { NullArgumentError } from "../../common/errors/nullargumenterror";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
-import { DuplicateError } from "../../common/errors/duplicateerror";
+import { DuplicateError } from "../../common/error/types/duplicateerror";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic

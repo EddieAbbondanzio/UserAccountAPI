@@ -8,8 +8,10 @@ import { UserDeleteValidator } from "../validation/user/validators/userdeleteval
 import { Service } from "../common/service";
 import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
-import { ArgumentError } from "../../common/errors/argumenterror";
+import { ArgumentError } from "../../common/error/types/argumenterror";
 import { StringUtils } from "../../util/stringutils";
+import { UserUsernameValidatorRule } from "../validation/user/rules/userusernamevalidatorrule";
+import { ValidatorRuleResult } from "../validation/validatorruleresult";
 
 /**
  * The user service for retrieving users from the system.
@@ -47,11 +49,20 @@ export class UserService extends Service{
      * @returns True if the username is available.
      */
     public async isUsernameAvailable(username: string):Promise<boolean> {
-        if(!username){
-            throw new ArgumentError('No username was passed in.');
+        let usernameValRule: UserUsernameValidatorRule = new UserUsernameValidatorRule();
+
+        if(username == null){
+            throw new ArgumentError('username');
         }
-        
-        return this.database.userRepo.isUsernameAvailable(username);
+        else {
+            let validateResult: ValidatorRuleResult = usernameValRule.validate(username);
+            if(validateResult.isValid) {
+                return this.database.userRepo.isUsernameAvailable(username);
+            }   
+            else {
+                throw new ValidationError(validateResult.error);
+            }
+        }
     }
 
     /**
@@ -61,8 +72,8 @@ export class UserService extends Service{
      * @returns True if the email is being used.
      */
     public async isEmailInUse(email: string): Promise<boolean> {
-        if(!email){
-            throw new ArgumentError('No email was passed in.');
+        if(email == null){
+            throw new ArgumentError('email');
         }
 
         return this.database.userRepo.isEmailInUse(email);
@@ -75,8 +86,8 @@ export class UserService extends Service{
      * @returns The user if found.
      */
     public async findByUsername(username: string, includeDeleted?: boolean):Promise<User> {
-        if(!username){
-            throw new ArgumentError('No username was passed in');
+        if(username == null){
+            throw new ArgumentError('username');
         }
 
         return this.database.userRepo.findByUsername(username, includeDeleted);

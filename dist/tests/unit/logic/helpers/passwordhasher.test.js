@@ -13,7 +13,7 @@ require("mocha");
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const passwordhasher_1 = require("../../../../logic/helpers/passwordhasher");
-const nullargumenterror_1 = require("../../../../common/errors/nullargumenterror");
+const nullargumenterror_1 = require("../../../../common/error/types/nullargumenterror");
 describe('PasswordHasher', () => {
     /**
      * Need to register middleware
