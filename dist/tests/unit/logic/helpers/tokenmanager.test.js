@@ -12,36 +12,39 @@ const chai_1 = require("chai");
 require("mocha");
 const tokenmanager_1 = require("../../../../logic/helpers/tokenmanager");
 const user_1 = require("../../../../logic/models/user");
+const nullargumenterror_1 = require("../../../../common/error/types/nullargumenterror");
+const argumenterror_1 = require("../../../../common/error/types/argumenterror");
+const authenticationerror_1 = require("../../../../logic/common/authenticationerror");
 describe('TokenManager', () => {
     let tokenManager;
     before(() => {
         tokenManager = new tokenmanager_1.TokenManager('supersecretpasswordthatisnothunter2');
     });
-    describe('issueToken()', () => {
+    describe('issueToken()', () => __awaiter(this, void 0, void 0, function* () {
         it('should throw an error if no user', () => __awaiter(this, void 0, void 0, function* () {
-            chai_1.expect(tokenManager.issueToken(undefined)).to.eventually.be.rejected;
+            chai_1.expect(tokenManager.issueToken(undefined)).to.eventually.be.rejectedWith(nullargumenterror_1.NullArgumentError);
         }));
         it('should throw an error if no id on the user', () => __awaiter(this, void 0, void 0, function* () {
             let user = new user_1.User();
-            chai_1.expect(tokenManager.issueToken(user)).to.eventually.be.rejected;
+            chai_1.expect(tokenManager.issueToken(user)).to.eventually.be.rejectedWith(argumenterror_1.ArgumentError);
         }));
         it('should issue a token for a user', () => __awaiter(this, void 0, void 0, function* () {
             let user = new user_1.User();
             user.id = 117;
             chai_1.expect(tokenManager.issueToken(user)).to.eventually.be.fulfilled;
         }));
-    });
-    describe('verifyToken()', () => {
-        it('should return null for bad tokens', () => __awaiter(this, void 0, void 0, function* () {
+    }));
+    describe('verifyToken()', () => __awaiter(this, void 0, void 0, function* () {
+        it('throws an error for bad tokens', () => __awaiter(this, void 0, void 0, function* () {
             let token = 'notatoken';
-            chai_1.expect(tokenManager.verifyToken(token)).to.eventually.be.null;
+            chai_1.expect(tokenManager.authenticateToken(token)).to.eventually.be.rejectedWith(authenticationerror_1.AuthenticationError);
         }));
-        it('should return a payload for valid tokens', () => __awaiter(this, void 0, void 0, function* () {
+        it('returns a payload for valid tokens', () => __awaiter(this, void 0, void 0, function* () {
             let user = new user_1.User();
             user.id = 117;
             let token = yield tokenManager.issueToken(user);
-            chai_1.expect(tokenManager.verifyToken(token)).to.eventually.be.a('object').with.property('userId', 117);
+            return chai_1.expect(tokenManager.authenticateToken(token)).to.eventually.be.fulfilled;
         }));
-    });
+    }));
 });
 //# sourceMappingURL=tokenmanager.test.js.map

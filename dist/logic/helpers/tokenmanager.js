@@ -11,6 +11,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const JWT = require("jsonwebtoken");
 const stringutils_1 = require("../../util/stringutils");
 const tokenpayload_1 = require("../common/tokenpayload");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
+const argumenterror_1 = require("../../common/error/types/argumenterror");
+const errorhandler_1 = require("../../common/error/errorhandler");
+const authenticationerror_1 = require("../common/authenticationerror");
 /**
  * Handles issuing and verifying jwt tokens to users. Use
  * this with the loginservice, and registerservice for authentication.
@@ -23,7 +27,7 @@ class TokenManager {
      */
     constructor(secretKey) {
         if (stringutils_1.StringUtils.isEmpty(secretKey)) {
-            throw new Error('A secret key is required!');
+            throw new argumenterror_1.ArgumentError('secretKey');
         }
         this.signOptions = {
             algorithm: 'HS256',
@@ -33,6 +37,7 @@ class TokenManager {
             algorithms: ['HS256']
         };
         this.secretKey = secretKey;
+        TokenManager.instance = this;
     }
     /**
      * Issue a new token for a specific user. This
@@ -42,13 +47,18 @@ class TokenManager {
      */
     issueToken(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user || isNaN(user.id)) {
-                throw new Error('No user passed in, or id is missing!');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            //The payload we want to pack in the JWT.
-            let payload = {
-                userId: user.id
-            };
+            else if (isNaN(user.id)) {
+                throw new argumenterror_1.ArgumentError('user', 'has no id');
+            }
+            /*
+            * DO NOT CHANGE THIS TO A TOKENPAYLOAD.
+            * You'll throw errors and waste time hunting
+            * them down....
+            */
+            let payload = { id: user.id };
             return new Promise((resolve, reject) => {
                 JWT.sign(payload, this.secretKey, this.signOptions, (error, token) => {
                     if (error) {
@@ -67,16 +77,19 @@ class TokenManager {
      * id is returned.
      * @param token The JWT to verify.
      */
-    verifyToken(token) {
+    authenticateToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!token) {
-                throw new Error('AuthenticationService.issueToken(): No token passed in!');
+                throw new nullargumenterror_1.NullArgumentError('token');
             }
             return new Promise((resolve, reject) => {
                 JWT.verify(token, this.secretKey, this.verifyOptions, (error, decoded) => {
                     if (error) {
-                        resolve(null);
-                        // reject(error);
+                        new errorhandler_1.ErrorHandler(error)
+                            .catch(JWT.JsonWebTokenError, (err) => {
+                            reject(new authenticationerror_1.AuthenticationError(err.message));
+                        })
+                            .otherwiseRaise();
                     }
                     else {
                         let payload = new tokenpayload_1.TokenPayload(parseInt(decoded.userId, 10));

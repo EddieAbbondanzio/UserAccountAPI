@@ -2,12 +2,21 @@ import * as JWT from 'jsonwebtoken';
 import { StringUtils } from '../../util/stringutils';
 import { User } from '../models/user';
 import { TokenPayload } from '../common/tokenpayload';
+import { NullArgumentError } from '../../common/error/types/nullargumenterror';
+import { ArgumentError } from '../../common/error/types/argumenterror';
+import { ErrorHandler } from '../../common/error/errorhandler';
+import { AuthenticationError } from '../common/authenticationerror';
 
 /**
  * Handles issuing and verifying jwt tokens to users. Use
  * this with the loginservice, and registerservice for authentication.
  */
 export class TokenManager {
+    /**
+     * The singleton instance.
+     */
+    public static instance: TokenManager;
+
     /**
      * Tokens are good for 6 months.
      */
@@ -37,7 +46,7 @@ export class TokenManager {
      */
     constructor(secretKey: string) {
         if(StringUtils.isEmpty(secretKey)){
-            throw new Error('A secret key is required!');
+            throw new ArgumentError('secretKey');
         }
 
         this.signOptions = {
@@ -50,6 +59,7 @@ export class TokenManager {
         }
 
         this.secretKey = secretKey;
+        TokenManager.instance = this;
     }
 
     /**
@@ -59,14 +69,19 @@ export class TokenManager {
      * @param User The user to issue a token for.
      */
     public async issueToken(user: User):Promise<string> {
-        if(!user || isNaN(user.id)){
-            throw new Error('No user passed in, or id is missing!');
+        if(user == null){
+            throw new NullArgumentError('user');
+        }
+        else if(isNaN(user.id)) {
+            throw new ArgumentError('user', 'has no id');
         }
 
-        //The payload we want to pack in the JWT.
-        let payload: object = {
-            userId: user.id
-        };
+        /*
+        * DO NOT CHANGE THIS TO A TOKENPAYLOAD.
+        * You'll throw errors and waste time hunting
+        * them down....
+        */
+        let payload: any = { id: user.id };
 
         return new Promise<string>((resolve, reject) => {
             JWT.sign(payload, this.secretKey, this.signOptions, (error, token) => {
@@ -86,16 +101,19 @@ export class TokenManager {
      * id is returned.
      * @param token The JWT to verify.
      */
-    public async verifyToken(token: string):Promise<TokenPayload> {
+    public async authenticateToken(token: string):Promise<TokenPayload> {
         if(!token){
-            throw new Error('AuthenticationService.issueToken(): No token passed in!');
+            throw new NullArgumentError('token');
         }
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<TokenPayload>((resolve, reject) => {
             JWT.verify(token, this.secretKey, this.verifyOptions, (error, decoded) => {
                 if(error){
-                    resolve(null);
-                    // reject(error);
+                    new ErrorHandler(error)
+                    .catch(JWT.JsonWebTokenError, (err: JWT.JsonWebTokenError) => {
+                        reject(new AuthenticationError(err.message));
+                    })
+                    .otherwiseRaise();
                 }
                 else {
                     let payload: TokenPayload = new TokenPayload(parseInt((decoded as any).userId, 10));

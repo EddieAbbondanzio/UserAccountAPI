@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const validatorresult_1 = require("./validatorresult");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 /**
  * Interface for validators to implement. They provide a way
  * to check objects to ensure good data.
@@ -19,7 +20,7 @@ class Validator {
      */
     validate(entity) {
         if (entity == null) {
-            throw new Error('No entity passed in');
+            throw new nullargumenterror_1.NullArgumentError('entity');
         }
         let result = new validatorresult_1.ValidatorResult();
         for (let i = 0; i < this.rules.length; i++) {

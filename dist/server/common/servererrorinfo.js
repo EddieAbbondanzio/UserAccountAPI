@@ -1,26 +1,19 @@
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Information about an error that occured. These are sent
  * back to the client that made the HTTP request.
  */
-export class ErrorInfo {
-    /**
-     * The error code.
-     */
-    public errorCode: number;
-
-    /**
-     * The text based error message.
-     */
-    public errorMessage: string;
-
+class ServerErrorInfo {
     /**
      * Create a new error info to send back to a client.
      * @param errorCode The error code.
      * @param errorMsg The error message.
      */
-    constructor(errorCode: number, errorMsg: string) {
+    constructor(errorCode, errorMsg) {
         this.errorCode = errorCode;
         this.errorMessage = errorMsg;
     }
 }
+exports.ServerErrorInfo = ServerErrorInfo;
+//# sourceMappingURL=servererrorinfo.js.map

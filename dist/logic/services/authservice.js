@@ -75,7 +75,7 @@ class AuthService extends service_1.Service {
      */
     loginUserViaToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
-            let payLoad = yield this.tokenManager.verifyToken(token);
+            let payLoad = yield this.tokenManager.authenticateToken(token);
             let user = yield this.database.userRepo.findById(payLoad.userId);
             //Issue them a login
             let login = new userlogin_1.UserLogin(user);

@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ExpressJWT = require("express-jwt");
-const config_1 = require("../../config/config");
+const HttpStatusCode = require("http-status-codes");
+const servererrorinfo_1 = require("./servererrorinfo");
+const tokenmanager_1 = require("../../logic/helpers/tokenmanager");
+const servicelocator_1 = require("../../logic/common/servicelocator");
+const servicetype_1 = require("../../logic/common/servicetype");
+const servererrorcode_1 = require("./servererrorcode");
 /**
  * Decorator to restrict access to a API endpoint. If no JWT is
  * found on the incoming request then it is rejected.
@@ -19,15 +23,45 @@ const config_1 = require("../../config/config");
  */
 function authenticated(target, propertyKey, descriptor) {
     let method = descriptor.value;
-    //We wrap the existing method so we can call Passport.js first.
+    //We wrap the existing method so we can call express-jwt first.
     descriptor.value = function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            //Is the user authenticated, if not this will throw an error.
-            ExpressJWT({ secret: config_1.Config.current.tokenSignature });
-            //Now call the method if we made it this far.
-            method.call(this, req, res);
+            //Is there any headers?
+            if (req.headers == null || req.headers.authorization == null) {
+                sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.NoAuthentication, 'No authentication header.');
+                return;
+            }
+            //Is the header valid?
+            let header = req.headers.authorization.split(' ');
+            if (header.length != 2) {
+                sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.PoorlyFormedAuthentication, 'Invalid format authentication header.');
+                return;
+            }
+            //Is the token even valid?
+            try {
+                let token = header[1];
+                let payload = yield tokenmanager_1.TokenManager.instance.authenticateToken(token);
+                //Catch will take ovver if the payload was bad.
+                let user = yield servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User).findById(payload.userId);
+                //Attach the user to the request then call the regular method.
+                req.user = user;
+                return method.call(this, req, res);
+            }
+            catch (_a) {
+                sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.');
+                return;
+            }
         });
     };
+    /**
+     * Send a response back with HTTP status 401.
+     * @param errorCode The error code (not the HTTP status code) to send.
+     * @param errorMessage The message of the error.
+     */
+    function sendUnauthorizedResponse(res, errorCode, errorMessage) {
+        res.status(HttpStatusCode.UNAUTHORIZED)
+            .json(new servererrorinfo_1.ServerErrorInfo(errorCode, errorMessage));
+    }
 }
 exports.authenticated = authenticated;
 //# sourceMappingURL=authenticated.js.map

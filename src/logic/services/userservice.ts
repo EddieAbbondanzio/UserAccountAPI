@@ -12,6 +12,8 @@ import { ArgumentError } from "../../common/error/types/argumenterror";
 import { StringUtils } from "../../util/stringutils";
 import { UserUsernameValidatorRule } from "../validation/user/rules/userusernamevalidatorrule";
 import { ValidatorRuleResult } from "../validation/validatorruleresult";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
+import { UsernameValidator } from "../validation/user/validators/usernamevalidator";
 
 /**
  * The user service for retrieving users from the system.
@@ -52,15 +54,16 @@ export class UserService extends Service{
         let usernameValRule: UserUsernameValidatorRule = new UserUsernameValidatorRule();
 
         if(username == null){
-            throw new ArgumentError('username');
+            throw new NullArgumentError('username');
         }
         else {
-            let validateResult: ValidatorRuleResult = usernameValRule.validate(username);
-            if(validateResult.isValid) {
+            let validatorResult: ValidatorResult = new UsernameValidator().validate(username);
+
+            if(validatorResult.isValid) {
                 return this.database.userRepo.isUsernameAvailable(username);
             }   
             else {
-                throw new ValidationError(validateResult.error);
+                throw new ValidationError('Username is not valid', validatorResult);
             }
         }
     }
@@ -73,7 +76,7 @@ export class UserService extends Service{
      */
     public async isEmailInUse(email: string): Promise<boolean> {
         if(email == null){
-            throw new ArgumentError('email');
+            throw new NullArgumentError('email');
         }
 
         return this.database.userRepo.isEmailInUse(email);
@@ -87,7 +90,7 @@ export class UserService extends Service{
      */
     public async findByUsername(username: string, includeDeleted?: boolean):Promise<User> {
         if(username == null){
-            throw new ArgumentError('username');
+            throw new NullArgumentError('username');
         }
 
         return this.database.userRepo.findByUsername(username, includeDeleted);

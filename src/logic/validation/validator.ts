@@ -1,6 +1,7 @@
 import { ValidatorResult } from "./validatorresult";
 import { IValidatorRule } from "./ivalidatorrule";
 import { ValidatorRuleResult } from "./validatorruleresult";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 
 /**
  * Interface for validators to implement. They provide a way
@@ -26,7 +27,7 @@ export abstract class Validator<T> {
      */
     public validate(entity: T): ValidatorResult {
         if(entity == null){
-            throw new Error('No entity passed in');
+            throw new NullArgumentError('entity');
         }
 
         let result: ValidatorResult = new ValidatorResult();

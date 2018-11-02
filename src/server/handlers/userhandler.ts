@@ -1,6 +1,6 @@
 import { IUserService } from "../../logic/services/iuserservice";
 import * as Express from 'express';
-import * as HTTPStatusCodes from 'http-status-codes';
+import * as HttpStatusCodes from 'http-status-codes';
 import { IHandler } from "../common/ihandler";
 import { StringUtils } from "../../util/stringutils";
 import { User } from "../../logic/models/user";
@@ -8,10 +8,10 @@ import { UserUsernameValidatorRule } from "../../logic/validation/user/rules/use
 import { ErrorHandler } from "../../common/error/errorhandler";
 import { ValidationError } from "../../logic/validation/validationerror";
 import { ArgumentError } from "../../common/error/types/argumenterror";
-import { ErrorInfo } from "../../common/error/errorinfo";
-import * as ExpressJWT from 'express-jwt';
+import { ServerErrorInfo } from "../common/servererrorinfo";
 import { Config } from "../../config/config";
 import { authenticated } from "../common/authenticated";
+import { ServerErrorCode } from "../common/servererrorcode";
 
 /**
  * Router responsible for handling all incoming
@@ -42,20 +42,14 @@ export class UserHandler implements IHandler {
      * @param expressApp The express application to work with.
      */
     public initRoutes(expressApp: Express.Application): void {
-        //Request to delete a user.
-        this.expressRouter.post(
-            '/:id',
-            ExpressJWT({ secret: Config.current.tokenSignature }),
-            async (req, res) => { return this.deleteUser(req, res); });
-
         //Request to update a user
-        this.expressRouter.post(
-            '/:id',
-            ExpressJWT({ secret: Config.current.tokenSignature }),
-            async (req, res) => { return this.updateUser(req, res); });
+        this.expressRouter.post('/', async (req, res) => { return this.updateUser(req, res); });
+
+        //Request to delete a user.
+        this.expressRouter.delete('/', async (req, res) => { return this.deleteUser(req, res); });
 
         //Request to check for an available username.
-        this.expressRouter.head('/:username', async(req, res) => { return this.isUsernameAvailable(req, res); });
+        this.expressRouter.head('/:username', async (req, res) => { return this.isUsernameAvailable(req, res); });
 
         //Request to find a user by id / email / or username.
         this.expressRouter.get('/:identifier', async (req, res) => { return this.findUser(req, res); });
@@ -68,21 +62,32 @@ export class UserHandler implements IHandler {
      * @param request The incoming request to work with.
      * @param response The outgoing response being built.
      */
-    private async updateUser(request: Express.Request, response: Express.Response): Promise<void> { 
-        //TODO: Add JWT support.
-        let id: number = request.params.id;
-
-        if(isNaN(id)){
-            response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+    @authenticated
+    private async updateUser(request: Express.Request, response: Express.Response): Promise<void> {
+        //Is there a name?
+        if (request.body.name == null) {
+            response.status(HttpStatusCodes.BAD_REQUEST)
+                .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Name is missing from body.'));
         }
-        else {
-            //Pulls id in from the JWT
-            //Then finds the user based off that.
 
-            let name: string = request.body.name;
-            let email: string = request.body.email;
-
+        //Is there an email?
+        if (request.body.email == null) {
+            response.status(HttpStatusCodes.BAD_REQUEST)
+                .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Email is missing from body.'));
         }
+
+
+        // if (isNaN(id)) {
+        //     response.sendStatus(HttpStatusCodes.BAD_REQUEST);
+        // }
+        // else {
+        //     //Pulls id in from the JWT
+        //     //Then finds the user based off that.
+
+        //     let name: string = request.body.name;
+        //     let email: string = request.body.email;
+
+        // }
     }
 
     /**
@@ -90,12 +95,9 @@ export class UserHandler implements IHandler {
      * @param request The incoming request to work with.
      * @param response The outgoing response being built.
      */
+    @authenticated
     private async deleteUser(request: Express.Request, response: Express.Response): Promise<void> {
-        //TODO: Add JWT support.
-
-        //Pulls in the id from the JWT
-        //Then finds user based off that.
-
+        await this.userService.delete(request.user);
     }
 
     /**
@@ -104,28 +106,27 @@ export class UserHandler implements IHandler {
      * @param req The incoming request to work with.
      * @param response The outgoing response being built.
      */
-    @authenticated
     private async isUsernameAvailable(request: Express.Request, response: Express.Response): Promise<void> {
         let username: string = request.params.username;
 
-        if(StringUtils.isBlank(username)){
-            response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+        if (StringUtils.isBlank(username)) {
+            response.sendStatus(HttpStatusCodes.BAD_REQUEST);
             return;
         }
 
         try {
             let isAvail: boolean = await this.userService.isUsernameAvailable(username);
-            response.sendStatus(isAvail ? HTTPStatusCodes.NOT_FOUND : HTTPStatusCodes.CONFLICT);
+            response.sendStatus(isAvail ? HttpStatusCodes.NOT_FOUND : HttpStatusCodes.CONFLICT);
         }
-        catch(error){
+        catch (error) {
             new ErrorHandler(error)
-            .catch(ArgumentError, (aError: ArgumentError) => {
-                response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
-            })
-            .catch(ValidationError, (vError: ValidationError) => {
-                response.sendStatus(HTTPStatusCodes.NOT_ACCEPTABLE);
-            })
-            .otherwiseRaise();
+                .catch(ArgumentError, (aError: ArgumentError) => {
+                    response.sendStatus(HttpStatusCodes.BAD_REQUEST);
+                })
+                .catch(ValidationError, (vError: ValidationError) => {
+                    response.sendStatus(HttpStatusCodes.NOT_ACCEPTABLE);
+                })
+                .otherwiseRaise();
         }
     }
 
@@ -139,28 +140,28 @@ export class UserHandler implements IHandler {
         let identifier: string = request.params.identifier;
         let user: User;
 
-        if(StringUtils.isBlank(identifier)){
-            response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+        if (StringUtils.isBlank(identifier)) {
+            response.sendStatus(HttpStatusCodes.BAD_REQUEST);
             return;
         }
 
         try {
             //Is it a user id?
-            if(StringUtils.isNumeric(identifier)){
+            if (StringUtils.isNumeric(identifier)) {
                 let id: number = parseInt(identifier, 10);
                 let user = await this.userService.findById(id);
             }
-            
+
             //Is it a username?
-            else if(StringUtils.isAlphanumeric(identifier)) {
+            else if (StringUtils.isAlphanumeric(identifier)) {
                 let user = await this.userService.findByUsername(identifier);
             }
             //Is it an email?
-            else if(StringUtils.isEmail(identifier)) {
+            else if (StringUtils.isEmail(identifier)) {
                 let user = await this.userService.findByEmail(identifier);
             }
 
-            if(user != null){
+            if (user != null) {
                 response.send({
                     id: user.id,
                     username: user.username,
@@ -168,16 +169,16 @@ export class UserHandler implements IHandler {
                 });
             }
             else {
-                response.sendStatus(HTTPStatusCodes.NOT_FOUND);
+                response.sendStatus(HttpStatusCodes.NOT_FOUND);
             }
         }
-        catch(error) {
+        catch (error) {
             new ErrorHandler(error)
-            .catch(ArgumentError, (aError: ArgumentError) => {
-                response.sendStatus(HTTPStatusCodes.BAD_REQUEST)
-                .send(new ErrorInfo(1, aError.message));
-            })
-            .otherwiseRaise();
+                .catch(ArgumentError, (aError: ArgumentError) => {
+                    response.status(HttpStatusCodes.BAD_REQUEST)
+                        .json(new ServerErrorInfo(1, aError.message));
+                })
+                .otherwiseRaise();
         }
     }
 }

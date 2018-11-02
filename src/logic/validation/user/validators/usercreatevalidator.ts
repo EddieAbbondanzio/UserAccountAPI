@@ -4,6 +4,7 @@ import { UserEmailValidatorRule } from "../rules/useremailvalidatorrule";
 import { UserNameValidatorRule } from "../rules/usernamevalidatorrule";
 import { Validator } from "../../validator";
 import { User } from "../../../models/user";
+import { IValidatorRule } from "../../ivalidatorrule";
 
 /**
  * Validator to validate a new user when they are being
@@ -20,6 +21,6 @@ export class UserCreateValidator extends Validator<User> {
         this.rules.push(new UserUsernameValidatorRule(),
                         new UserPasswordValidatorRule(),
                         new UserEmailValidatorRule(),
-                        new UserNameValidatorRule());
+                        new UserNameValidatorRule() as IValidatorRule<User>);
     }
 }

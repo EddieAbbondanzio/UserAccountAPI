@@ -1,6 +1,14 @@
-import * as ExpressJWT from 'express-jwt';
 import * as Express from 'express';
+import * as HttpStatusCode from 'http-status-codes';
 import { Config } from '../../config/config';
+import { ServerErrorInfo } from './servererrorinfo';
+import { TokenPayload } from '../../logic/common/tokenpayload';
+import { TokenManager } from '../../logic/helpers/tokenmanager';
+import { User } from '../../logic/models/user';
+import { ServiceLocator } from '../../logic/common/servicelocator';
+import { ServiceType } from '../../logic/common/servicetype';
+import { IUserService } from '../../logic/services/iuserservice';
+import { ServerErrorCode } from './servererrorcode';
 
 /**
  * Decorator to restrict access to a API endpoint. If no JWT is
@@ -14,10 +22,45 @@ export function authenticated(target: any, propertyKey: string, descriptor: Prop
 
     //We wrap the existing method so we can call express-jwt first.
     descriptor.value = async function (req: Express.Request, res: Express.Response) {
-        //Is the user authenticated, if not this will throw an error.
-        ExpressJWT({secret: Config.current.tokenSignature });
+        //Is there any headers?
+        if(req.headers == null || req.headers.authorization == null){
+            sendUnauthorizedResponse(res, ServerErrorCode.NoAuthentication, 'No authentication header.');
+            return;
+        }
         
-        //Now call the method if we made it this far.
-        method.call(this, req, res);
+        //Is the header valid?
+        let header: string[] = req.headers.authorization.split(' ');
+
+        if(header.length != 2){
+            sendUnauthorizedResponse(res, ServerErrorCode.PoorlyFormedAuthentication, 'Invalid format authentication header.');
+            return;
+        }
+
+        //Is the token even valid?
+        try {
+            let token: string = header[1];
+            let payload: TokenPayload = await TokenManager.instance.authenticateToken(token);
+
+            //Catch will take ovver if the payload was bad.
+            let user: User = await ServiceLocator.get<IUserService>(ServiceType.User).findById(payload.userId);
+
+            //Attach the user to the request then call the regular method.
+            req.user = user;
+            return method.call(this, req, res);
+        }
+        catch{
+            sendUnauthorizedResponse(res, ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.'); 
+            return;
+        }
     };
+
+    /**
+     * Send a response back with HTTP status 401.
+     * @param errorCode The error code (not the HTTP status code) to send.
+     * @param errorMessage The message of the error.
+     */
+    function sendUnauthorizedResponse(res: Express.Response, errorCode: ServerErrorCode, errorMessage: string): void {
+        res.status(HttpStatusCode.UNAUTHORIZED)
+        .json(new ServerErrorInfo(errorCode, errorMessage));
+    }
 }

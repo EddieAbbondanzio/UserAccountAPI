@@ -18,15 +18,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Express = require("express");
-const HTTPStatusCodes = require("http-status-codes");
+const HttpStatusCodes = require("http-status-codes");
 const stringutils_1 = require("../../util/stringutils");
 const errorhandler_1 = require("../../common/error/errorhandler");
 const validationerror_1 = require("../../logic/validation/validationerror");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
-const errorinfo_1 = require("../../common/error/errorinfo");
-const ExpressJWT = require("express-jwt");
-const config_1 = require("../../config/config");
+const servererrorinfo_1 = require("../common/servererrorinfo");
 const authenticated_1 = require("../common/authenticated");
+const servererrorcode_1 = require("../common/servererrorcode");
 /**
  * Router responsible for handling all incoming
  * requests related to users.
@@ -45,10 +44,10 @@ class UserHandler {
      * @param expressApp The express application to work with.
      */
     initRoutes(expressApp) {
-        //Request to delete a user.
-        this.expressRouter.post('/:id', ExpressJWT({ secret: config_1.Config.current.tokenSignature }), (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteUser(req, res); }));
         //Request to update a user
-        this.expressRouter.post('/:id', ExpressJWT({ secret: config_1.Config.current.tokenSignature }), (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateUser(req, res); }));
+        this.expressRouter.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateUser(req, res); }));
+        //Request to delete a user.
+        this.expressRouter.delete('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteUser(req, res); }));
         //Request to check for an available username.
         this.expressRouter.head('/:username', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.isUsernameAvailable(req, res); }));
         //Request to find a user by id / email / or username.
@@ -62,17 +61,25 @@ class UserHandler {
      */
     updateUser(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            //TODO: Add JWT support.
-            let id = request.params.id;
-            if (isNaN(id)) {
-                response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+            //Is there a name?
+            if (request.body.name == null) {
+                response.status(HttpStatusCodes.BAD_REQUEST)
+                    .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Name is missing from body.'));
             }
-            else {
-                //Pulls id in from the JWT
-                //Then finds the user based off that.
-                let name = request.body.name;
-                let email = request.body.email;
+            //Is there an email?
+            if (request.body.email == null) {
+                response.status(HttpStatusCodes.BAD_REQUEST)
+                    .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Email is missing from body.'));
             }
+            // if (isNaN(id)) {
+            //     response.sendStatus(HttpStatusCodes.BAD_REQUEST);
+            // }
+            // else {
+            //     //Pulls id in from the JWT
+            //     //Then finds the user based off that.
+            //     let name: string = request.body.name;
+            //     let email: string = request.body.email;
+            // }
         });
     }
     /**
@@ -82,9 +89,7 @@ class UserHandler {
      */
     deleteUser(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            //TODO: Add JWT support.
-            //Pulls in the id from the JWT
-            //Then finds user based off that.
+            yield this.userService.delete(request.user);
         });
     }
     /**
@@ -97,20 +102,20 @@ class UserHandler {
         return __awaiter(this, void 0, void 0, function* () {
             let username = request.params.username;
             if (stringutils_1.StringUtils.isBlank(username)) {
-                response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+                response.sendStatus(HttpStatusCodes.BAD_REQUEST);
                 return;
             }
             try {
                 let isAvail = yield this.userService.isUsernameAvailable(username);
-                response.sendStatus(isAvail ? HTTPStatusCodes.NOT_FOUND : HTTPStatusCodes.CONFLICT);
+                response.sendStatus(isAvail ? HttpStatusCodes.NOT_FOUND : HttpStatusCodes.CONFLICT);
             }
             catch (error) {
                 new errorhandler_1.ErrorHandler(error)
                     .catch(argumenterror_1.ArgumentError, (aError) => {
-                    response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+                    response.sendStatus(HttpStatusCodes.BAD_REQUEST);
                 })
                     .catch(validationerror_1.ValidationError, (vError) => {
-                    response.sendStatus(HTTPStatusCodes.NOT_ACCEPTABLE);
+                    response.sendStatus(HttpStatusCodes.NOT_ACCEPTABLE);
                 })
                     .otherwiseRaise();
             }
@@ -127,7 +132,7 @@ class UserHandler {
             let identifier = request.params.identifier;
             let user;
             if (stringutils_1.StringUtils.isBlank(identifier)) {
-                response.sendStatus(HTTPStatusCodes.BAD_REQUEST);
+                response.sendStatus(HttpStatusCodes.BAD_REQUEST);
                 return;
             }
             try {
@@ -152,14 +157,14 @@ class UserHandler {
                     });
                 }
                 else {
-                    response.sendStatus(HTTPStatusCodes.NOT_FOUND);
+                    response.sendStatus(HttpStatusCodes.NOT_FOUND);
                 }
             }
             catch (error) {
                 new errorhandler_1.ErrorHandler(error)
                     .catch(argumenterror_1.ArgumentError, (aError) => {
-                    response.sendStatus(HTTPStatusCodes.BAD_REQUEST)
-                        .send(new errorinfo_1.ErrorInfo(1, aError.message));
+                    response.status(HttpStatusCodes.BAD_REQUEST)
+                        .json(new servererrorinfo_1.ServerErrorInfo(1, aError.message));
                 })
                     .otherwiseRaise();
             }
@@ -171,6 +176,12 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], UserHandler.prototype, "isUsernameAvailable", null);
+], UserHandler.prototype, "updateUser", null);
+__decorate([
+    authenticated_1.authenticated,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserHandler.prototype, "deleteUser", null);
 exports.UserHandler = UserHandler;
 //# sourceMappingURL=userhandler.js.map

@@ -96,7 +96,7 @@ export class AuthService extends Service {
      * @returns The user if successful. Otherwise null.
      */
     public async loginUserViaToken(token: string): Promise<User> {
-        let payLoad: TokenPayload = await this.tokenManager.verifyToken(token);
+        let payLoad: TokenPayload = await this.tokenManager.authenticateToken(token);
         let user: User = await this.database.userRepo.findById(payLoad.userId);
 
         //Issue them a login

@@ -2,11 +2,12 @@ import { StringUtils } from "../../../../util/stringutils";
 import { IValidatorRule } from "../../../validation/ivalidatorrule";
 import { ValidatorRuleResult } from "../../../validation/validatorruleresult";
 import { User } from "../../../models/user";
+import { NullArgumentError } from "../../../../common/error/types/nullargumenterror";
 
 /**
  * Validates that a user's email is not too long, or missing.
  */
-export class UserEmailValidatorRule implements IValidatorRule<User> {
+export class UserEmailValidatorRule implements IValidatorRule<User>, IValidatorRule<string> {
     private static EMAIL_MISSING_ERROR: string  = 'Email is required.';
     private static EMAIL_TOO_LONG_ERROR: string = `Email must be ${User.MAX_EMAIL_LENGTH} characters or less.`;
     private static EMAIL_INVALID_FORM: string = 'Email is not a valid email in form "name@domain.com".'
@@ -17,23 +18,25 @@ export class UserEmailValidatorRule implements IValidatorRule<User> {
      * @param user The user to check.
      * @returns The rule's result.
      */
-    public validate(user: User): ValidatorRuleResult {
-        if(!user){
-            throw new Error('No user passed in.');
+    public validate(user: User|string): ValidatorRuleResult {
+        if(user == null){
+            throw new NullArgumentError('user');
         }
 
+        let email: string = typeof user === 'string' ? user : user.email;
+
         //Any email?
-        if(StringUtils.isEmpty(user.email)){
+        if(StringUtils.isEmpty(email)){
             return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_MISSING_ERROR);
         }
         
         //Too long?
-        if(user.email.length > User.MAX_EMAIL_LENGTH){
+        if(email.length > User.MAX_EMAIL_LENGTH){
             return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_TOO_LONG_ERROR);
         }
 
         //valid form?
-        if(!this.validateEmail(user.email)){
+        if(!this.validateEmail(email)){
             return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_INVALID_FORM)
         }
 

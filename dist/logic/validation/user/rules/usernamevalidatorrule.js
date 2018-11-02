@@ -18,12 +18,13 @@ class UserNameValidatorRule {
         if (!user) {
             throw new Error('No user passed in.');
         }
+        let name = typeof user === 'string' ? user : user.name;
         //Any name?
-        if (stringutils_1.StringUtils.isEmpty(user.name)) {
+        if (stringutils_1.StringUtils.isEmpty(name)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserNameValidatorRule.NAME_MISSING_ERROR);
         }
         //Too long?
-        if (user.name.length > user_1.User.MAX_NAME_LENGTH) {
+        if (name.length > user_1.User.MAX_NAME_LENGTH) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserNameValidatorRule.NAME_TOO_LONG_ERROR);
         }
         return new validatorruleresult_1.ValidatorRuleResult(true);

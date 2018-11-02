@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const stringutils_1 = require("../../../../util/stringutils");
 const validatorruleresult_1 = require("../../../validation/validatorruleresult");
 const user_1 = require("../../../models/user");
+const nullargumenterror_1 = require("../../../../common/error/types/nullargumenterror");
 /**
  * Validates that a user's email is not too long, or missing.
  */
@@ -14,19 +15,20 @@ class UserEmailValidatorRule {
      * @returns The rule's result.
      */
     validate(user) {
-        if (!user) {
-            throw new Error('No user passed in.');
+        if (user == null) {
+            throw new nullargumenterror_1.NullArgumentError('user');
         }
+        let email = typeof user === 'string' ? user : user.email;
         //Any email?
-        if (stringutils_1.StringUtils.isEmpty(user.email)) {
+        if (stringutils_1.StringUtils.isEmpty(email)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_MISSING_ERROR);
         }
         //Too long?
-        if (user.email.length > user_1.User.MAX_EMAIL_LENGTH) {
+        if (email.length > user_1.User.MAX_EMAIL_LENGTH) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_TOO_LONG_ERROR);
         }
         //valid form?
-        if (!this.validateEmail(user.email)) {
+        if (!this.validateEmail(email)) {
             return new validatorruleresult_1.ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_INVALID_FORM);
         }
         return new validatorruleresult_1.ValidatorRuleResult(true);
