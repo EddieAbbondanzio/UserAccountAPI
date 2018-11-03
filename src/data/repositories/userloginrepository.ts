@@ -1,11 +1,11 @@
 import { AbstractRepository, EntityRepository, EntityManager, Repository, InsertResult, DeleteResult, QueryFailedError } from 'typeorm';
 import { User } from '../../logic/models/user';
 import { UserLogin } from '../../logic/models/userlogin';
-import { IUserLoginRepository } from '../../logic/repositories/iuserloginrepository';
 import { ArgumentError } from '../../common/error/types/argumenterror';
 import { NullArgumentError } from '../../common/error/types/nullargumenterror';
 import { MySqlErrorCode } from '../mysqlerror';
 import { DuplicateError } from '../../common/error/types/duplicateerror';
+import { IUserLoginRepository } from '../../logic/contract/repositories/iuserloginrepository';
 
 /**
  * Storage interface for logins of users. Allows for adding a new

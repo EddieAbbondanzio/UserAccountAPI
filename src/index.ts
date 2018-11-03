@@ -11,16 +11,15 @@ import { ServiceLocator } from './logic/common/servicelocator';
 import { AuthService } from './logic/services/authservice';
 import { IEmailSender } from './logic/email/iemailsender';
 import { ZohoEmailService } from './logic/email/zohoemailsender';
-import { TokenManager } from './logic/helpers/tokenmanager';
 import { ServiceType } from './logic/common/servicetype';
 import { User } from './logic/models/user';
 import { ResetToken } from './logic/models/resettoken';
-import { IAuthService } from './logic/services/iauthservice';
+import { IAuthService } from './logic/contract/services/iauthservice';
 import { Server } from './server/server';
 import { IUserHandler } from './server/handlers/iuserhandler';
-import { UserHandler } from './server/handlers/userhandler';
+import { UserHandler } from './server/handlers/user/userhandler';
 import { IAuthHandler } from './server/handlers/iauthhandler';
-import { AuthHandler } from './server/handlers/authhandler';
+import { AuthHandler } from './server/handlers/auth/authhandler';
 
 /**
  * Initialize the application for use. This first starts
@@ -45,13 +44,12 @@ async function initialize() {
 
     //Set up the BLL.
     let emailSender: IEmailSender = new ZohoEmailService(config.emailCredentials);
-    let tokenManager: TokenManager = new TokenManager(config.tokenSignature);
 
     ServiceLocator.register(new AuthService(database, tokenManager, emailSender));
     ServiceLocator.register(new UserService(database));
 
     let userHandler: IUserHandler = new UserHandler(ServiceLocator.get(ServiceType.User));
-    let authHandler: IAuthHandler = new AuthHandler();
+    let authHandler: IAuthHandler = new AuthHandler(ServiceLocator.get(ServiceType.Auth));
 
     let server: Server = new Server(userHandler, authHandler);
 

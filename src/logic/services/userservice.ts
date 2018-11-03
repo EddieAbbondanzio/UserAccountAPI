@@ -5,7 +5,6 @@ import { ResetToken } from "../models/resettoken";
 import { ValidationError } from "../validation/validationerror";
 import { UserUpdateValidator } from "../validation/user/validators/userupdatevalidator";
 import { UserDeleteValidator } from "../validation/user/validators/userdeletevalidator";
-import { Service } from "../common/service";
 import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
 import { ArgumentError } from "../../common/error/types/argumenterror";
@@ -14,11 +13,12 @@ import { UserUsernameValidatorRule } from "../validation/user/rules/userusername
 import { ValidatorRuleResult } from "../validation/validatorruleresult";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { UsernameValidator } from "../validation/user/validators/usernamevalidator";
+import { DatabaseService } from "../common/databaseservice";
 
 /**
  * The user service for retrieving users from the system.
  */
-export class UserService extends Service{
+export class UserService extends DatabaseService {
     /**
      * The type of service it is.
      */

@@ -5,4 +5,5 @@
 export enum ServiceType {
     Auth,
     User,
+    Token,
 }

@@ -1,16 +1,16 @@
 import { expect } from 'chai';
 import 'mocha';
 import { ServiceLocator } from "../../../../logic/common/servicelocator";
-import { Service } from "../../../../logic/common/service";
 import { ServiceType } from "../../../../logic/common/servicetype";
 import { NullArgumentError } from "../../../../common/error/types/nullargumenterror";
 import { DuplicateError } from "../../../../common/error/types/duplicateerror";
+import { IService } from '../../../../logic/common/iservice';
 
 /**
  * Mock class to test with.
  */
-class MockUserService extends Service {
-    public serviceType: ServiceType = ServiceType.User;
+class MockUserService implements IService {
+    readonly serviceType: ServiceType = ServiceType.User;
 }
 
 /**
@@ -26,7 +26,7 @@ describe('ServiceLocator', () => {
      */
     describe('clear()', () => {
         it('clears out any existing services with the locator', () => {
-            ServiceLocator.services.push(new MockUserService(null));
+            ServiceLocator.services.push(new MockUserService());
             ServiceLocator.clear();
 
             expect(ServiceLocator.services).to.have.lengthOf(0);
@@ -42,13 +42,13 @@ describe('ServiceLocator', () => {
         });
 
         it('registers a service with the locator', () => {
-            let mockService: MockUserService = new MockUserService(null);
+            let mockService: MockUserService = new MockUserService();
             ServiceLocator.register(mockService);
             expect(ServiceLocator.services).to.have.members([mockService]);
         });
 
         it('throws an error if a duplicate exists', () => {
-            let mockService: MockUserService = new MockUserService(null);
+            let mockService: MockUserService = new MockUserService();
 
             ServiceLocator.register(mockService);
             expect(() => { ServiceLocator.register(mockService); }).to.throw(DuplicateError);
@@ -68,7 +68,7 @@ describe('ServiceLocator', () => {
         });
 
         it('returns a service if the type matches', () => {
-            let mockService: MockUserService = new MockUserService(null);
+            let mockService: MockUserService = new MockUserService();
             ServiceLocator.register(mockService);
 
             expect(ServiceLocator.get<MockUserService>(ServiceType.User)).to.be.instanceof(MockUserService);

@@ -1,0 +1,1 @@
+{"version":3,"file":"userupdate.js","sourceRoot":"","sources":["../../../../src/server/handlers/user/userupdate.ts"],"names":[],"mappings":";;AACA;;;GAGG;AACH,MAAa,UAAU;IAWnB;;;;OAIG;IACH,YAAY,IAAa,EAAE,KAAc;QACrC,IAAI,CAAC,IAAI,GAAI,IAAI,CAAC;QAClB,IAAI,CAAC,KAAK,GAAG,KAAK,CAAC;IACvB,CAAC;CACJ;AApBD,gCAoBC"}

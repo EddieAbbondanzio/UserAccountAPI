@@ -1,10 +1,10 @@
 import { AbstractRepository, EntityRepository, InsertResult, EntityManager, Repository, DeleteResult, QueryFailedError } from "typeorm";
 import { VerificationToken } from "../../logic/models/verificationtoken";
-import { IVerificationTokenRepository } from "../../logic/repositories/iverificationtokenrepository";
 import { User } from "../../logic/models/user";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
 import { DuplicateError } from "../../common/error/types/duplicateerror";
+import { IVerificationTokenRepository } from "../../logic/contract/repositories/iverificationtokenrepository";
 
 /**
  * Storage interface for validation tokens of users. Allows for basic

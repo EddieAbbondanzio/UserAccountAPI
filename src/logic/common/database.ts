@@ -1,8 +1,8 @@
 import { DatabaseConfig } from "../../config/databaseconfig";
-import { IUserRepository } from "../repositories/iuserrepository";
-import { IUserLoginRepository } from "../repositories/iuserloginrepository";
-import { IResetTokenRepository } from "../repositories/iresettokenrepository";
-import { IVerificationTokenRepository } from "../repositories/iverificationtokenrepository";
+import { IUserRepository } from "../contract/repositories/iuserrepository";
+import { IUserLoginRepository } from "../contract/repositories/iuserloginrepository";
+import { IResetTokenRepository } from "../contract/repositories/iresettokenrepository";
+import { IVerificationTokenRepository } from "../contract/repositories/iverificationtokenrepository";
 
 /**
  * The data persistance container. This should be able to store and retrieve

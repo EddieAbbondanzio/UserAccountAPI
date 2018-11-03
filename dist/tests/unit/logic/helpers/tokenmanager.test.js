@@ -14,7 +14,7 @@ const tokenmanager_1 = require("../../../../logic/helpers/tokenmanager");
 const user_1 = require("../../../../logic/models/user");
 const nullargumenterror_1 = require("../../../../common/error/types/nullargumenterror");
 const argumenterror_1 = require("../../../../common/error/types/argumenterror");
-const authenticationerror_1 = require("../../../../logic/common/authenticationerror");
+const authenticationerror_1 = require("../../../../common/error/types/authenticationerror");
 describe('TokenManager', () => {
     let tokenManager;
     before(() => {

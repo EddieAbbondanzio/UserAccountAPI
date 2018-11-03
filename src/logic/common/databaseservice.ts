@@ -1,15 +1,17 @@
-import { ServiceType } from "./servicetype";
 import { Database } from "./database";
+import { IService } from "./iservice";
+import { ServiceType } from "./servicetype";
 
 /**
- * A business logic layer service.
+ * A database service is one that interacts directly with
+ * the database through the use of repositories.
  */
-export abstract class Service {
+export abstract class DatabaseService implements IService {
     /**
-     * The type flag of the service.
+     * The type of service.
      */
     readonly abstract serviceType: ServiceType;
-
+    
     /**
      * The current database being used.
      */

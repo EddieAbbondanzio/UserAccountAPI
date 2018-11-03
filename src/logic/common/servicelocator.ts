@@ -1,7 +1,7 @@
-import { Service } from "./service";
 import { ServiceType } from "./servicetype";
 import { DuplicateError } from "../../common/error/types/duplicateerror";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
+import { IService } from "./iservice";
 
 /**
  * The service resolver. Allows for register services,
@@ -11,13 +11,13 @@ export class ServiceLocator {
     /**
      * The list of services available.
      */
-    public static services: Service[];
+    public static services: IService[];
 
     /**
      * Register a new service with the locator.
      * @param service The service to register.
      */
-    public static register<T extends Service>(service: T)  {
+    public static register<T extends IService>(service: T)  {
         if(service == null){
             throw new NullArgumentError('service');
         }
@@ -34,7 +34,7 @@ export class ServiceLocator {
      * Find a specific service.
      * @param type The service type to look for.
      */
-    public static get<T extends Service>(type: ServiceType) {
+    public static get<T extends IService>(type: ServiceType) {
         if(type == null){
             throw new NullArgumentError('type');
         }

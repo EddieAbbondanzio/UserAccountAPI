@@ -7,5 +7,6 @@ var ServiceType;
 (function (ServiceType) {
     ServiceType[ServiceType["Auth"] = 0] = "Auth";
     ServiceType[ServiceType["User"] = 1] = "User";
+    ServiceType[ServiceType["Token"] = 2] = "Token";
 })(ServiceType = exports.ServiceType || (exports.ServiceType = {}));
 //# sourceMappingURL=servicetype.js.map

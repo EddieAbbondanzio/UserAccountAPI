@@ -11,17 +11,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validationerror_1 = require("../validation/validationerror");
 const userupdatevalidator_1 = require("../validation/user/validators/userupdatevalidator");
 const userdeletevalidator_1 = require("../validation/user/validators/userdeletevalidator");
-const service_1 = require("../common/service");
 const servicetype_1 = require("../common/servicetype");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const stringutils_1 = require("../../util/stringutils");
 const userusernamevalidatorrule_1 = require("../validation/user/rules/userusernamevalidatorrule");
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 const usernamevalidator_1 = require("../validation/user/validators/usernamevalidator");
+const databaseservice_1 = require("../common/databaseservice");
 /**
  * The user service for retrieving users from the system.
  */
-class UserService extends service_1.Service {
+class UserService extends databaseservice_1.DatabaseService {
     /**
      * Create a new user service.
      * @param database The current database.

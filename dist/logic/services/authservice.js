@@ -10,20 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../models/user");
 const stringutils_1 = require("../../util/stringutils");
-const authenticationerror_1 = require("../common/authenticationerror");
+const authenticationerror_1 = require("../../common/error/types/authenticationerror");
 const userlogin_1 = require("../models/userlogin");
 const resettoken_1 = require("../models/resettoken");
 const verificationtoken_1 = require("../models/verificationtoken");
 const textemail_1 = require("../email/types/textemail");
-const service_1 = require("../common/service");
 const usercreatevalidator_1 = require("../validation/user/validators/usercreatevalidator");
 const validationerror_1 = require("../validation/validationerror");
 const servicetype_1 = require("../common/servicetype");
+const databaseservice_1 = require("../common/databaseservice");
 /**
  * The authentication service of the system. This handles registering,
  * logging in, or updating user's passwords.
  */
-class AuthService extends service_1.Service {
+class AuthService extends databaseservice_1.DatabaseService {
     /**
      * Create a new authentication service.
      * @param database The current database.

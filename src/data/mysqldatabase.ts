@@ -1,14 +1,14 @@
 import { Connection, createConnection, QueryRunner, EntityManager } from 'typeorm';
 import { DatabaseConfig } from '../config/databaseconfig';
-import { IUserRepository } from '../logic/repositories/iuserrepository';
-import { IUserLoginRepository } from '../logic/repositories/iuserloginrepository';
-import { IResetTokenRepository } from '../logic/repositories/iresettokenrepository';
-import { IVerificationTokenRepository } from '../logic/repositories/iverificationtokenrepository';
 import { UserRepository } from './repositories/userrepository';
 import { UserLoginRepository } from './repositories/userloginrepository';
 import { ResetTokenRespository } from './repositories/resettokenrepository';
 import { VerificationTokenRepository } from './repositories/verificationtokenrepository';
 import { Database } from '../logic/common/database';
+import { IUserRepository } from '../logic/contract/repositories/iuserrepository';
+import { IUserLoginRepository } from '../logic/contract/repositories/iuserloginrepository';
+import { IResetTokenRepository } from '../logic/contract/repositories/iresettokenrepository';
+import { IVerificationTokenRepository } from '../logic/contract/repositories/iverificationtokenrepository';
 
 /**
  * Database implementation of the data access layer. This implementation

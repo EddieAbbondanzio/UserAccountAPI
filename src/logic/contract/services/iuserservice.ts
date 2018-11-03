@@ -1,4 +1,4 @@
-import { UserService } from "./userservice";
+import { UserService } from "../../services/userservice";
 
 /**
  * The user service handles everything related to users except

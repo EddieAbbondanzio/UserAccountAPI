@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { AuthenticationError } from '../../../../logic/common/authenticationerror';
+import { AuthenticationError } from '../../../../common/error/types/authenticationerror';
 
 describe('AuthenticationError', () => {
     describe('constructor()', () => {

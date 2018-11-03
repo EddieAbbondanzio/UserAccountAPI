@@ -24,7 +24,7 @@ const errorhandler_1 = require("../../common/error/errorhandler");
 const validationerror_1 = require("../../logic/validation/validationerror");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const servererrorinfo_1 = require("../common/servererrorinfo");
-const authenticated_1 = require("../common/authenticated");
+const authenticate_1 = require("../common/decorators/authenticate");
 const servererrorcode_1 = require("../common/servererrorcode");
 /**
  * Router responsible for handling all incoming
@@ -65,11 +65,13 @@ class UserHandler {
             if (request.body.name == null) {
                 response.status(HttpStatusCodes.BAD_REQUEST)
                     .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Name is missing from body.'));
+                return;
             }
             //Is there an email?
             if (request.body.email == null) {
                 response.status(HttpStatusCodes.BAD_REQUEST)
                     .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Email is missing from body.'));
+                return;
             }
             // if (isNaN(id)) {
             //     response.sendStatus(HttpStatusCodes.BAD_REQUEST);
@@ -172,13 +174,13 @@ class UserHandler {
     }
 }
 __decorate([
-    authenticated_1.authenticated,
+    authenticate_1.authenticate(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserHandler.prototype, "updateUser", null);
 __decorate([
-    authenticated_1.authenticated,
+    authenticate_1.authenticate(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)

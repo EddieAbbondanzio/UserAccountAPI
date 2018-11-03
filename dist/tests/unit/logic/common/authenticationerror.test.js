@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 require("mocha");
-const authenticationerror_1 = require("../../../../logic/common/authenticationerror");
+const authenticationerror_1 = require("../../../../common/error/types/authenticationerror");
 describe('AuthenticationError', () => {
     describe('constructor()', () => {
         let error = new authenticationerror_1.AuthenticationError('message');

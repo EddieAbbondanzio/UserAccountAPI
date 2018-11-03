@@ -1,17 +1,19 @@
-import { IUserService } from "../../logic/services/iuserservice";
+import { IUserService } from "../../../logic/contract/services/iuserservice";
 import * as Express from 'express';
 import * as HttpStatusCodes from 'http-status-codes';
-import { IHandler } from "../common/ihandler";
-import { StringUtils } from "../../util/stringutils";
-import { User } from "../../logic/models/user";
-import { UserUsernameValidatorRule } from "../../logic/validation/user/rules/userusernamevalidatorrule";
-import { ErrorHandler } from "../../common/error/errorhandler";
-import { ValidationError } from "../../logic/validation/validationerror";
-import { ArgumentError } from "../../common/error/types/argumenterror";
-import { ServerErrorInfo } from "../common/servererrorinfo";
-import { Config } from "../../config/config";
-import { authenticated } from "../common/authenticated";
-import { ServerErrorCode } from "../common/servererrorcode";
+import { IHandler } from "../../common/ihandler";
+import { StringUtils } from "../../../util/stringutils";
+import { User } from "../../../logic/models/user";
+import { UserUsernameValidatorRule } from "../../../logic/validation/user/rules/userusernamevalidatorrule";
+import { ErrorHandler } from "../../../common/error/errorhandler";
+import { ValidationError } from "../../../logic/validation/validationerror";
+import { ArgumentError } from "../../../common/error/types/argumenterror";
+import { ServerErrorInfo } from "../../common/servererrorinfo";
+import { Config } from "../../../config/config";
+import { authenticate } from "../../common/decorators/authenticate";
+import { ServerErrorCode } from "../../common/servererrorcode";
+import { body } from "../../common/decorators/body";
+import { UserUpdate } from "./userupdate";
 
 /**
  * Router responsible for handling all incoming
@@ -62,32 +64,20 @@ export class UserHandler implements IHandler {
      * @param request The incoming request to work with.
      * @param response The outgoing response being built.
      */
-    @authenticated
+    @authenticate()
+    @body(UserUpdate)
     private async updateUser(request: Express.Request, response: Express.Response): Promise<void> {
-        //Is there a name?
-        if (request.body.name == null) {
-            response.status(HttpStatusCodes.BAD_REQUEST)
-                .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Name is missing from body.'));
+        request.user.name  = request.body.name;
+        request.user.email = request.body.email;
+
+        try {
+            await this.userService.update(request.user);
+            response.sendStatus(HttpStatusCodes.OK);
         }
-
-        //Is there an email?
-        if (request.body.email == null) {
-            response.status(HttpStatusCodes.BAD_REQUEST)
-                .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Email is missing from body.'));
+        catch(error){
+            console.log(error);
+            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         }
-
-
-        // if (isNaN(id)) {
-        //     response.sendStatus(HttpStatusCodes.BAD_REQUEST);
-        // }
-        // else {
-        //     //Pulls id in from the JWT
-        //     //Then finds the user based off that.
-
-        //     let name: string = request.body.name;
-        //     let email: string = request.body.email;
-
-        // }
     }
 
     /**
@@ -95,9 +85,15 @@ export class UserHandler implements IHandler {
      * @param request The incoming request to work with.
      * @param response The outgoing response being built.
      */
-    @authenticated
+    @authenticate()
     private async deleteUser(request: Express.Request, response: Express.Response): Promise<void> {
-        await this.userService.delete(request.user);
+        try {
+            await this.userService.delete(request.user);
+        }
+        catch(error){
+            console.log(error);
+            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

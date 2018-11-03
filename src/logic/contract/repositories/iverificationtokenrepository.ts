@@ -1,5 +1,5 @@
-import { VerificationToken } from "../models/verificationtoken";
-import { User } from "../models/user";
+import { VerificationToken } from "../../models/verificationtoken";
+import { User } from "../../models/user";
 
 /**
  * Interface for the container to store verification

@@ -1,5 +1,5 @@
-import { UserLogin } from "../models/userlogin";
-import { User } from "../models/user";
+import { UserLogin } from "../../models/userlogin";
+import { User } from "../../models/user";
 
 /**
  * Interface for the storage container of UserLogins.

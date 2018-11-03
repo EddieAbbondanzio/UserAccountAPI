@@ -1,5 +1,5 @@
-import { User } from "../models/user";
-import { ResetToken } from "../models/resettoken";
+import { ResetToken } from "../../models/resettoken";
+import { User } from "../../models/user";
 
 /**
  * Interface for the database container of reset tokens.

@@ -11,6 +11,11 @@ import * as HttpStatusCodes from 'http-status-codes';
  */
 export class Server {
     /**
+     * The singleton instance of the server.
+     */
+    public static instance: Server;
+
+    /**
      * The running instance of express.
      */
     private express: Express.Application;
@@ -37,6 +42,8 @@ export class Server {
         this.express.listen(Config.current.port, () => {
             console.log(`Listening on port ${Config.current.port}`)
         })
+
+        Server.instance = this;
         
         this.userHandler = userHandler;
         this.authHandler = authHandler;
@@ -49,7 +56,7 @@ export class Server {
      * Initialize any middleware with the server.
      */
     private initMiddleware(): void {
-
+        this.express.use(bodyParser.json());
     }
 
     /**
@@ -57,13 +64,5 @@ export class Server {
      */
     private initRoutes(): void {    
         this.userHandler.initRoutes(this.express);
-
-        /**
-         * On auth errors, reject them with a status of 401.
-         */
-        this.express.use((err: Error, req: Express.Request, res: Express.Response, next: Function) => {
-            console.log('CAUGHT AN ERROR');
-            res.sendStatus(HttpStatusCodes.UNAUTHORIZED);
-        });
     }
 }

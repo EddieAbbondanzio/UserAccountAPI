@@ -1,14 +1,13 @@
 import { TokenManager } from "../helpers/tokenmanager";
 import { User } from "../models/user";
 import { StringUtils } from "../../util/stringutils";
-import { AuthenticationError } from "../common/authenticationerror";
+import { AuthenticationError } from "../../common/error/types/authenticationerror";
 import { UserLogin } from "../models/userlogin";
 import { TokenPayload } from "../common/tokenpayload";
 import { ResetToken } from "../models/resettoken";
 import { VerificationToken } from "../models/verificationtoken";
 import { IEmail } from "../email/types/iemail";
 import { TextEmail } from "../email/types/textemail";
-import { Service } from "../common/service";
 import { Database } from "../common/database";
 import { UserRegistration } from "../common/userregistration";
 import { ValidatorResult } from "../validation/validatorresult";
@@ -16,12 +15,13 @@ import { UserCreateValidator } from "../validation/user/validators/usercreateval
 import { ValidationError } from "../validation/validationerror";
 import { ServiceType } from "../common/servicetype";
 import { IEmailSender } from "../email/iemailsender";
+import { DatabaseService } from "../common/databaseservice";
 
 /**
  * The authentication service of the system. This handles registering,
  * logging in, or updating user's passwords.
  */
-export class AuthService extends Service {
+export class AuthService extends DatabaseService {
     /**
      * The type of service it is.
      */

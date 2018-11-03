@@ -17,11 +17,10 @@ const userservice_1 = require("./logic/services/userservice");
 const servicelocator_1 = require("./logic/common/servicelocator");
 const authservice_1 = require("./logic/services/authservice");
 const zohoemailsender_1 = require("./logic/email/zohoemailsender");
-const tokenmanager_1 = require("./logic/helpers/tokenmanager");
 const servicetype_1 = require("./logic/common/servicetype");
 const server_1 = require("./server/server");
-const userhandler_1 = require("./server/handlers/userhandler");
-const authhandler_1 = require("./server/handlers/authhandler");
+const userhandler_1 = require("./server/handlers/user/userhandler");
+const authhandler_1 = require("./server/handlers/auth/authhandler");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -42,11 +41,10 @@ function initialize() {
             yield database.initialize(config.database);
             //Set up the BLL.
             let emailSender = new zohoemailsender_1.ZohoEmailService(config.emailCredentials);
-            let tokenManager = new tokenmanager_1.TokenManager(config.tokenSignature);
             servicelocator_1.ServiceLocator.register(new authservice_1.AuthService(database, tokenManager, emailSender));
             servicelocator_1.ServiceLocator.register(new userservice_1.UserService(database));
             let userHandler = new userhandler_1.UserHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User));
-            let authHandler = new authhandler_1.AuthHandler();
+            let authHandler = new authhandler_1.AuthHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Auth));
             let server = new server_1.Server(userHandler, authHandler);
             console.log('Ready...');
         }

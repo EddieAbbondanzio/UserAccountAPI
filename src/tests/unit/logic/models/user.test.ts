@@ -3,7 +3,7 @@ import 'mocha';
 import { User } from '../../../../logic/models/user';
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised';
-import { AuthenticationError } from '../../../../logic/common/authenticationerror';
+import { AuthenticationError } from '../../../../common/error/types/authenticationerror';
 import { UserRegistration } from '../../../../logic/common/userregistration';
 
 describe('User', () => {

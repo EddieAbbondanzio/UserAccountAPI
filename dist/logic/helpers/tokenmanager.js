@@ -14,7 +14,7 @@ const tokenpayload_1 = require("../common/tokenpayload");
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const errorhandler_1 = require("../../common/error/errorhandler");
-const authenticationerror_1 = require("../common/authenticationerror");
+const authenticationerror_1 = require("../../common/error/types/authenticationerror");
 /**
  * Handles issuing and verifying jwt tokens to users. Use
  * this with the loginservice, and registerservice for authentication.

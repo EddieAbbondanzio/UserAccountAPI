@@ -1,11 +1,11 @@
 import { AbstractRepository, EntityRepository, EntityManager, Repository, DeleteResult, InsertResult, QueryFailedError } from "typeorm";
 import { ResetToken } from "../../logic/models/resettoken";
-import { IResetTokenRepository } from "../../logic/repositories/iresettokenrepository";
 import { User } from "../../logic/models/user";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { ArgumentError } from "../../common/error/types/argumenterror";
 import { MySqlErrorCode } from "../mysqlerror";
 import { DuplicateError } from "../../common/error/types/duplicateerror";
+import { IResetTokenRepository } from "../../logic/contract/repositories/iresettokenrepository";
 
 /**
  * Storage interface for reset tokens of users. Allows for basic CRUD
