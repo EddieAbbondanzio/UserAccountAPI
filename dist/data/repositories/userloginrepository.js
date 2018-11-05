@@ -81,6 +81,26 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
             yield this.repository.delete(userlogin);
         });
     }
+    /**
+     * Delete all logins for a user.
+     * @param user The user to remove all logins for.
+     */
+    deleteForUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof user === 'number') {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', { id: user })
+                    .execute();
+            }
+            else {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', user)
+                    .execute();
+            }
+        });
+    }
 };
 UserLoginRepository = __decorate([
     typeorm_1.EntityRepository(userlogin_1.UserLogin)

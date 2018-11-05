@@ -1,13 +1,18 @@
 import * as Express from 'express';
 import * as HttpStatusCode from 'http-status-codes';
-import { Config } from '../../../config/config';
 import { ServerErrorInfo } from '../servererrorinfo';
-import { TokenPayload } from '../../../logic/common/tokenpayload';
 import { User } from '../../../logic/models/user';
 import { ServiceLocator } from '../../../logic/common/servicelocator';
 import { ServiceType } from '../../../logic/common/servicetype';
 import { IUserService } from '../../../logic/contract/services/iuserservice';
 import { ServerErrorCode } from '../servererrorcode';
+import { IAccessTokenService } from '../../../logic/contract/services/iaccesstokenservice';
+import { InvalidOperationError } from '../../../common/error/types/invalidoperation';
+import { AccessToken } from '../../../logic/common/accesstoken';
+import { ErrorHandler } from '../../../common/error/errorhandler';
+import { AuthenticationError } from '../../../common/error/types/authenticationerror';
+import { ExpressUtils } from '../../../util/expressutils';
+
 
 /**
  * Decorator to restrict access to a API endpoint. If no JWT is
@@ -22,35 +27,37 @@ export function authenticate() {
 
         //We wrap the existing method so we can call express-jwt first.
         descriptor.value = async function (req: Express.Request, res: Express.Response) {
+            let bearerToken: string = ExpressUtils.getBearerToken(req);
+
             //Is there any headers?
-            if(req.headers == null || req.headers.authorization == null){
-                sendUnauthorizedResponse(res, ServerErrorCode.NoAuthentication, 'No authentication header.');
-                return;
-            }
-            
-            //Is the header valid?
-            let header: string[] = req.headers.authorization.split(' ');
-    
-            if(header.length != 2){
-                sendUnauthorizedResponse(res, ServerErrorCode.PoorlyFormedAuthentication, 'Invalid format authentication header.');
+            if(bearerToken == null){
+                sendUnauthorizedResponse(res, ServerErrorCode.NoAuthentication, 'No authentication token.');
                 return;
             }
     
             //Is the token even valid?
             try {
-                let token: string = header[1];
-                let payload: TokenPayload = await TokenManager.instance.authenticateToken(token);
-    
-                //Catch will take ovver if the payload was bad.
-                let user: User = await ServiceLocator.get<IUserService>(ServiceType.User).findById(payload.userId);
+                let tokenService: IAccessTokenService = ServiceLocator.get(ServiceType.Token);
+
+                if(tokenService == null){
+                    throw new InvalidOperationError('Cannot authenticate a user with no token service');
+                }
+
+                let accessToken: AccessToken = await tokenService.authenticateToken(bearerToken);
+
+                //Catch will take over if the payload was bad.
+                let user: User = await ServiceLocator.get<IUserService>(ServiceType.User).findById(accessToken.userId);
     
                 //Attach the user to the request then call the regular method.
                 req.user = user;
                 return method.call(this, req, res);
             }
-            catch{
-                sendUnauthorizedResponse(res, ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.'); 
-                return;
+            catch (error) {
+                new ErrorHandler(error)
+                .catch(AuthenticationError, (error: AuthenticationError) => {
+                    sendUnauthorizedResponse(res, ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.'); 
+                })
+                .otherwiseRaise();
             }
         };
     

@@ -21,7 +21,7 @@ export class ServerErrorInfo {
      * @param errorCode The error code.
      * @param errorMsg The error message.
      */
-    constructor(errorCode: ServerErrorCode, errorMsg: string) {
+    constructor(errorCode: ServerErrorCode, errorMsg?: string) {
         this.errorCode = errorCode;
         this.errorMessage = errorMsg;
     }

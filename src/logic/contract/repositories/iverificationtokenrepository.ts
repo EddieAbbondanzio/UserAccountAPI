@@ -24,4 +24,11 @@ export interface IVerificationTokenRepository {
      * @param validationtoken The validation token to delete.
      */
     delete(verificationToken: VerificationToken): Promise<void>;
+
+    /**
+     * Delete all existing validation tokens from the database
+     * for a user.
+     * @param user The user or id to remove all tokens for.
+     */
+    deleteForUser(user: User|number): Promise<void>;
 }

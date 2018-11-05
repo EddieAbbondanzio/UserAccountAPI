@@ -77,6 +77,27 @@ let VerificationTokenRepository = class VerificationTokenRepository extends type
             yield this.repository.delete(verificationToken);
         });
     }
+    /**
+     * Delete every verification token from the database
+     * for the user passed in.
+     * @param user The user to delete all tokens for.
+     */
+    deleteForUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof user === 'number') {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', { id: user })
+                    .execute();
+            }
+            else {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', user)
+                    .execute();
+            }
+        });
+    }
 };
 VerificationTokenRepository = __decorate([
     typeorm_1.EntityRepository(verificationtoken_1.VerificationToken)

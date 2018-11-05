@@ -46,6 +46,14 @@ export class ErrorHandler<T extends Error> {
     } 
 
     /**
+     * Catch the error if nothing else caught it.
+     * @param handler The handler to call if nothing else caught it.
+     */
+    public otherwise(handler: (err: Error) => void): void {
+
+    }
+
+    /**
      * If the error has not been caught yet, throw it
      * again so we can pass it to a higher up.
      */

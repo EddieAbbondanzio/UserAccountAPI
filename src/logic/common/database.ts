@@ -56,6 +56,13 @@ export abstract class Database {
     public abstract rollbackTransaction(): Promise<void>;
 
     /**
+     * Check if there is currently a transaction 
+     * in progress, or not.
+     * @returns True if a transaction is active.
+     */
+    public abstract isInTransaction(): boolean;
+
+    /**
      * Create a new database.
      */
     constructor(){

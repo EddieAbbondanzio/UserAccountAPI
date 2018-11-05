@@ -16,10 +16,12 @@ import { User } from './logic/models/user';
 import { ResetToken } from './logic/models/resettoken';
 import { IAuthService } from './logic/contract/services/iauthservice';
 import { Server } from './server/server';
-import { IUserHandler } from './server/handlers/iuserhandler';
+import { IUserHandler } from './server/contract/iuserhandler';
 import { UserHandler } from './server/handlers/user/userhandler';
-import { IAuthHandler } from './server/handlers/iauthhandler';
+import { IAuthHandler } from './server/contract/iauthhandler';
 import { AuthHandler } from './server/handlers/auth/authhandler';
+import { IAccessTokenService } from './logic/contract/services/iaccesstokenservice';
+import { AccessTokenService } from './logic/services/tokenservice';
 
 /**
  * Initialize the application for use. This first starts
@@ -44,8 +46,10 @@ async function initialize() {
 
     //Set up the BLL.
     let emailSender: IEmailSender = new ZohoEmailService(config.emailCredentials);
+    let tokenService: IAccessTokenService = new AccessTokenService(config.tokenSignature);
 
-    ServiceLocator.register(new AuthService(database, tokenManager, emailSender));
+    ServiceLocator.register(tokenService);
+    ServiceLocator.register(new AuthService(database, tokenService, emailSender));
     ServiceLocator.register(new UserService(database));
 
     let userHandler: IUserHandler = new UserHandler(ServiceLocator.get(ServiceType.User));

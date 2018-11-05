@@ -23,4 +23,10 @@ export interface IUserLoginRepository {
      * @param userlogin The userlogin to remove from the database.
      */
     delete(userLogin: UserLogin): Promise<void>;
+
+    /**
+     * Delete all logins for a single user.
+     * @param user The user or id to delete all logins for.
+     */
+    deleteForUser(user: User|number): Promise<void>;
 }

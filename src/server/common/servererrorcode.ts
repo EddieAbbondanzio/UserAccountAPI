@@ -5,23 +5,28 @@
  */
 export enum ServerErrorCode {
     /**
+     * An unknown error occured.
+     */
+    Unknown = 1,
+    /**
      * No authentication header was present on
      * the request.
      */
-    NoAuthentication = 1,
+    NoAuthentication = 2,
     /**
      * The authentication headers or token itself
      * of the request were poorly formed.
      */
-    PoorlyFormedAuthentication = 2,
+    PoorlyFormedAuthentication = 3,
     /**
      * The JWT provided with the request was invalid,
      * likely expired or fake.
      */
-    InvalidAuthentication = 3,
+    InvalidAuthentication = 4,
     /**
      * The body of the request is missing a required
      * parameter.  
      */
-    MissingBodyParameter = 4,
+    MissingBodyParameter = 5,
+
 }

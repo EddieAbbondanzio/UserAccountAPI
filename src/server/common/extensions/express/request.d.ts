@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { User } from '../../../../logic/models/user';
+import { NotImplementedError } from '../../../../common/error/types/notimplementederror';
 
 /*
  * Extension for adding a user property to the
@@ -7,7 +8,7 @@ import { User } from '../../../../logic/models/user';
  */
 
 declare global {
-    namespace Express {
+     namespace Express {
         export interface Request {
             user?: User;
         }

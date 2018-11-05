@@ -20,7 +20,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var User_1;
 const typeorm_1 = require("typeorm");
 const userstats_1 = require("./userstats");
-const userlogin_1 = require("./userlogin");
 const passwordhasher_1 = require("../helpers/passwordhasher");
 /**
  * User object of the service. Represents an individual that
@@ -124,10 +123,6 @@ __decorate([
     typeorm_1.OneToOne(type => userstats_1.UserStats, stats => stats.user),
     __metadata("design:type", userstats_1.UserStats)
 ], User.prototype, "stats", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => userlogin_1.UserLogin, login => login.user),
-    __metadata("design:type", userlogin_1.UserLogin)
-], User.prototype, "login", void 0);
 User = User_1 = __decorate([
     typeorm_1.Entity({ name: "User" })
 ], User);

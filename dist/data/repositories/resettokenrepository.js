@@ -96,6 +96,27 @@ let ResetTokenRespository = class ResetTokenRespository extends typeorm_1.Abstra
             yield this.repository.delete(resetToken);
         });
     }
+    /**
+     * Delete every reset token from the database
+     * for the user passed in.
+     * @param user The user to delete all tokens for.
+     */
+    deleteForUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof user === 'number') {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', { id: user })
+                    .execute();
+            }
+            else {
+                yield this.repository.createQueryBuilder()
+                    .delete()
+                    .where('userId = :id', user)
+                    .execute();
+            }
+        });
+    }
 };
 ResetTokenRespository = __decorate([
     typeorm_1.EntityRepository(resettoken_1.ResetToken)

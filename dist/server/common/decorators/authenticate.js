@@ -13,6 +13,10 @@ const servererrorinfo_1 = require("../servererrorinfo");
 const servicelocator_1 = require("../../../logic/common/servicelocator");
 const servicetype_1 = require("../../../logic/common/servicetype");
 const servererrorcode_1 = require("../servererrorcode");
+const invalidoperation_1 = require("../../../common/error/types/invalidoperation");
+const errorhandler_1 = require("../../../common/error/errorhandler");
+const authenticationerror_1 = require("../../../common/error/types/authenticationerror");
+const expressutils_1 = require("../../../util/expressutils");
 /**
  * Decorator to restrict access to a API endpoint. If no JWT is
  * found on the incoming request then it is rejected with a status of 401.
@@ -26,30 +30,31 @@ function authenticate() {
         //We wrap the existing method so we can call express-jwt first.
         descriptor.value = function (req, res) {
             return __awaiter(this, void 0, void 0, function* () {
+                let bearerToken = expressutils_1.ExpressUtils.getBearerToken(req);
                 //Is there any headers?
-                if (req.headers == null || req.headers.authorization == null) {
-                    sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.NoAuthentication, 'No authentication header.');
-                    return;
-                }
-                //Is the header valid?
-                let header = req.headers.authorization.split(' ');
-                if (header.length != 2) {
-                    sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.PoorlyFormedAuthentication, 'Invalid format authentication header.');
+                if (bearerToken == null) {
+                    sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.NoAuthentication, 'No authentication token.');
                     return;
                 }
                 //Is the token even valid?
                 try {
-                    let token = header[1];
-                    let payload = yield TokenManager.instance.authenticateToken(token);
-                    //Catch will take ovver if the payload was bad.
-                    let user = yield servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User).findById(payload.userId);
+                    let tokenService = servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Token);
+                    if (tokenService == null) {
+                        throw new invalidoperation_1.InvalidOperationError('Cannot authenticate a user with no token service');
+                    }
+                    let accessToken = yield tokenService.authenticateToken(bearerToken);
+                    //Catch will take over if the payload was bad.
+                    let user = yield servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User).findById(accessToken.userId);
                     //Attach the user to the request then call the regular method.
                     req.user = user;
                     return method.call(this, req, res);
                 }
-                catch (_a) {
-                    sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.');
-                    return;
+                catch (error) {
+                    new errorhandler_1.ErrorHandler(error)
+                        .catch(authenticationerror_1.AuthenticationError, (error) => {
+                        sendUnauthorizedResponse(res, servererrorcode_1.ServerErrorCode.InvalidAuthentication, 'Invalid authentication token.');
+                    })
+                        .otherwiseRaise();
                 }
             });
         };

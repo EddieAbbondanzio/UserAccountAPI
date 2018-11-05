@@ -31,12 +31,6 @@ export class UserLogin {
     public code: string;
 
     /**
-     * The JWT associated with the login. These are never stored in
-     * the database since they are a one time use.
-     */
-    public token: string;
-
-    /**
      * The date that the login occured. Not really
      * used for anything.
      */

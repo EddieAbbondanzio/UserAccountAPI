@@ -7,12 +7,14 @@ import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { NotImplementedError } from "../../common/error/types/notimplementederror";
 import { AuthenticationError } from '../../common/error/types/authenticationerror';
 import { ErrorHandler } from '../../common/error/errorhandler';
+import { UserLogin } from '../models/userlogin';
+import { AccessToken } from '../common/accesstoken';
 
 /**
  * Service to encode and validate payloads through the use
  * of Json Web Tokens.
  */
-export class TokenService<T extends object> implements IService {
+export class AccessTokenService implements IService {
     /**
      * Tokens are good for 6 months.
      */
@@ -51,7 +53,7 @@ export class TokenService<T extends object> implements IService {
 
         this.signOptions = {
             algorithm: 'HS256',
-            expiresIn: TokenService.TOKEN_LIFESPAN
+            expiresIn: AccessTokenService.TOKEN_LIFESPAN
         };
 
         this.verifyOptions = {
@@ -62,28 +64,29 @@ export class TokenService<T extends object> implements IService {
     }
 
     /**
-     * Issue a token that contains the provided payload within it.
-     * Don't send out anything secret as the contents can be
-     * viewed by the token bearer.
-     * @param payload The payload to encode into the JWT.
-     * @returns The issued token.
+     * Issue a new access token using the user login provided.
+     * @param userLogin The user login to create a token for.
+     * @returns The generated token.
      */
-    public async issueToken<T>(payload: T): Promise<string> {
+    public async issueToken(userLogin: UserLogin): Promise<AccessToken> {
         //Check for a payload
-        if (payload == null) {
-            throw new NullArgumentError('payload');
+        if (userLogin == null) {
+            throw new NullArgumentError('userLogin');
         }
 
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<AccessToken>((resolve, reject) => {
             //JsonWebToken only allows POJOs as payloads.
-            let p: object = Object.assign({}, payload);
+            let payload: object = {
+                userId: userLogin.user.id,
+                loginCode: userLogin.code
+            }
 
-            JsonWebToken.sign(p, this.signature, this.signOptions, (err, token) => {
+            JsonWebToken.sign(payload, this.signature, this.signOptions, (err, token) => {
                 if (err) {
                     reject(err);
                 }
                 else {
-                    resolve(token);
+                    resolve(new AccessToken(userLogin.user.id, userLogin.code, token));
                 }
             });
         });
@@ -92,18 +95,18 @@ export class TokenService<T extends object> implements IService {
     /**
      * Authenticate a token to check if it is actually valid,
      * and extract the payload from it.
-     * @param token The string of the jwt to authenticate.
+     * @param bearerToken The string of the jwt to authenticate.
      * @param constructor The constructor of the object to extract
      * from the payload.
      * @returns The decoded payload.
      */
-    public async authenticateToken<T>(token: string, constructor: IConstructor<T>): Promise<T> {
-        if (token == null) {
+    public async authenticateToken(bearerToken: string): Promise<AccessToken> {
+        if (bearerToken == null) {
             throw new NullArgumentError('token');
         }
 
-        return new Promise<T>((resolve, reject) => {
-            JsonWebToken.verify(token, this.signature, this.verifyOptions, (error: Error, decoded: object) => {
+        return new Promise<AccessToken>((resolve, reject) => {
+            JsonWebToken.verify(bearerToken, this.signature, this.verifyOptions, (error: Error, decoded: any) => {
                 if (error) {
                     new ErrorHandler(error)
                         .catch(JsonWebToken.JsonWebTokenError, (err: JsonWebToken.JsonWebTokenError) => {
@@ -112,20 +115,11 @@ export class TokenService<T extends object> implements IService {
                         .otherwiseRaise();
                 }
                 else {
-                    let payload: T = new constructor();
-
-                    for (let p in payload) {
-                        if (payload.hasOwnProperty(p)) {
-                            if (decoded.hasOwnProperty(p)) {
-                                (<any>payload)[p] = (<any>decoded)[p];
-                            }
-                            else {
-                                reject(new TypeError('Payload is missing property: ' + p));
-                            }
-                        }
+                    if(decoded.userId == null || decoded.loginCode == null) {
+                        throw new TypeError('Invalid token');
                     }
 
-                    resolve(payload as T);
+                    resolve(new AccessToken(decoded.userId, decoded.loginCode, bearerToken));
                 }
             });
         });

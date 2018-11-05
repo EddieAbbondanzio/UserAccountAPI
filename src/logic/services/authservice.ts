@@ -1,9 +1,7 @@
-import { TokenManager } from "../helpers/tokenmanager";
 import { User } from "../models/user";
 import { StringUtils } from "../../util/stringutils";
 import { AuthenticationError } from "../../common/error/types/authenticationerror";
 import { UserLogin } from "../models/userlogin";
-import { TokenPayload } from "../common/tokenpayload";
 import { ResetToken } from "../models/resettoken";
 import { VerificationToken } from "../models/verificationtoken";
 import { IEmail } from "../email/types/iemail";
@@ -16,6 +14,12 @@ import { ValidationError } from "../validation/validationerror";
 import { ServiceType } from "../common/servicetype";
 import { IEmailSender } from "../email/iemailsender";
 import { DatabaseService } from "../common/databaseservice";
+import { AccessTokenService } from "./tokenservice";
+import { NullArgumentError } from "../../common/error/types/nullargumenterror";
+import { AccessToken } from "../common/accesstoken";
+import { IAccessTokenService } from "../contract/services/iaccesstokenservice";
+import { ErrorHandler } from "../../common/error/errorhandler";
+import { InvalidOperationError } from "../../common/error/types/invalidoperation";
 
 /**
  * The authentication service of the system. This handles registering,
@@ -27,10 +31,10 @@ export class AuthService extends DatabaseService {
      */
     readonly serviceType: ServiceType = ServiceType.Auth;
 
-   /**
-     * The JWT manager.
-     */ 
-    private tokenManager: TokenManager;
+    /**
+      * The JWT issuer, and authenticater.
+      */
+    private tokenService: IAccessTokenService;
 
     /**
      * The service for sending emails.
@@ -45,14 +49,14 @@ export class AuthService extends DatabaseService {
     /**
      * Create a new authentication service.
      * @param database The current database.
-     * @param tokenManager The JWT manager.
+     * @param tokenService The JWT manager.
      * @param emailSender The email sender service.
      */
-    constructor(database: Database, tokenManager: TokenManager, emailSender: IEmailSender) {
+    constructor(database: Database, tokenService: IAccessTokenService, emailSender: IEmailSender) {
         super(database);
 
-        this.tokenManager = tokenManager;
-        this.emailSender  = emailSender;
+        this.tokenService = tokenService;
+        this.emailSender = emailSender;
 
         this.userCreateValidator = new UserCreateValidator();
     }
@@ -61,68 +65,90 @@ export class AuthService extends DatabaseService {
      * Login a user via their credentials.
      * @param username The user's username.
      * @param password The user's password.
-     * @returns The user if successful. Otherwise null.
+     * @returns An access token if successful.
      */
-    public async loginUserViaCredentials(username: string, password: string): Promise<User> {
-        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
-            throw new Error('No username or password passed in!');
+    public async loginUserViaCredentials(username: string, password: string): Promise<AccessToken> {
+        //Check for good inputs.
+        if (username == null) {
+            throw new NullArgumentError('username');
+        }
+        else if (password == null) {
+            throw new NullArgumentError('password');
         }
 
+        //Pull in the user from the database.
         let user = await this.database.userRepo.findByUsername(username);
 
-        if(!user){
-            return null;
+        //If no user found, or bad password crash and burn.
+        if (user == null || !(await user.validatePassword(password))) {
+            throw new AuthenticationError('Failed login attempt');
         }
 
-        //Are they authentic?
-        if(!(await user.validatePassword(password))){
-            throw new AuthenticationError('User is not authorized.');
-        }
-
-        //Issue them a login
-        let login: UserLogin = new UserLogin(user);
-        login.token = await this.tokenManager.issueToken(user);
-
-        //Save it
-        await this.database.loginRepo.add(login);
-        user.login = login;
-
-        return user;
+        return this.loginUser(user);
     }
 
     /**
-     * Login a user using a JWT they have.
-     * @param token The JWT from a previous login.
-     * @returns The user if successful. Otherwise null.
+     * Relogin a user using the access token they provided. This
+     * will invalidate their current token and give them a new one.
+     * @param bearerToken The current bearer token.
+     * @returns A refreshed access token if successful.
      */
-    public async loginUserViaToken(token: string): Promise<User> {
-        let payLoad: TokenPayload = await this.tokenManager.authenticateToken(token);
-        let user: User = await this.database.userRepo.findById(payLoad.userId);
+    public async loginUserViaToken(bearerToken: string): Promise<AccessToken> {
+        if (bearerToken == null) {
+            throw new NullArgumentError('bearerToken');
+        }
 
-        //Issue them a login
-        let login: UserLogin = new UserLogin(user);
-        login.token = await this.tokenManager.issueToken(user);
+        //Authenticate the token, then pull in the user.
+        let accessToken: AccessToken = await this.tokenService.authenticateToken(bearerToken);
+        let user: User = await this.database.userRepo.findById(accessToken.userId);
 
-        //Save it
-        await this.database.loginRepo.add(login);
-        user.login = login;
+        return this.loginUser(user);
+    }
+    
+    /**
+     * Log in a user.
+     * @param user The user to log in.
+     * @returns Their access token.
+     */
+    public async loginUser(user: User): Promise<AccessToken> {
+        if (user == null) {
+            throw new NullArgumentError('user');
+        }
 
-        return user;
+        try {
+            await this.database.startTransaction();
+
+            //Delete out any old ones
+            await this.database.loginRepo.deleteForUser(user);
+
+            //Issue them a login, and save it.
+            let login: UserLogin = new UserLogin(user);
+            await this.database.loginRepo.add(login);
+
+            await this.database.commitTransaction();
+
+            //Return a JWT for them
+            return this.tokenService.issueToken(login);
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
+
+            throw error;
+        }
     }
 
     /**
-     * Log out a user that is currently logged in.
-     * @param user The username to log out.
-     * @returns True if logged out.
+     * Log out a user by invalidating their JWT.
+     * @param user The user to log out.
      */
     public async logoutUser(user: User): Promise<void> {
-        if(!user.login){
-            throw new Error('User is not logged in!');
+        if (user == null) {
+            throw new NullArgumentError('user');
         }
 
-        //Delete it from the db
-        await this.database.loginRepo.delete(user.login);
-        user.login = null;
+        await this.database.loginRepo.deleteForUser(user);
     }
 
     /**
@@ -132,20 +158,35 @@ export class AuthService extends DatabaseService {
      * @param newPassword Their new desired password.
      */
     public async resetPassword(user: User, resetCode: string, newPassword: string): Promise<void> {
-        if(!user){
-            throw new Error('No user passed in');
+        if (user == null) {
+            throw new NullArgumentError('user');
+        }
+        else if (resetCode == null) {
+            throw new NullArgumentError('resetCode');
+        }
+        else if (newPassword == null) {
+            throw new NullArgumentError('newPassword');
         }
 
-        //Need to pull in the reset token for them.
-        let resetToken: ResetToken = await this.database.resetTokenRepo.findByUser(user);
+        try {
+            //Need to pull in the reset token for them.
+            let resetToken: ResetToken = await this.database.resetTokenRepo.findByUser(user);
 
-        if(resetToken && resetToken.code == resetCode){
-            await user.setPassword(newPassword);
+            if (resetToken && resetToken.code == resetCode) {
+                await user.setPassword(newPassword);
 
-            await this.database.startTransaction();
-            await Promise.all([this.database.resetTokenRepo.delete(resetToken),
+                await this.database.startTransaction();
+                await Promise.all([this.database.resetTokenRepo.delete(resetToken),
                 this.database.userRepo.updatePassword(user)]);
-            await this.database.commitTransaction();
+                await this.database.commitTransaction();
+            }
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
+
+            throw error;
         }
     }
 
@@ -157,11 +198,18 @@ export class AuthService extends DatabaseService {
      * @param newPassword Their new desired password.
      */
     public async updatePassword(user: User, currPassword: string, newPassword: string): Promise<void> {
-        if(!user){
-            throw new Error('No user passed in.');
+        if (user == null) {
+            throw new NullArgumentError('user');
+        }
+        else if (currPassword == null) {
+            throw new NullArgumentError('currPassword');
+        }
+        else if (newPassword == null) {
+            throw new NullArgumentError('newPassword');
         }
 
-        if(!(await user.validatePassword(currPassword))){
+        //Check the password they passed in first.
+        if (!(await user.validatePassword(currPassword))) {
             throw new AuthenticationError('Invalid password.');
         }
 
@@ -169,7 +217,7 @@ export class AuthService extends DatabaseService {
         await user.setPassword(newPassword);
         await this.database.userRepo.updatePassword(user);
     }
-    
+
     /**
      * Register a new user with the system. This will
      * send them a confirmation email before they are done.
@@ -177,40 +225,43 @@ export class AuthService extends DatabaseService {
      * @returns The new user, or null if it failed.
      */
     public async registerNewUser(registration: UserRegistration): Promise<User> {
-        if(!registration){
-            throw new Error('No registration passed in.');
+        if (registration == null) {
+            throw new NullArgumentError('registration');
         }
 
+        //Generate the user
         let user: User = await User.fromRegistration(registration);
         let vToken: VerificationToken;
 
         //Is the user even valid?
         let validatorResult: ValidatorResult = this.userCreateValidator.validate(user);
 
-        if(!validatorResult.isValid){
+        if (!validatorResult.isValid) {
             throw new ValidationError('Failed to register new user.', validatorResult);
         }
 
-        await this.database.startTransaction();
+        try {
+            await this.database.startTransaction();
 
-        await this.database.userRepo.add(user);
+            await this.database.userRepo.add(user);
 
-        //Now generate a validation token.
-        vToken = new VerificationToken(user);
-        await this.database.verificationTokenRepo.add(vToken);
+            //Now generate a validation token.
+            vToken = new VerificationToken(user);
+            await this.database.verificationTokenRepo.add(vToken);
 
-        //Create their login
-        let login: UserLogin = new UserLogin(user);
-        login.token = await this.tokenManager.issueToken(user);
-        await this.database.loginRepo.add(login);
-        user.login = login;
+            await this.database.commitTransaction();
 
-        await this.database.commitTransaction();
+            //Send them the email
+            await this.sendVerificationEmail(user, vToken);
+            return user;
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
 
-        //Send them the email
-        await this.sendVerificationEmail(user, vToken);
-        
-        return user;
+            throw error;
+        }
     }
 
     /**
@@ -220,33 +271,47 @@ export class AuthService extends DatabaseService {
      * @returns True if the code was valid.
      */
     public async verifyUserEmail(user: User, verificationCode: string): Promise<boolean> {
-        if(!user){
-            throw new Error('No user passed in.');
+        //Check for good input.
+        if (user == null) {
+            throw new NullArgumentError('user');
+        }
+        else if (verificationCode == null) {
+            throw new NullArgumentError('verifcationCode');
         }
 
         //Is user already validated?
-        if(user.isVerified){
+        if (user.isVerified) {
             return true;
         }
 
         let vToken: VerificationToken = await this.database.verificationTokenRepo.findByUser(user);
 
         //Not found, or bad match
-        if(!vToken || vToken.code !== verificationCode){
+        if (vToken == null || vToken.code != verificationCode) {
             return false;
         }
         else {
             user.isVerified = true;
         }
-        
-        await this.database.startTransaction();
 
-        await Promise.all([this.database.userRepo.update(user), 
-            this.database.verificationTokenRepo.delete(vToken)]);
+        try {
+            await this.database.startTransaction();
 
-        await this.database.commitTransaction();
+            await Promise.all([
+                this.database.userRepo.update(user),
+                this.database.verificationTokenRepo.delete(vToken)]
+            );
 
-        return true;
+            await this.database.commitTransaction();
+            return true;
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
+
+            throw error;
+        }
     }
 
     /**
@@ -255,19 +320,25 @@ export class AuthService extends DatabaseService {
      * @param user The user to re email.
      */
     public async resendVerificationEmail(user: User): Promise<void> {
-        if(!user){
-            throw new Error('No user passed in.');
+        if (user == null) {
+            throw new NullArgumentError('user');
         }
 
         //User has already been verified.
-        if(user.isVerified){
+        if (user.isVerified) {
             return;
         }
 
         let vToken: VerificationToken = await this.database.verificationTokenRepo.findByUser(user);
+
+        //What are we trying to achieve here? No token...
+        if(vToken == null){
+            return;
+        }
+
         await this.sendVerificationEmail(user, vToken);
     }
-    
+
     /**
      * Validate that a user is who they claim to be. This will check their username
      * against the login provided in the database.
@@ -275,34 +346,33 @@ export class AuthService extends DatabaseService {
      * @param loginCode Their login guid.
      */
     public async validateUser(user: User, loginCode: string): Promise<boolean> {
-        if(!user){
-            throw new Error('No user passed in');
+        if (user == null) {
+            throw new NullArgumentError('user');
         }
 
         //Try to find the login.
         let userLogin: UserLogin = await this.database.loginRepo.findByUser(user);
 
-        if(userLogin && userLogin.code == loginCode){
-            return true;
-        }
-        else {
-            return false;
-        }
+        //Did we find one, and is the code accurate?
+        return userLogin != null && userLogin.code == loginCode;
     }
 
-    
     /**
      * User forgot their username and wants it emailed to them.
      * @param email The user's email to send it to.
      */
     public async emailUserTheirUsername(email: string): Promise<void> {
+        if (email == null) {
+            throw new NullArgumentError('email');
+        }
+
         let user: User = await this.database.userRepo.findByEmail(email);
 
         //Only proceed if a user was found.
-        if(user){
-            let resetEmail: TextEmail = new TextEmail(user.email, 
-                'No Mans Blocks Username',
-                'Hi, your username is: ' + user.username    
+        if (user) {
+            let resetEmail: TextEmail = new TextEmail(user.email,
+                'Forgotten Username',
+                'Hi, your username is: ' + user.username
             );
 
             await this.emailSender.sendEmail(resetEmail);
@@ -315,32 +385,58 @@ export class AuthService extends DatabaseService {
      * @param username The username of the user to email.
      */
     public async emailUserResetToken(username: string): Promise<void> {
+        if (username == null) {
+            throw new NullArgumentError('username');
+        }
+
         let user: User = await this.database.userRepo.findByUsername(username);
 
         //Only send an email if a user was found.
-        if(user){
-            //Generate them a reset token.
-            let rToken: ResetToken = new ResetToken(user);
-            await this.database.resetTokenRepo.add(rToken);
+        if (user) {
+            try {
+                await this.database.startTransaction();
 
-            let resetEmail: TextEmail = new TextEmail(user.email,
-                'No Mans Blocks Password Reset',
-                'Hi, your password reset code is: ' + rToken.code
-            );
+                //Delete out old ones.
+                await this.database.resetTokenRepo.deleteForUser(user);
 
-            await this.emailSender.sendEmail(resetEmail);
+                //Generate them a reset token.
+                let rToken: ResetToken = new ResetToken(user);
+                await this.database.resetTokenRepo.add(rToken);
+
+                await this.database.commitTransaction();
+
+                let resetEmail: TextEmail = new TextEmail(user.email,
+                    'Password Reset',
+                    'Hi, your password reset code is: ' + rToken.code
+                );
+    
+                await this.emailSender.sendEmail(resetEmail);
+            }
+            catch(error) {
+                if(this.database.isInTransaction()){
+                    await this.database.rollbackTransaction();
+                }
+
+                throw error;
+            }
         }
     }
 
-    
     /**
      * Send the user their validation code via an email.
      * @param user The user to re email.
      * @param vToken Their validation code.
      */
     private async sendVerificationEmail(user: User, vToken: VerificationToken): Promise<boolean> {
+        if (user == null) {
+            throw new NullArgumentError('user');
+        }
+        else if (vToken == null) {
+            throw new NullArgumentError('vToken');
+        }
+
         let validationEmail: IEmail = new TextEmail(user.email,
-            "No Man's Blocks Account Confirmation.",
+            "Account Confirmation",
             "Thanks for joining! Your confirmation code is: " + vToken.code
         );
 

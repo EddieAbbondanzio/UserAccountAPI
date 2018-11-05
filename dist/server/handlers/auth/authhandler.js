@@ -8,7 +8,7 @@ const notimplementederror_1 = require("../../../common/error/types/notimplemente
  */
 class AuthHandler {
     /**
-     * Create a new auth router.
+     * Create a new auth handler.
      * @param authService The authservice to use.
      */
     constructor(authService) {
@@ -23,59 +23,38 @@ class AuthHandler {
         throw new notimplementederror_1.NotImplementedError();
     }
     loginUser(request, response) {
+        //Need to handle 
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     logoutUser(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     updatePassword(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     resetPassword(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     registerNewUser(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     verifyEmail(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     sendVerificationEmail(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     resendVerificationEmail(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     validateUserLogin(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     forgotUsername(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
     forgotPassword(request, response) {
         throw new notimplementederror_1.NotImplementedError();
-        //Handles JWT first
-        //Then checks body otherwise.
     }
 }
 exports.AuthHandler = AuthHandler;

@@ -9,6 +9,7 @@ import { IUserRepository } from '../logic/contract/repositories/iuserrepository'
 import { IUserLoginRepository } from '../logic/contract/repositories/iuserloginrepository';
 import { IResetTokenRepository } from '../logic/contract/repositories/iresettokenrepository';
 import { IVerificationTokenRepository } from '../logic/contract/repositories/iverificationtokenrepository';
+import { InvalidOperationError } from '../common/error/types/invalidoperation';
 
 /**
  * Database implementation of the data access layer. This implementation
@@ -47,6 +48,12 @@ export class MySqlDatabase extends Database {
     private queryRunner: QueryRunner;
 
     /**
+     * Flag to track if a transaction is in progress
+     * or not.
+     */
+    private inTransaction: boolean;
+
+    /**
      * Initialize the data layer for use.
      * @param config The config to use for the database.
      */
@@ -70,17 +77,24 @@ export class MySqlDatabase extends Database {
         new EntityManager(this.connection, this.queryRunner);
 
         //Get the repos
-        this.userRepo       = this.queryRunner.manager.getCustomRepository(UserRepository);
-        this.loginRepo      = this.queryRunner.manager.getCustomRepository(UserLoginRepository);
+        this.userRepo = this.queryRunner.manager.getCustomRepository(UserRepository);
+        this.loginRepo = this.queryRunner.manager.getCustomRepository(UserLoginRepository);
         this.resetTokenRepo = this.queryRunner.manager.getCustomRepository(ResetTokenRespository);
         this.verificationTokenRepo = this.queryRunner.manager.getCustomRepository(VerificationTokenRepository);
+
+        this.inTransaction = false;
     }
 
     /**
      * Start a transaction with the database. If a transaction
      * is already in progress, an error will be thrown.
      */
-    startTransaction(): Promise<void> {
+    public async startTransaction(): Promise<void> {
+        if (this.inTransaction) {
+            throw new InvalidOperationError('A transaction is already in progress');
+        }
+
+        this.inTransaction = true;
         return this.queryRunner.startTransaction();
     }
 
@@ -88,7 +102,12 @@ export class MySqlDatabase extends Database {
      * Commit the current transaction. If no transaction is taking
      * place, then an error will be thrown.
      */
-    commitTransaction(): Promise<void> {
+    public async commitTransaction(): Promise<void> {
+        if (!this.inTransaction) {
+            throw new InvalidOperationError('A transaction was not started');
+        }
+
+        this.inTransaction = false;
         return this.queryRunner.commitTransaction();
     }
 
@@ -97,7 +116,20 @@ export class MySqlDatabase extends Database {
      * committed to the database during the transcation. If no
      * transaction is in progress, then an error will be thrown.
      */
-    rollbackTransaction(): Promise<void> {
+    public async rollbackTransaction(): Promise<void> {
+        if (!this.inTransaction) {
+            throw new InvalidOperationError('A transaction was not started');
+        }
+
+        this.inTransaction = false;
         return this.queryRunner.rollbackTransaction();
+    }
+
+    /**
+     * If the database is currently in a transaction or not.
+     * @returns True if a transaction is active.
+     */
+    public isInTransaction(): boolean {
+        return this.inTransaction;
     }
 }

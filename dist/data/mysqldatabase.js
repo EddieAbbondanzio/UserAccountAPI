@@ -14,6 +14,7 @@ const userloginrepository_1 = require("./repositories/userloginrepository");
 const resettokenrepository_1 = require("./repositories/resettokenrepository");
 const verificationtokenrepository_1 = require("./repositories/verificationtokenrepository");
 const database_1 = require("../logic/common/database");
+const invalidoperation_1 = require("../common/error/types/invalidoperation");
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
@@ -45,6 +46,7 @@ class MySqlDatabase extends database_1.Database {
             this.loginRepo = this.queryRunner.manager.getCustomRepository(userloginrepository_1.UserLoginRepository);
             this.resetTokenRepo = this.queryRunner.manager.getCustomRepository(resettokenrepository_1.ResetTokenRespository);
             this.verificationTokenRepo = this.queryRunner.manager.getCustomRepository(verificationtokenrepository_1.VerificationTokenRepository);
+            this.inTransaction = false;
         });
     }
     /**
@@ -52,14 +54,26 @@ class MySqlDatabase extends database_1.Database {
      * is already in progress, an error will be thrown.
      */
     startTransaction() {
-        return this.queryRunner.startTransaction();
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.inTransaction) {
+                throw new invalidoperation_1.InvalidOperationError('A transaction is already in progress');
+            }
+            this.inTransaction = true;
+            return this.queryRunner.startTransaction();
+        });
     }
     /**
      * Commit the current transaction. If no transaction is taking
      * place, then an error will be thrown.
      */
     commitTransaction() {
-        return this.queryRunner.commitTransaction();
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.inTransaction) {
+                throw new invalidoperation_1.InvalidOperationError('A transaction was not started');
+            }
+            this.inTransaction = false;
+            return this.queryRunner.commitTransaction();
+        });
     }
     /**
      * Rollback the current transaction. This reverts any work
@@ -67,7 +81,20 @@ class MySqlDatabase extends database_1.Database {
      * transaction is in progress, then an error will be thrown.
      */
     rollbackTransaction() {
-        return this.queryRunner.rollbackTransaction();
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.inTransaction) {
+                throw new invalidoperation_1.InvalidOperationError('A transaction was not started');
+            }
+            this.inTransaction = false;
+            return this.queryRunner.rollbackTransaction();
+        });
+    }
+    /**
+     * If the database is currently in a transaction or not.
+     * @returns True if a transaction is active.
+     */
+    isInTransaction() {
+        return this.inTransaction;
     }
 }
 exports.MySqlDatabase = MySqlDatabase;

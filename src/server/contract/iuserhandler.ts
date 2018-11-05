@@ -1,4 +1,4 @@
-import { UserHandler } from "./user/userhandler";
+import { UserHandler } from "../handlers/user/userhandler";
 
 /**
  * The user handler handles all incoming requests related

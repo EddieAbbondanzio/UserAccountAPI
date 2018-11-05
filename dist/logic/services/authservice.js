@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../models/user");
-const stringutils_1 = require("../../util/stringutils");
 const authenticationerror_1 = require("../../common/error/types/authenticationerror");
 const userlogin_1 = require("../models/userlogin");
 const resettoken_1 = require("../models/resettoken");
@@ -19,6 +18,7 @@ const usercreatevalidator_1 = require("../validation/user/validators/usercreatev
 const validationerror_1 = require("../validation/validationerror");
 const servicetype_1 = require("../common/servicetype");
 const databaseservice_1 = require("../common/databaseservice");
+const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 /**
  * The authentication service of the system. This handles registering,
  * logging in, or updating user's passwords.
@@ -27,16 +27,16 @@ class AuthService extends databaseservice_1.DatabaseService {
     /**
      * Create a new authentication service.
      * @param database The current database.
-     * @param tokenManager The JWT manager.
+     * @param tokenService The JWT manager.
      * @param emailSender The email sender service.
      */
-    constructor(database, tokenManager, emailSender) {
+    constructor(database, tokenService, emailSender) {
         super(database);
         /**
          * The type of service it is.
          */
         this.serviceType = servicetype_1.ServiceType.Auth;
-        this.tokenManager = tokenManager;
+        this.tokenService = tokenService;
         this.emailSender = emailSender;
         this.userCreateValidator = new usercreatevalidator_1.UserCreateValidator();
     }
@@ -44,61 +44,84 @@ class AuthService extends databaseservice_1.DatabaseService {
      * Login a user via their credentials.
      * @param username The user's username.
      * @param password The user's password.
-     * @returns The user if successful. Otherwise null.
+     * @returns An access token if successful.
      */
     loginUserViaCredentials(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (stringutils_1.StringUtils.isEmpty(username) || stringutils_1.StringUtils.isEmpty(password)) {
-                throw new Error('No username or password passed in!');
+            //Check for good inputs.
+            if (username == null) {
+                throw new nullargumenterror_1.NullArgumentError('username');
             }
+            else if (password == null) {
+                throw new nullargumenterror_1.NullArgumentError('password');
+            }
+            //Pull in the user from the database.
             let user = yield this.database.userRepo.findByUsername(username);
-            if (!user) {
-                return null;
+            //If no user found, or bad password crash and burn.
+            if (user == null || !(yield user.validatePassword(password))) {
+                throw new authenticationerror_1.AuthenticationError('Failed login attempt');
             }
-            //Are they authentic?
-            if (!(yield user.validatePassword(password))) {
-                throw new authenticationerror_1.AuthenticationError('User is not authorized.');
-            }
-            //Issue them a login
-            let login = new userlogin_1.UserLogin(user);
-            login.token = yield this.tokenManager.issueToken(user);
-            //Save it
-            yield this.database.loginRepo.add(login);
-            user.login = login;
-            return user;
+            return this.loginUser(user);
         });
     }
     /**
-     * Login a user using a JWT they have.
-     * @param token The JWT from a previous login.
-     * @returns The user if successful. Otherwise null.
+     * Relogin a user using the access token they provided. This
+     * will invalidate their current token and give them a new one.
+     * @param bearerToken The current bearer token.
+     * @returns A refreshed access token if successful.
      */
-    loginUserViaToken(token) {
+    loginUserViaToken(bearerToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            let payLoad = yield this.tokenManager.authenticateToken(token);
-            let user = yield this.database.userRepo.findById(payLoad.userId);
-            //Issue them a login
-            let login = new userlogin_1.UserLogin(user);
-            login.token = yield this.tokenManager.issueToken(user);
-            //Save it
-            yield this.database.loginRepo.add(login);
-            user.login = login;
-            return user;
+            if (bearerToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('bearerToken');
+            }
+            //Authenticate the token, then pull in the user.
+            let accessToken = yield this.tokenService.authenticateToken(bearerToken);
+            let user = yield this.database.userRepo.findById(accessToken.userId);
+            return this.loginUser(user);
         });
     }
     /**
-     * Log out a user that is currently logged in.
-     * @param user The username to log out.
-     * @returns True if logged out.
+     * Log in a user.
+     * @param user The user to log in.
+     * @returns Their access token.
      */
-    logoutUser(user) {
+    loginUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user.login) {
-                throw new Error('User is not logged in!');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            //Delete it from the db
-            yield this.database.loginRepo.delete(user.login);
-            user.login = null;
+            try {
+                yield this.database.startTransaction();
+                //Delete out any old ones
+                yield this.database.loginRepo.deleteForUser(user);
+                //Issue them a login, and save it.
+                let login = new userlogin_1.UserLogin(user);
+                yield this.database.loginRepo.add(login);
+                yield this.database.commitTransaction();
+                //Return a JWT for them
+                return this.tokenService.issueToken(login);
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Log out a user by invalidating their JWT.
+     * @param bearerToken The bearer token of the user to log out.
+     */
+    logoutUser(bearerToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (bearerToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('bearerToken');
+            }
+            //Decode the token, then delete it from the database.
+            let accessToken = yield this.tokenService.authenticateToken(bearerToken);
+            yield this.database.loginRepo.deleteForUser(accessToken.userId);
         });
     }
     /**
@@ -109,17 +132,31 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     resetPassword(user, resetCode, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('No user passed in');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            //Need to pull in the reset token for them.
-            let resetToken = yield this.database.resetTokenRepo.findByUser(user);
-            if (resetToken && resetToken.code == resetCode) {
-                yield user.setPassword(newPassword);
-                yield this.database.startTransaction();
-                yield Promise.all([this.database.resetTokenRepo.delete(resetToken),
-                    this.database.userRepo.updatePassword(user)]);
-                yield this.database.commitTransaction();
+            else if (resetCode == null) {
+                throw new nullargumenterror_1.NullArgumentError('resetCode');
+            }
+            else if (newPassword == null) {
+                throw new nullargumenterror_1.NullArgumentError('newPassword');
+            }
+            try {
+                //Need to pull in the reset token for them.
+                let resetToken = yield this.database.resetTokenRepo.findByUser(user);
+                if (resetToken && resetToken.code == resetCode) {
+                    yield user.setPassword(newPassword);
+                    yield this.database.startTransaction();
+                    yield Promise.all([this.database.resetTokenRepo.delete(resetToken),
+                        this.database.userRepo.updatePassword(user)]);
+                    yield this.database.commitTransaction();
+                }
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                throw error;
             }
         });
     }
@@ -132,9 +169,16 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     updatePassword(user, currPassword, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('No user passed in.');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
+            else if (currPassword == null) {
+                throw new nullargumenterror_1.NullArgumentError('currPassword');
+            }
+            else if (newPassword == null) {
+                throw new nullargumenterror_1.NullArgumentError('newPassword');
+            }
+            //Check the password they passed in first.
             if (!(yield user.validatePassword(currPassword))) {
                 throw new authenticationerror_1.AuthenticationError('Invalid password.');
             }
@@ -151,9 +195,10 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     registerNewUser(registration) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!registration) {
-                throw new Error('No registration passed in.');
+            if (registration == null) {
+                throw new nullargumenterror_1.NullArgumentError('registration');
             }
+            //Generate the user
             let user = yield user_1.User.fromRegistration(registration);
             let vToken;
             //Is the user even valid?
@@ -161,20 +206,23 @@ class AuthService extends databaseservice_1.DatabaseService {
             if (!validatorResult.isValid) {
                 throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
             }
-            yield this.database.startTransaction();
-            yield this.database.userRepo.add(user);
-            //Now generate a validation token.
-            vToken = new verificationtoken_1.VerificationToken(user);
-            yield this.database.verificationTokenRepo.add(vToken);
-            //Create their login
-            let login = new userlogin_1.UserLogin(user);
-            login.token = yield this.tokenManager.issueToken(user);
-            yield this.database.loginRepo.add(login);
-            user.login = login;
-            yield this.database.commitTransaction();
-            //Send them the email
-            yield this.sendVerificationEmail(user, vToken);
-            return user;
+            try {
+                yield this.database.startTransaction();
+                yield this.database.userRepo.add(user);
+                //Now generate a validation token.
+                vToken = new verificationtoken_1.VerificationToken(user);
+                yield this.database.verificationTokenRepo.add(vToken);
+                yield this.database.commitTransaction();
+                //Send them the email
+                yield this.sendVerificationEmail(user, vToken);
+                return user;
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                throw error;
+            }
         });
     }
     /**
@@ -185,8 +233,12 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     verifyUserEmail(user, verificationCode) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('No user passed in.');
+            //Check for good input.
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
+            }
+            else if (verificationCode == null) {
+                throw new nullargumenterror_1.NullArgumentError('verifcationCode');
             }
             //Is user already validated?
             if (user.isVerified) {
@@ -194,17 +246,27 @@ class AuthService extends databaseservice_1.DatabaseService {
             }
             let vToken = yield this.database.verificationTokenRepo.findByUser(user);
             //Not found, or bad match
-            if (!vToken || vToken.code !== verificationCode) {
+            if (vToken == null || vToken.code != verificationCode) {
                 return false;
             }
             else {
                 user.isVerified = true;
             }
-            yield this.database.startTransaction();
-            yield Promise.all([this.database.userRepo.update(user),
-                this.database.verificationTokenRepo.delete(vToken)]);
-            yield this.database.commitTransaction();
-            return true;
+            try {
+                yield this.database.startTransaction();
+                yield Promise.all([
+                    this.database.userRepo.update(user),
+                    this.database.verificationTokenRepo.delete(vToken)
+                ]);
+                yield this.database.commitTransaction();
+                return true;
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                throw error;
+            }
         });
     }
     /**
@@ -214,14 +276,18 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     resendVerificationEmail(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('No user passed in.');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
             //User has already been verified.
             if (user.isVerified) {
                 return;
             }
             let vToken = yield this.database.verificationTokenRepo.findByUser(user);
+            //What are we trying to achieve here? No token...
+            if (vToken == null) {
+                return;
+            }
             yield this.sendVerificationEmail(user, vToken);
         });
     }
@@ -233,17 +299,13 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     validateUser(user, loginCode) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!user) {
-                throw new Error('No user passed in');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
             //Try to find the login.
             let userLogin = yield this.database.loginRepo.findByUser(user);
-            if (userLogin && userLogin.code == loginCode) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            //Did we find one, and is the code accurate?
+            return userLogin != null && userLogin.code == loginCode;
         });
     }
     /**
@@ -252,10 +314,13 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     emailUserTheirUsername(email) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (email == null) {
+                throw new nullargumenterror_1.NullArgumentError('email');
+            }
             let user = yield this.database.userRepo.findByEmail(email);
             //Only proceed if a user was found.
             if (user) {
-                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Username', 'Hi, your username is: ' + user.username);
+                let resetEmail = new textemail_1.TextEmail(user.email, 'Forgotten Username', 'Hi, your username is: ' + user.username);
                 yield this.emailSender.sendEmail(resetEmail);
             }
         });
@@ -267,14 +332,29 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     emailUserResetToken(username) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (username == null) {
+                throw new nullargumenterror_1.NullArgumentError('username');
+            }
             let user = yield this.database.userRepo.findByUsername(username);
             //Only send an email if a user was found.
             if (user) {
-                //Generate them a reset token.
-                let rToken = new resettoken_1.ResetToken(user);
-                yield this.database.resetTokenRepo.add(rToken);
-                let resetEmail = new textemail_1.TextEmail(user.email, 'No Mans Blocks Password Reset', 'Hi, your password reset code is: ' + rToken.code);
-                yield this.emailSender.sendEmail(resetEmail);
+                try {
+                    yield this.database.startTransaction();
+                    //Delete out old ones.
+                    yield this.database.resetTokenRepo.deleteForUser(user);
+                    //Generate them a reset token.
+                    let rToken = new resettoken_1.ResetToken(user);
+                    yield this.database.resetTokenRepo.add(rToken);
+                    yield this.database.commitTransaction();
+                    let resetEmail = new textemail_1.TextEmail(user.email, 'Password Reset', 'Hi, your password reset code is: ' + rToken.code);
+                    yield this.emailSender.sendEmail(resetEmail);
+                }
+                catch (error) {
+                    if (this.database.isInTransaction()) {
+                        yield this.database.rollbackTransaction();
+                    }
+                    throw error;
+                }
             }
         });
     }
@@ -285,7 +365,13 @@ class AuthService extends databaseservice_1.DatabaseService {
      */
     sendVerificationEmail(user, vToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            let validationEmail = new textemail_1.TextEmail(user.email, "No Man's Blocks Account Confirmation.", "Thanks for joining! Your confirmation code is: " + vToken.code);
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
+            }
+            else if (vToken == null) {
+                throw new nullargumenterror_1.NullArgumentError('vToken');
+            }
+            let validationEmail = new textemail_1.TextEmail(user.email, "Account Confirmation", "Thanks for joining! Your confirmation code is: " + vToken.code);
             return this.emailSender.sendEmail(validationEmail);
         });
     }

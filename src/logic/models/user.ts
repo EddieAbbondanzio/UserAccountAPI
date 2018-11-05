@@ -91,12 +91,6 @@ export class User {
     public stats: UserStats;
 
     /**
-     * The user's login. If any.
-     */
-    @OneToOne(type => UserLogin, login => login.user)
-    public login: UserLogin;
-
-    /**
      * Update the password hash of the user. This will
      * pass the password through the hasher.
      * @param The new password to hash.

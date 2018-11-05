@@ -1,4 +1,4 @@
-import { AuthHandler } from "./auth/authhandler";
+import { AuthHandler } from "../handlers/auth/authhandler";
 
 /**
  * The Authentication handler processess all incoming

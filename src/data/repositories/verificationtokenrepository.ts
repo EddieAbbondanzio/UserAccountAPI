@@ -66,4 +66,24 @@ export class VerificationTokenRepository extends AbstractRepository<Verification
 
         await this.repository.delete(verificationToken);
     }
+
+    /**
+     * Delete every verification token from the database
+     * for the user passed in.
+     * @param user The user to delete all tokens for.
+     */
+    public async deleteForUser(user: User|number): Promise<void> {
+        if(typeof user === 'number') {
+            await this.repository.createQueryBuilder()
+            .delete()
+            .where('userId = :id', {id: user})
+            .execute();
+        }
+        else {
+            await this.repository.createQueryBuilder()
+            .delete()
+            .where('userId = :id', user)
+            .execute();
+        }
+    }
 }

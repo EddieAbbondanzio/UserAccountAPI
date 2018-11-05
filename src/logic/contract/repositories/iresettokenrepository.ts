@@ -25,4 +25,11 @@ export interface IResetTokenRepository {
      * a database transaction is in progress.
      */
     delete(resetToken: ResetToken): Promise<void>;
+    
+    /**
+     * Delete all existing validation tokens from the database
+     * for a user.
+     * @param user The user or id to remove all tokens for.
+     */
+    deleteForUser(user: User|number): Promise<void>;
 }

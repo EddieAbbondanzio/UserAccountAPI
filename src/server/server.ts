@@ -1,6 +1,6 @@
 import * as Express from 'express';
-import { IUserHandler } from './handlers/iuserhandler';
-import { IAuthHandler } from './handlers/iauthhandler';
+import { IUserHandler } from './contract/iuserhandler';
+import { IAuthHandler } from './contract/iauthhandler';
 import { Config } from '../config/config';
 import bodyParser = require('body-parser');
 import * as HttpStatusCodes from 'http-status-codes';
@@ -64,5 +64,6 @@ export class Server {
      */
     private initRoutes(): void {    
         this.userHandler.initRoutes(this.express);
+        this.authHandler.initRoutes(this.express);
     }
 }

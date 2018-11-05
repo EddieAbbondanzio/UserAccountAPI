@@ -70,4 +70,23 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
 
         await this.repository.delete(userlogin);
     }
+
+    /**
+     * Delete all logins for a user.
+     * @param user The user to remove all logins for.
+     */
+    public async deleteForUser(user: User|number): Promise<void> {
+        if(typeof user === 'number') {
+            await this.repository.createQueryBuilder()
+            .delete()
+            .where('userId = :id', {id: user})
+            .execute();
+        }
+        else {
+            await this.repository.createQueryBuilder()
+            .delete()
+            .where('userId = :id', user)
+            .execute();
+        }
+    }
 }
