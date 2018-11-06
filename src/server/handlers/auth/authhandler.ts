@@ -2,7 +2,6 @@ import * as Express from 'express';
 import * as HttpStatusCodes from 'http-status-codes';
 import { IHandler } from "../../common/ihandler";
 import { IAuthService } from "../../../logic/contract/services/iauthservice";
-import { NotImplementedError } from '../../../common/error/types/notimplementederror';
 import { ExpressUtils } from '../../../util/expressutils';
 import { AccessToken } from '../../../logic/common/accesstoken';
 import { ServerErrorInfo } from '../../common/servererrorinfo';
@@ -10,6 +9,17 @@ import { ServerErrorCode } from '../../common/servererrorcode';
 import { ErrorHandler } from '../../../common/error/errorhandler';
 import { AuthenticationError } from '../../../common/error/types/authenticationerror';
 import { authenticate } from '../../common/decorators/authenticate';
+import { body } from '../../common/decorators/body';
+import { PasswordUpdatePayload } from './payloads/passwordupdatepayload';
+import { PasswordResetPayload } from './payloads/passwordresetpayload';
+import { UserRegistration } from '../../../logic/common/userregistration';
+import { EmailVerificationPayload } from './payloads/emailverificationpayload';
+import { User } from '../../../logic/models/user';
+import { ForgotUsernamePayload } from './payloads/forgotusernamepayload';
+import { ForgotPasswordPayload } from './payloads/forgotpasswordpayload';
+import { ValidateLoginPayload } from './payloads/validateloginpayload';
+import { LoginCredentialsPayload } from './payloads/logincredentialspayload';
+import { IUserService } from '../../../logic/contract/services/iuserservice';
 
 /**
  * Router responsible for handling all incoming 
@@ -22,6 +32,11 @@ export class AuthHandler implements IHandler {
     private authService: IAuthService;
 
     /**
+     * The user service from the BLL.
+     */
+    private userService: IUserService;
+
+    /**
      * Handles all of the network stuff...
      */
     private expressRouter: Express.Router;
@@ -29,9 +44,12 @@ export class AuthHandler implements IHandler {
     /**
      * Create a new auth handler.
      * @param authService The authservice to use.
+     * @param userService The user service to use.
      */
-    constructor(authService: IAuthService) {
+    constructor(authService: IAuthService, userService: IUserService) {
         this.authService = authService;
+        this.userService = userService;
+
         this.expressRouter = Express.Router();
     }
 
@@ -41,8 +59,11 @@ export class AuthHandler implements IHandler {
      * 
      */
     public initRoutes(expressApp: Express.Application): void {
-        this.expressRouter.post('/login/', async (req, res) => { return this.loginUser(req, res); });
-        this.expressRouter.post('/logout/', async (req, res) => { return this.logoutUser(req, res); });
+        this.expressRouter.put('/login/', async (req, res) => { return this.loginUser(req, res); });
+        this.expressRouter.delete('/login/', async (req, res) => { return this.logoutUser(req, res); });
+
+        this.expressRouter.post('/username/', async (req, res) => { return this.forgotUsername(req, res); });
+        this.expressRouter.post('/password/', async (req, res) => { return this.forgotPassword(req, res); });
 
         expressApp.use('/auth/', this.expressRouter);
     }
@@ -53,6 +74,7 @@ export class AuthHandler implements IHandler {
      * @param request The incoming client request.
      * @param response The response being beu
      */
+    @body(LoginCredentialsPayload, {optional: true})
     public async loginUser(request: Express.Request, response: Express.Response): Promise<void> {
         let bearerToken: string = ExpressUtils.getBearerToken(request);
         let accessToken: AccessToken;
@@ -123,27 +145,10 @@ export class AuthHandler implements IHandler {
      * @param response The outgoing response being built.
      */
     @authenticate()
+    @body(PasswordUpdatePayload)
     public async updatePassword(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            //Pull in the info from the body.
-            let currentPassword: string = request.body.currentPassword;
-            let newPassword: string = request.body.newPassword;
-
-            //Is the request good?
-            if (currentPassword == null) {
-                response.status(HttpStatusCodes.BAD_REQUEST)
-                    .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Current password is missing'));
-
-                return;
-            }
-            else if (newPassword == null) {
-                response.status(HttpStatusCodes.BAD_REQUEST)
-                    .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'New password is missing'));
-
-                return;
-            }
-
-            await this.authService.updatePassword(request.user, currentPassword, newPassword);
+            await this.authService.updatePassword(request.user, request.body.currentPassword, request.body.newPassword);
             response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
@@ -168,19 +173,26 @@ export class AuthHandler implements IHandler {
      * @param response The outgoing response being built.
      */
     @authenticate()
+    @body(PasswordResetPayload)
     public async resetPassword(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+        try {
+            await this.authService.resetPassword(request.user, request.body.resetCode, request.body.newPassword);
+            response.status(HttpStatusCodes.OK);
+        }
+        catch (error) {
+            new ErrorHandler(error)
+                .catch(AuthenticationError, (error: AuthenticationError) => {
+                    response.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+                })
+                .otherwise((error: Error) => {
+                    console.log('An error occcured reseting a password: ', error);
+
+                    response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                        .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+                });
+        }
     }
 
-    /**
-     * Register a new user with the system. This will require them to provide
-     * a full user registration in the body.
-     * @param request The incoming request to process.
-     * @param response The outgoing response being built.
-     */
-    public async registerNewUser(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
-    }
 
     /**
      * Verify a user's email. This will check their verification code
@@ -190,8 +202,24 @@ export class AuthHandler implements IHandler {
      * @param response The outgoing response being built.
      */
     @authenticate()
-    public verifyEmail(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+    @body(EmailVerificationPayload)
+    public async verifyEmail(request: Express.Request, response: Express.Response): Promise<void> {
+        try {
+            let success: boolean = await this.authService.verifyUserEmail(request.user, request.body.verificationCode);
+
+            if (success) {
+                response.sendStatus(HttpStatusCodes.OK);
+            }
+            else {
+                response.sendStatus(HttpStatusCodes.BAD_REQUEST);
+            }
+        }
+        catch (error) {
+            console.log('An error occured registering a user: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 
     /**
@@ -202,7 +230,16 @@ export class AuthHandler implements IHandler {
      */
     @authenticate()
     public async resendVerificationEmail(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+        try {
+            await this.authService.resendVerificationEmail(request.user);
+            response.sendStatus(HttpStatusCodes.OK);
+        }
+        catch(error) {
+            console.log('An error occured registering a user: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 
     /**
@@ -211,8 +248,31 @@ export class AuthHandler implements IHandler {
      * @param request The incoming request to process.
      * @param response The outgoing response being built.
      */
+    @body(ValidateLoginPayload)
     public async validateUserLogin(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+        try {
+            let user: User = await this.userService.findByUsername(request.body.username);
+
+            if(user = null){
+                response.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+            }
+
+            let isValid: boolean = await this.authService.validateLogin(user, request.body.loginCode);
+
+            if(isValid) {
+                response.status(HttpStatusCodes.OK)
+                .json({userId: user.id })
+            }
+            else {
+                response.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+            }
+        }
+        catch(error) {
+            console.log('An error occured validating a user login: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 
     /**
@@ -220,8 +280,17 @@ export class AuthHandler implements IHandler {
      * @param request The incoming request to process.
      * @param response The outgoing response being built.
      */
+    @body(ForgotUsernamePayload)
     public async forgotUsername(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+        try {
+            await this.authService.emailUserTheirUsername(request.body.username);
+        }
+        catch(error) {
+            console.log('An error occured requesting a forgotten username: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 
     /**
@@ -230,7 +299,16 @@ export class AuthHandler implements IHandler {
      * @param request The incoming request to process.
      * @param response The outgoing response being built.
      */
+    @body(ForgotPasswordPayload)
     public async forgotPassword(request: Express.Request, response: Express.Response): Promise<void> {
-        throw new NotImplementedError();
+        try {
+            await this.authService.emailUserResetToken(request.body.username);
+        }
+        catch(error) {
+            console.log('An error occured requesting a forgotten username: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 }

@@ -180,6 +180,9 @@ export class AuthService extends DatabaseService {
                 this.database.userRepo.updatePassword(user)]);
                 await this.database.commitTransaction();
             }
+            else {
+                throw new AuthenticationError('Incorrect code');
+            }
         }
         catch (error) {
             if (this.database.isInTransaction()) {
@@ -345,7 +348,7 @@ export class AuthService extends DatabaseService {
      * @param user The user to validate.
      * @param loginCode Their login guid.
      */
-    public async validateUser(user: User, loginCode: string): Promise<boolean> {
+    public async validateLogin(user: User, loginCode: string): Promise<boolean> {
         if (user == null) {
             throw new NullArgumentError('user');
         }

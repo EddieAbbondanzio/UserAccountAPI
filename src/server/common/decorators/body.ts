@@ -3,6 +3,7 @@ import * as HttpStatusCode from 'http-status-codes';
 import { ServerErrorInfo } from '../servererrorinfo';
 import { ServerErrorCode } from '../servererrorcode';
 import { constants } from 'fs';
+import { BodyOptions } from './bodyoptions';
 
 /**
  * Decorator to require a specific format for the body of the
@@ -10,20 +11,29 @@ import { constants } from 'fs';
  * a HTTP status of 400 is returned.
  * @param constructor The constructor of the object expected to
  * be in the body.
+ * @param options The options to use.
  */
-export function body<T>(constructor: IConstructor<T>) {
+export function body<T>(constructor: IConstructor<T>, options?: BodyOptions) {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         let instance: T = new constructor();
         let method: Function = descriptor.value;
 
         descriptor.value = function(req: Express.Request, res: Express.Response) {
+            let isBodyValid: boolean = true;
+
             //Is the body structurally identical to our type? TODO: Make this recursive.
-            for (let prop in instance) {
+            for (var prop in instance) {
                 if (!req.body.hasOwnProperty(prop)) {
-                    res.status(HttpStatusCode.BAD_REQUEST)
-                    .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Request body is missing property: ' + prop));
-                    return;
+                    let isBodyValid = false;
+                    break;
                 }
+            }
+
+            //Do we need to reject it?
+            if(options != null && !options.optional && !isBodyValid) {
+                res.status(HttpStatusCode.BAD_REQUEST)
+                .json(new ServerErrorInfo(ServerErrorCode.MissingBodyParameter, 'Request body is missing property: ' + prop));
+                return;
             }
 
             //Pull the ole switcheroo

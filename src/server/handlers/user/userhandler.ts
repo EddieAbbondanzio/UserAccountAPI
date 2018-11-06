@@ -14,12 +14,20 @@ import { authenticate } from "../../common/decorators/authenticate";
 import { ServerErrorCode } from "../../common/servererrorcode";
 import { body } from "../../common/decorators/body";
 import { UserUpdate } from "./userupdate";
+import { UserRegistration } from "../../../logic/common/userregistration";
+import { AccessToken } from "../../../logic/common/accesstoken";
+import { IAuthService } from "../../../logic/contract/services/iauthservice";
 
 /**
  * Router responsible for handling all incoming
  * requests related to users.
  */
 export class UserHandler implements IHandler {
+    /**
+     * The auth service from the BLL.
+     */
+    private authService: IAuthService;
+
     /**
      * The user service from the BLL.
      */
@@ -32,10 +40,13 @@ export class UserHandler implements IHandler {
 
     /**
      * Create a new user router.
+     * @param authService The auth service to use.
      * @param userService The userservice to use.
      */
-    constructor(userService: IUserService) {
+    constructor(authService: IAuthService, userService: IUserService) {
+        this.authService = authService;
         this.userService = userService;
+
         this.expressRouter = Express.Router();
     }
 
@@ -44,10 +55,9 @@ export class UserHandler implements IHandler {
      * @param expressApp The express application to work with.
      */
     public initRoutes(expressApp: Express.Application): void {
-        //Request to update a user
+        //Register, update, or delete user
+        this.expressRouter.put('/', async (req, res) => { return this.registerNewUser(req, res); });
         this.expressRouter.post('/', async (req, res) => { return this.updateUser(req, res); });
-
-        //Request to delete a user.
         this.expressRouter.delete('/', async (req, res) => { return this.deleteUser(req, res); });
 
         //Request to check for an available username.
@@ -57,6 +67,30 @@ export class UserHandler implements IHandler {
         this.expressRouter.get('/:identifier', async (req, res) => { return this.findUser(req, res); });
 
         expressApp.use('/users/', this.expressRouter);
+    }
+
+    /**
+     * Register a new user with the system. This will require them to provide
+     * a full user registration in the body.
+     * @param request The incoming request to process.
+     * @param response The outgoing response being built.
+     */
+    @body(UserRegistration)
+    public async registerNewUser(request: Express.Request, response: Express.Response): Promise<void> {
+        try {
+            //Create the user, then log them in.
+            let user: User = await this.authService.registerNewUser(request.body);
+            let token: AccessToken = await this.authService.loginUser(user);
+
+            response.status(HttpStatusCodes.OK)
+                .json(token);
+        }
+        catch (error) {
+            console.log('An error occured registering a user: ', error);
+
+            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
     }
 
     /**
