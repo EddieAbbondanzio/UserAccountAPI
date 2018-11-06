@@ -7,24 +7,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ServerErrorCode;
 (function (ServerErrorCode) {
     /**
+     * An unknown error occured.
+     */
+    ServerErrorCode[ServerErrorCode["Unknown"] = 1] = "Unknown";
+    /**
      * No authentication header was present on
      * the request.
      */
-    ServerErrorCode[ServerErrorCode["NoAuthentication"] = 1] = "NoAuthentication";
+    ServerErrorCode[ServerErrorCode["NoAuthentication"] = 2] = "NoAuthentication";
     /**
      * The authentication headers or token itself
      * of the request were poorly formed.
      */
-    ServerErrorCode[ServerErrorCode["PoorlyFormedAuthentication"] = 2] = "PoorlyFormedAuthentication";
+    ServerErrorCode[ServerErrorCode["PoorlyFormedAuthentication"] = 3] = "PoorlyFormedAuthentication";
     /**
      * The JWT provided with the request was invalid,
      * likely expired or fake.
      */
-    ServerErrorCode[ServerErrorCode["InvalidAuthentication"] = 3] = "InvalidAuthentication";
+    ServerErrorCode[ServerErrorCode["InvalidAuthentication"] = 4] = "InvalidAuthentication";
     /**
      * The body of the request is missing a required
      * parameter.
      */
-    ServerErrorCode[ServerErrorCode["MissingBodyParameter"] = 4] = "MissingBodyParameter";
+    ServerErrorCode[ServerErrorCode["MissingBodyParameter"] = 5] = "MissingBodyParameter";
 })(ServerErrorCode = exports.ServerErrorCode || (exports.ServerErrorCode = {}));
 //# sourceMappingURL=servererrorcode.js.map

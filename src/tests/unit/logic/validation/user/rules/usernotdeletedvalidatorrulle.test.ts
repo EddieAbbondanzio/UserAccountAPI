@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
-import { UserNotDeletedValidatorRule } from '../../../../../../logic/validation/user/rules/usernotdeletedvalidatorrule';
+import { NotDeletedValidatorRule } from '../../../../../../logic/validation/user/rules/notdeletedvalidatorrule';
 import { User } from '../../../../../../logic/models/user';
 
 /**
  * Test module for UserNotDeletedValidatorRule.
  */
 describe('UserNotDeletedValidatorRule', () => {
-    let validatorRule: UserNotDeletedValidatorRule = new UserNotDeletedValidatorRule();
+    let validatorRule: NotDeletedValidatorRule = new NotDeletedValidatorRule();
 
     describe('validate()', () => {
         it('throws an error if no user', () => {

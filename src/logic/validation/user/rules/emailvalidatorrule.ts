@@ -1,13 +1,14 @@
 import { StringUtils } from "../../../../util/stringutils";
-import { IValidatorRule } from "../../../validation/ivalidatorrule";
-import { ValidatorRuleResult } from "../../../validation/validatorruleresult";
+import { IValidatorRule } from "../../ivalidatorrule";
+import { ValidatorRuleResult } from "../../validatorruleresult";
 import { User } from "../../../models/user";
 import { NullArgumentError } from "../../../../common/error/types/nullargumenterror";
+import { UserRegistration } from "../../../common/userregistration";
 
 /**
  * Validates that a user's email is not too long, or missing.
  */
-export class UserEmailValidatorRule implements IValidatorRule<User>, IValidatorRule<string> {
+export class EmailValidatorRule implements IValidatorRule<User>, IValidatorRule<UserRegistration>, IValidatorRule<string> {
     private static EMAIL_MISSING_ERROR: string  = 'Email is required.';
     private static EMAIL_TOO_LONG_ERROR: string = `Email must be ${User.MAX_EMAIL_LENGTH} characters or less.`;
     private static EMAIL_INVALID_FORM: string = 'Email is not a valid email in form "name@domain.com".'
@@ -18,26 +19,34 @@ export class UserEmailValidatorRule implements IValidatorRule<User>, IValidatorR
      * @param user The user to check.
      * @returns The rule's result.
      */
-    public validate(user: User|string): ValidatorRuleResult {
+    public validate(user: User|UserRegistration|string): ValidatorRuleResult {
         if(user == null){
             throw new NullArgumentError('user');
         }
 
-        let email: string = typeof user === 'string' ? user : user.email;
+        let email: string = null;
+
+        //God I love typescript
+        if(user instanceof User || user instanceof UserRegistration){
+            email = user.email;
+        }
+        else {
+            email = user;
+        }
 
         //Any email?
         if(StringUtils.isEmpty(email)){
-            return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_MISSING_ERROR);
+            return new ValidatorRuleResult(false, EmailValidatorRule.EMAIL_MISSING_ERROR);
         }
         
         //Too long?
         if(email.length > User.MAX_EMAIL_LENGTH){
-            return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_TOO_LONG_ERROR);
+            return new ValidatorRuleResult(false, EmailValidatorRule.EMAIL_TOO_LONG_ERROR);
         }
 
         //valid form?
         if(!this.validateEmail(email)){
-            return new ValidatorRuleResult(false, UserEmailValidatorRule.EMAIL_INVALID_FORM)
+            return new ValidatorRuleResult(false, EmailValidatorRule.EMAIL_INVALID_FORM)
         }
 
         return new ValidatorRuleResult(true);

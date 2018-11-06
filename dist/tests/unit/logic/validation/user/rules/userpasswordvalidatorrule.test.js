@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 require("mocha");
-const userpasswordvalidatorrule_1 = require("../../../../../../logic/validation/user/rules/userpasswordvalidatorrule");
+const passwordvalidatorrule_1 = require("../../../../../../logic/validation/user/rules/passwordvalidatorrule");
 const user_1 = require("../../../../../../logic/models/user");
 /**
  * Test module for UserPasswordValidatorRule.
  */
 describe('UserPasswordValidatorRule', () => {
-    let validatorRule = new userpasswordvalidatorrule_1.UserPasswordValidatorRule();
+    let validatorRule = new passwordvalidatorrule_1.PasswordValidatorRule();
     describe('validate()', () => {
         it('throws an error if no user', () => {
             chai_1.expect(() => { validatorRule.validate(undefined); }).to.throw();

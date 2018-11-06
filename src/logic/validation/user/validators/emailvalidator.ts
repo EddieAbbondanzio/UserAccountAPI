@@ -1,4 +1,4 @@
-import { UserEmailValidatorRule } from "../rules/useremailvalidatorrule";
+import { EmailValidatorRule } from "../rules/emailvalidatorrule";
 import { Validator } from "../../validator";
 
 /**
@@ -10,6 +10,6 @@ export class EmailValidator extends Validator<string> {
      */
     constructor() {
         super();
-        this.rules.push(new UserEmailValidatorRule());
+        this.rules.push(new EmailValidatorRule());
     }
 }

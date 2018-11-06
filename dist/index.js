@@ -22,6 +22,7 @@ const server_1 = require("./server/server");
 const userhandler_1 = require("./server/handlers/user/userhandler");
 const authhandler_1 = require("./server/handlers/auth/authhandler");
 const tokenservice_1 = require("./logic/services/tokenservice");
+const accounthandler_1 = require("./server/handlers/account/accounthandler");
 /**
  * Initialize the application for use. This first starts
  * up the data layer, then turns on the logic layer,
@@ -46,9 +47,10 @@ function initialize() {
             servicelocator_1.ServiceLocator.register(tokenService);
             servicelocator_1.ServiceLocator.register(new authservice_1.AuthService(database, tokenService, emailSender));
             servicelocator_1.ServiceLocator.register(new userservice_1.UserService(database));
-            let userHandler = new userhandler_1.UserHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User));
-            let authHandler = new authhandler_1.AuthHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Auth));
-            let server = new server_1.Server(userHandler, authHandler);
+            let userHandler = new userhandler_1.UserHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Auth), servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User));
+            let authHandler = new authhandler_1.AuthHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Auth), servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User));
+            let acctHandler = new accounthandler_1.AccountHandler(servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Auth), servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User));
+            let server = new server_1.Server(userHandler, authHandler, acctHandler);
             console.log('Ready...');
         }
         catch (error) {

@@ -5,7 +5,7 @@ import { User } from "../../../models/user";
 /**
  * Validator rule to check that a user hasn't already been deleted.
  */
-export class UserNotDeletedValidatorRule implements IValidatorRule<User> {
+export class NotDeletedValidatorRule implements IValidatorRule<User> {
     /**
      * Validate a user against the validation rule.
      * @param user The user to validate.

@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 require("mocha");
-const userusernamevalidatorrule_1 = require("../../../../../../logic/validation/user/rules/userusernamevalidatorrule");
+const usernamevalidatorrule_1 = require("../../../../../../logic/validation/user/rules/usernamevalidatorrule");
 const nullargumenterror_1 = require("../../../../../../common/error/types/nullargumenterror");
 const user_1 = require("../../../../../../logic/models/user");
 /**
  * Test module for UserUsernameValidatorRule.
  */
 describe('UserUsernameValidatorRule', () => {
-    let validatorRule = new userusernamevalidatorrule_1.UserUsernameValidatorRule();
+    let validatorRule = new usernamevalidatorrule_1.UsernameValidatorRule();
     describe('validate()', () => {
         it('throws an error if no user', () => {
             chai_1.expect(() => { validatorRule.validate(undefined); }).to.throw(nullargumenterror_1.NullArgumentError);

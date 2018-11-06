@@ -22,6 +22,8 @@ import { IAuthHandler } from './server/contract/iauthhandler';
 import { AuthHandler } from './server/handlers/auth/authhandler';
 import { IAccessTokenService } from './logic/contract/services/iaccesstokenservice';
 import { AccessTokenService } from './logic/services/tokenservice';
+import { IAccountHandler } from './server/contract/iaccounthandler';
+import { AccountHandler } from './server/handlers/account/accounthandler';
 
 /**
  * Initialize the application for use. This first starts
@@ -52,10 +54,11 @@ async function initialize() {
     ServiceLocator.register(new AuthService(database, tokenService, emailSender));
     ServiceLocator.register(new UserService(database));
 
-    let userHandler: IUserHandler = new UserHandler(ServiceLocator.get(ServiceType.User));
-    let authHandler: IAuthHandler = new AuthHandler(ServiceLocator.get(ServiceType.Auth));
+    let userHandler: IUserHandler = new UserHandler(ServiceLocator.get(ServiceType.Auth), ServiceLocator.get(ServiceType.User));
+    let authHandler: IAuthHandler = new AuthHandler(ServiceLocator.get(ServiceType.Auth), ServiceLocator.get(ServiceType.User));
+    let acctHandler: IAccountHandler = new AccountHandler(ServiceLocator.get(ServiceType.Auth), ServiceLocator.get(ServiceType.User));
 
-    let server: Server = new Server(userHandler, authHandler);
+    let server: Server = new Server(userHandler, authHandler, acctHandler);
 
     console.log('Ready...');
   }

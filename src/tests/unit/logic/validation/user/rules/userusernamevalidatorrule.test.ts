@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { UserUsernameValidatorRule } from '../../../../../../logic/validation/user/rules/userusernamevalidatorrule';
+import { UsernameValidatorRule } from '../../../../../../logic/validation/user/rules/usernamevalidatorrule';
 import { NullArgumentError } from '../../../../../../common/error/types/nullargumenterror';
 import { User } from '../../../../../../logic/models/user';
 
@@ -8,7 +8,7 @@ import { User } from '../../../../../../logic/models/user';
  * Test module for UserUsernameValidatorRule.
  */
 describe('UserUsernameValidatorRule', () => {
-    let validatorRule: UserUsernameValidatorRule = new UserUsernameValidatorRule();
+    let validatorRule: UsernameValidatorRule = new UsernameValidatorRule();
     
     describe('validate()', () => {
         it('throws an error if no user', () => {

@@ -4,7 +4,7 @@ import * as HttpStatusCodes from 'http-status-codes';
 import { IHandler } from "../../common/ihandler";
 import { StringUtils } from "../../../util/stringutils";
 import { User } from "../../../logic/models/user";
-import { UserUsernameValidatorRule } from "../../../logic/validation/user/rules/userusernamevalidatorrule";
+import { UsernameValidatorRule } from "../../../logic/validation/user/rules/usernamevalidatorrule";
 import { ErrorHandler } from "../../../common/error/errorhandler";
 import { ValidationError } from "../../../logic/validation/validationerror";
 import { ArgumentError } from "../../../common/error/types/argumenterror";
@@ -13,7 +13,7 @@ import { Config } from "../../../config/config";
 import { authenticate } from "../../common/decorators/authenticate";
 import { ServerErrorCode } from "../../common/servererrorcode";
 import { body } from "../../common/decorators/body";
-import { UserUpdate } from "./userupdate";
+import { UserUpdate } from "../account/payloads/userupdate";
 import { UserRegistration } from "../../../logic/common/userregistration";
 import { AccessToken } from "../../../logic/common/accesstoken";
 import { IAuthService } from "../../../logic/contract/services/iauthservice";
@@ -59,11 +59,7 @@ export class UserHandler implements IHandler {
         this.expressRouter.put('/', async (req, res) => { return this.registerNewUser(req, res); });
         this.expressRouter.post('/', async (req, res) => { return this.updateUser(req, res); });
         this.expressRouter.delete('/', async (req, res) => { return this.deleteUser(req, res); });
-
-        //Request to check for an available username.
         this.expressRouter.head('/:username', async (req, res) => { return this.isUsernameAvailable(req, res); });
-
-        //Request to find a user by id / email / or username.
         this.expressRouter.get('/:identifier', async (req, res) => { return this.findUser(req, res); });
 
         expressApp.use('/users/', this.expressRouter);
@@ -78,6 +74,8 @@ export class UserHandler implements IHandler {
     @body(UserRegistration)
     public async registerNewUser(request: Express.Request, response: Express.Response): Promise<void> {
         try {
+            console.log(request.body);
+
             //Create the user, then log them in.
             let user: User = await this.authService.registerNewUser(request.body);
             let token: AccessToken = await this.authService.loginUser(user);
@@ -108,7 +106,7 @@ export class UserHandler implements IHandler {
             await this.userService.update(request.user);
             response.sendStatus(HttpStatusCodes.OK);
         }
-        catch(error){
+        catch(error){ 
             console.log(error);
             response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         }

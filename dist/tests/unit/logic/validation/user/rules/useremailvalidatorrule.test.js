@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../../../../../../logic/models/user");
 const chai_1 = require("chai");
 require("mocha");
-const useremailvalidatorrule_1 = require("../../../../../../logic/validation/user/rules/useremailvalidatorrule");
+const emailvalidatorrule_1 = require("../../../../../../logic/validation/user/rules/emailvalidatorrule");
 /**
  * Test module for UserEmailValidatorRule
  */
 describe('UserEmailValidatorRule', () => {
-    let validatorRule = new useremailvalidatorrule_1.UserEmailValidatorRule();
+    let validatorRule = new emailvalidatorrule_1.EmailValidatorRule();
     describe('validate()', () => {
         it('throws an error if no user', () => {
             chai_1.expect(() => { validatorRule.validate(undefined); }).to.throw();

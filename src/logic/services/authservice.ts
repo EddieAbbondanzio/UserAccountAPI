@@ -9,7 +9,7 @@ import { TextEmail } from "../email/types/textemail";
 import { Database } from "../common/database";
 import { UserRegistration } from "../common/userregistration";
 import { ValidatorResult } from "../validation/validatorresult";
-import { UserCreateValidator } from "../validation/user/validators/usercreatevalidator";
+import { UserRegistrationValidator } from "../validation/user/validators/userregistrationvalidator";
 import { ValidationError } from "../validation/validationerror";
 import { ServiceType } from "../common/servicetype";
 import { IEmailSender } from "../email/iemailsender";
@@ -20,6 +20,8 @@ import { AccessToken } from "../common/accesstoken";
 import { IAccessTokenService } from "../contract/services/iaccesstokenservice";
 import { ErrorHandler } from "../../common/error/errorhandler";
 import { InvalidOperationError } from "../../common/error/types/invalidoperation";
+import { ValidatorRuleResult } from "../validation/validatorruleresult";
+import { PasswordValidatorRule } from "../validation/user/rules/passwordvalidatorrule";
 
 /**
  * The authentication service of the system. This handles registering,
@@ -44,7 +46,7 @@ export class AuthService extends DatabaseService {
     /**
      * The validator to validate users being created.
      */
-    private userCreateValidator: UserCreateValidator;
+    private userRegistrationValidator: UserRegistrationValidator;
 
     /**
      * Create a new authentication service.
@@ -58,7 +60,7 @@ export class AuthService extends DatabaseService {
         this.tokenService = tokenService;
         this.emailSender = emailSender;
 
-        this.userCreateValidator = new UserCreateValidator();
+        this.userRegistrationValidator = new UserRegistrationValidator();
     }
 
     /**
@@ -104,7 +106,7 @@ export class AuthService extends DatabaseService {
 
         return this.loginUser(user);
     }
-    
+
     /**
      * Log in a user.
      * @param user The user to log in.
@@ -176,8 +178,12 @@ export class AuthService extends DatabaseService {
                 await user.setPassword(newPassword);
 
                 await this.database.startTransaction();
-                await Promise.all([this.database.resetTokenRepo.delete(resetToken),
-                this.database.userRepo.updatePassword(user)]);
+                await Promise.all([
+                    this.database.resetTokenRepo.delete(resetToken),
+                    this.database.userRepo.updatePassword(user),
+                    this.database.loginRepo.deleteForUser(user)
+                ]);
+
                 await this.database.commitTransaction();
             }
             else {
@@ -216,9 +222,26 @@ export class AuthService extends DatabaseService {
             throw new AuthenticationError('Invalid password.');
         }
 
-        //Gotta update the password before we can update the user in the db.
         await user.setPassword(newPassword);
-        await this.database.userRepo.updatePassword(user);
+
+        try {
+            await this.database.startTransaction();
+
+            //Update their password, then remove any logins.
+            await Promise.all([
+                this.database.userRepo.updatePassword(user),
+                this.database.loginRepo.deleteForUser(user)
+            ]);
+
+            await this.database.commitTransaction();
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
+
+            throw error;
+        }
     }
 
     /**
@@ -232,16 +255,16 @@ export class AuthService extends DatabaseService {
             throw new NullArgumentError('registration');
         }
 
-        //Generate the user
-        let user: User = await User.fromRegistration(registration);
-        let vToken: VerificationToken;
-
         //Is the user even valid?
-        let validatorResult: ValidatorResult = this.userCreateValidator.validate(user);
+        let validatorResult: ValidatorResult = this.userRegistrationValidator.validate(registration);
 
         if (!validatorResult.isValid) {
             throw new ValidationError('Failed to register new user.', validatorResult);
         }
+
+        //Generate the user
+        let user: User = await User.fromRegistration(registration);
+        let vToken: VerificationToken;
 
         try {
             await this.database.startTransaction();
@@ -335,7 +358,7 @@ export class AuthService extends DatabaseService {
         let vToken: VerificationToken = await this.database.verificationTokenRepo.findByUser(user);
 
         //What are we trying to achieve here? No token...
-        if(vToken == null){
+        if (vToken == null) {
             return;
         }
 
@@ -412,11 +435,11 @@ export class AuthService extends DatabaseService {
                     'Password Reset',
                     'Hi, your password reset code is: ' + rToken.code
                 );
-    
+
                 await this.emailSender.sendEmail(resetEmail);
             }
-            catch(error) {
-                if(this.database.isInTransaction()){
+            catch (error) {
+                if (this.database.isInTransaction()) {
                     await this.database.rollbackTransaction();
                 }
 

@@ -1,4 +1,4 @@
-import { UserNotDeletedValidatorRule } from "../rules/usernotdeletedvalidatorrule";
+import { NotDeletedValidatorRule } from "../rules/notdeletedvalidatorrule";
 import { Validator } from "../../validator";
 import { User } from "../../../models/user";
 
@@ -11,6 +11,6 @@ export class UserDeleteValidator extends Validator<User> {
      */
     constructor() {
         super();
-        this.rules.push(new UserNotDeletedValidatorRule());
+        this.rules.push(new NotDeletedValidatorRule());
     }
 }

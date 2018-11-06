@@ -1,5 +1,5 @@
-import { UserNameValidatorRule } from "../rules/usernamevalidatorrule";
-import { UserEmailValidatorRule } from "../rules/useremailvalidatorrule";
+import { NameValidatorRule } from "../rules/namevalidatorrule";
+import { EmailValidatorRule } from "../rules/emailvalidatorrule";
 import { Validator } from "../../validator";
 import { User } from "../../../models/user";
 import { IValidatorRule } from "../../ivalidatorrule";
@@ -13,7 +13,7 @@ export class UserUpdateValidator extends Validator<User> {
      */
     constructor(){
         super();
-        this.rules.push(new UserNameValidatorRule() as IValidatorRule<User>,
-                        new UserEmailValidatorRule());
+        this.rules.push(new NameValidatorRule() as IValidatorRule<User>,
+                        new EmailValidatorRule());
     }
 }

@@ -4,6 +4,7 @@ import { IAuthHandler } from './contract/iauthhandler';
 import { Config } from '../config/config';
 import bodyParser = require('body-parser');
 import * as HttpStatusCodes from 'http-status-codes';
+import { IAccountHandler } from './contract/iaccounthandler';
 
 /**
  * The HTTP server that handles incoming requests, and
@@ -27,17 +28,24 @@ export class Server {
     private userHandler: IUserHandler;
 
     /**
-     * The auth handler for all incoming  authentication
+     * The auth handler for all incoming authentication
      *  related requests.
      */
     private authHandler: IAuthHandler;
 
     /**
+     * The account handler for all incoming requests
+     * related to a user's account.
+     */
+    private accountHandler: IAccountHandler;
+
+    /**
      * Create a new server.
      * @param userHandler The user handler.
      * @param authHandler The auth handler.
+     * @param accountHandler The account handler.
      */
-    constructor( userHandler: IUserHandler, authHandler: IAuthHandler) {
+    constructor( userHandler: IUserHandler, authHandler: IAuthHandler, accountHandler: IAccountHandler) {
         this.express = Express();
         this.express.listen(Config.current.port, () => {
             console.log(`Listening on port ${Config.current.port}`)
@@ -47,6 +55,7 @@ export class Server {
         
         this.userHandler = userHandler;
         this.authHandler = authHandler;
+        this.accountHandler = accountHandler;
 
         this.initMiddleware();
         this.initRoutes();
@@ -65,5 +74,6 @@ export class Server {
     private initRoutes(): void {    
         this.userHandler.initRoutes(this.express);
         this.authHandler.initRoutes(this.express);
+        this.accountHandler.initRoutes(this.express);
     }
 }

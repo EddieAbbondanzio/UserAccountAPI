@@ -1,13 +1,13 @@
 import { User } from "../../../../../../logic/models/user";
 import { expect } from 'chai';
 import 'mocha';
-import { UserEmailValidatorRule } from "../../../../../../logic/validation/user/rules/useremailvalidatorrule";
+import { EmailValidatorRule } from "../../../../../../logic/validation/user/rules/emailvalidatorrule";
 
 /**
  * Test module for UserEmailValidatorRule
  */
 describe('UserEmailValidatorRule', () => {
-    let validatorRule: UserEmailValidatorRule = new UserEmailValidatorRule();
+    let validatorRule: EmailValidatorRule = new EmailValidatorRule();
     
     describe('validate()', () => {
         it('throws an error if no user', () => {

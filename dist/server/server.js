@@ -12,8 +12,9 @@ class Server {
      * Create a new server.
      * @param userHandler The user handler.
      * @param authHandler The auth handler.
+     * @param accountHandler The account handler.
      */
-    constructor(userHandler, authHandler) {
+    constructor(userHandler, authHandler, accountHandler) {
         this.express = Express();
         this.express.listen(config_1.Config.current.port, () => {
             console.log(`Listening on port ${config_1.Config.current.port}`);
@@ -21,6 +22,7 @@ class Server {
         Server.instance = this;
         this.userHandler = userHandler;
         this.authHandler = authHandler;
+        this.accountHandler = accountHandler;
         this.initMiddleware();
         this.initRoutes();
     }
@@ -35,6 +37,8 @@ class Server {
      */
     initRoutes() {
         this.userHandler.initRoutes(this.express);
+        this.authHandler.initRoutes(this.express);
+        this.accountHandler.initRoutes(this.express);
     }
 }
 exports.Server = Server;

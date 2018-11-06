@@ -14,7 +14,7 @@ const userlogin_1 = require("../models/userlogin");
 const resettoken_1 = require("../models/resettoken");
 const verificationtoken_1 = require("../models/verificationtoken");
 const textemail_1 = require("../email/types/textemail");
-const usercreatevalidator_1 = require("../validation/user/validators/usercreatevalidator");
+const userregistrationvalidator_1 = require("../validation/user/validators/userregistrationvalidator");
 const validationerror_1 = require("../validation/validationerror");
 const servicetype_1 = require("../common/servicetype");
 const databaseservice_1 = require("../common/databaseservice");
@@ -38,7 +38,7 @@ class AuthService extends databaseservice_1.DatabaseService {
         this.serviceType = servicetype_1.ServiceType.Auth;
         this.tokenService = tokenService;
         this.emailSender = emailSender;
-        this.userCreateValidator = new usercreatevalidator_1.UserCreateValidator();
+        this.userRegistrationValidator = new userregistrationvalidator_1.UserRegistrationValidator();
     }
     /**
      * Login a user via their credentials.
@@ -112,16 +112,14 @@ class AuthService extends databaseservice_1.DatabaseService {
     }
     /**
      * Log out a user by invalidating their JWT.
-     * @param bearerToken The bearer token of the user to log out.
+     * @param user The user to log out.
      */
-    logoutUser(bearerToken) {
+    logoutUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (bearerToken == null) {
-                throw new nullargumenterror_1.NullArgumentError('bearerToken');
+            if (user == null) {
+                throw new nullargumenterror_1.NullArgumentError('user');
             }
-            //Decode the token, then delete it from the database.
-            let accessToken = yield this.tokenService.authenticateToken(bearerToken);
-            yield this.database.loginRepo.deleteForUser(accessToken.userId);
+            yield this.database.loginRepo.deleteForUser(user);
         });
     }
     /**
@@ -147,9 +145,15 @@ class AuthService extends databaseservice_1.DatabaseService {
                 if (resetToken && resetToken.code == resetCode) {
                     yield user.setPassword(newPassword);
                     yield this.database.startTransaction();
-                    yield Promise.all([this.database.resetTokenRepo.delete(resetToken),
-                        this.database.userRepo.updatePassword(user)]);
+                    yield Promise.all([
+                        this.database.resetTokenRepo.delete(resetToken),
+                        this.database.userRepo.updatePassword(user),
+                        this.database.loginRepo.deleteForUser(user)
+                    ]);
                     yield this.database.commitTransaction();
+                }
+                else {
+                    throw new authenticationerror_1.AuthenticationError('Incorrect code');
                 }
             }
             catch (error) {
@@ -182,9 +186,22 @@ class AuthService extends databaseservice_1.DatabaseService {
             if (!(yield user.validatePassword(currPassword))) {
                 throw new authenticationerror_1.AuthenticationError('Invalid password.');
             }
-            //Gotta update the password before we can update the user in the db.
             yield user.setPassword(newPassword);
-            yield this.database.userRepo.updatePassword(user);
+            try {
+                yield this.database.startTransaction();
+                //Update their password, then remove any logins.
+                yield Promise.all([
+                    this.database.userRepo.updatePassword(user),
+                    this.database.loginRepo.deleteForUser(user)
+                ]);
+                yield this.database.commitTransaction();
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                throw error;
+            }
         });
     }
     /**
@@ -198,14 +215,14 @@ class AuthService extends databaseservice_1.DatabaseService {
             if (registration == null) {
                 throw new nullargumenterror_1.NullArgumentError('registration');
             }
-            //Generate the user
-            let user = yield user_1.User.fromRegistration(registration);
-            let vToken;
             //Is the user even valid?
-            let validatorResult = this.userCreateValidator.validate(user);
+            let validatorResult = this.userRegistrationValidator.validate(registration);
             if (!validatorResult.isValid) {
                 throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
             }
+            //Generate the user
+            let user = yield user_1.User.fromRegistration(registration);
+            let vToken;
             try {
                 yield this.database.startTransaction();
                 yield this.database.userRepo.add(user);
@@ -297,7 +314,7 @@ class AuthService extends databaseservice_1.DatabaseService {
      * @param user The user to validate.
      * @param loginCode Their login guid.
      */
-    validateUser(user, loginCode) {
+    validateLogin(user, loginCode) {
         return __awaiter(this, void 0, void 0, function* () {
             if (user == null) {
                 throw new nullargumenterror_1.NullArgumentError('user');

@@ -1,0 +1,1 @@
+{"version":3,"file":"emailverificationpayload.js","sourceRoot":"","sources":["../../../../../src/server/handlers/account/payloads/emailverificationpayload.ts"],"names":[],"mappings":";;AACA;;GAEG;AACH,MAAa,wBAAwB;IAMjC;;;OAGG;IACH,YAAY,gBAAwB;QAChC,IAAI,CAAC,gBAAgB,GAAG,gBAAgB,CAAC;IAC7C,CAAC;CACJ;AAbD,4DAaC"}

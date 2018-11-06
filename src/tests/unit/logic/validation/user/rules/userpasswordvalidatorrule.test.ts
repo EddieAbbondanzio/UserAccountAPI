@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
-import { UserPasswordValidatorRule } from '../../../../../../logic/validation/user/rules/userpasswordvalidatorrule';
+import { PasswordValidatorRule } from '../../../../../../logic/validation/user/rules/passwordvalidatorrule';
 import { User } from '../../../../../../logic/models/user';
 
 /**
  * Test module for UserPasswordValidatorRule.
  */
 describe('UserPasswordValidatorRule', () => {
-    let validatorRule: UserPasswordValidatorRule = new UserPasswordValidatorRule();
+    let validatorRule: PasswordValidatorRule = new PasswordValidatorRule();
 
     describe('validate()', () => {
         it('throws an error if no user', () => {

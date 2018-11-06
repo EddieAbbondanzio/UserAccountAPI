@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
-import { UserNameValidatorRule } from '../../../../../../logic/validation/user/rules/usernamevalidatorrule';
+import { NameValidatorRule } from '../../../../../../logic/validation/user/rules/namevalidatorrule';
 import { User } from '../../../../../../logic/models/user';
 
 /**
  * Test module for UserNameValidatorRule.
  */
 describe('UserNameValidatorRule', () => {
-    let validatorRule: UserNameValidatorRule = new UserNameValidatorRule();
+    let validatorRule: NameValidatorRule = new NameValidatorRule();
 
     describe('validate()', () => {
         let user: User = new User();

@@ -25,8 +25,10 @@ const validationerror_1 = require("../../../logic/validation/validationerror");
 const argumenterror_1 = require("../../../common/error/types/argumenterror");
 const servererrorinfo_1 = require("../../common/servererrorinfo");
 const authenticate_1 = require("../../common/decorators/authenticate");
+const servererrorcode_1 = require("../../common/servererrorcode");
 const body_1 = require("../../common/decorators/body");
-const userupdate_1 = require("./userupdate");
+const userupdate_1 = require("../account/payloads/userupdate");
+const userregistration_1 = require("../../../logic/common/userregistration");
 /**
  * Router responsible for handling all incoming
  * requests related to users.
@@ -34,9 +36,11 @@ const userupdate_1 = require("./userupdate");
 class UserHandler {
     /**
      * Create a new user router.
+     * @param authService The auth service to use.
      * @param userService The userservice to use.
      */
-    constructor(userService) {
+    constructor(authService, userService) {
+        this.authService = authService;
         this.userService = userService;
         this.expressRouter = Express.Router();
     }
@@ -45,15 +49,36 @@ class UserHandler {
      * @param expressApp The express application to work with.
      */
     initRoutes(expressApp) {
-        //Request to update a user
+        //Register, update, or delete user
+        this.expressRouter.put('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.registerNewUser(req, res); }));
         this.expressRouter.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateUser(req, res); }));
-        //Request to delete a user.
         this.expressRouter.delete('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteUser(req, res); }));
-        //Request to check for an available username.
         this.expressRouter.head('/:username', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.isUsernameAvailable(req, res); }));
-        //Request to find a user by id / email / or username.
         this.expressRouter.get('/:identifier', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.findUser(req, res); }));
         expressApp.use('/users/', this.expressRouter);
+    }
+    /**
+     * Register a new user with the system. This will require them to provide
+     * a full user registration in the body.
+     * @param request The incoming request to process.
+     * @param response The outgoing response being built.
+     */
+    registerNewUser(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(request.body);
+                //Create the user, then log them in.
+                let user = yield this.authService.registerNewUser(request.body);
+                let token = yield this.authService.loginUser(user);
+                response.status(HttpStatusCodes.OK)
+                    .json(token);
+            }
+            catch (error) {
+                console.log('An error occured registering a user: ', error);
+                response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                    .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.Unknown));
+            }
+        });
     }
     /**
      * Handle an incoming request to update a user.
@@ -169,6 +194,12 @@ class UserHandler {
         });
     }
 }
+__decorate([
+    body_1.body(userregistration_1.UserRegistration),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserHandler.prototype, "registerNewUser", null);
 __decorate([
     authenticate_1.authenticate(),
     body_1.body(userupdate_1.UserUpdate),

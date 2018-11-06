@@ -14,7 +14,7 @@ const userdeletevalidator_1 = require("../validation/user/validators/userdeletev
 const servicetype_1 = require("../common/servicetype");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const stringutils_1 = require("../../util/stringutils");
-const userusernamevalidatorrule_1 = require("../validation/user/rules/userusernamevalidatorrule");
+const usernamevalidatorrule_1 = require("../validation/user/rules/usernamevalidatorrule");
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 const usernamevalidator_1 = require("../validation/user/validators/usernamevalidator");
 const databaseservice_1 = require("../common/databaseservice");
@@ -42,7 +42,7 @@ class UserService extends databaseservice_1.DatabaseService {
      */
     isUsernameAvailable(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            let usernameValRule = new userusernamevalidatorrule_1.UserUsernameValidatorRule();
+            let usernameValRule = new usernamevalidatorrule_1.UsernameValidatorRule();
             if (username == null) {
                 throw new nullargumenterror_1.NullArgumentError('username');
             }

@@ -9,19 +9,26 @@ const servererrorcode_1 = require("../servererrorcode");
  * a HTTP status of 400 is returned.
  * @param constructor The constructor of the object expected to
  * be in the body.
+ * @param options The options to use.
  */
-function body(constructor) {
+function body(constructor, options) {
     return function (target, propertyKey, descriptor) {
         let instance = new constructor();
         let method = descriptor.value;
         descriptor.value = function (req, res) {
+            let isBodyValid = true;
             //Is the body structurally identical to our type? TODO: Make this recursive.
-            for (let prop in instance) {
+            for (var prop in instance) {
                 if (!req.body.hasOwnProperty(prop)) {
-                    res.status(HttpStatusCode.BAD_REQUEST)
-                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Request body is missing property: ' + prop));
-                    return;
+                    isBodyValid = false;
+                    break;
                 }
+            }
+            //Do we need to reject it?
+            if (!isBodyValid && (options == null || (options != null && !options.optional))) {
+                res.status(HttpStatusCode.BAD_REQUEST)
+                    .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.MissingBodyParameter, 'Request body is missing property: ' + prop));
+                return;
             }
             //Pull the ole switcheroo
             Object.assign(instance, req.body);

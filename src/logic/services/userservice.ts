@@ -9,7 +9,7 @@ import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
 import { ArgumentError } from "../../common/error/types/argumenterror";
 import { StringUtils } from "../../util/stringutils";
-import { UserUsernameValidatorRule } from "../validation/user/rules/userusernamevalidatorrule";
+import { UsernameValidatorRule } from "../validation/user/rules/usernamevalidatorrule";
 import { ValidatorRuleResult } from "../validation/validatorruleresult";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { UsernameValidator } from "../validation/user/validators/usernamevalidator";
@@ -51,7 +51,7 @@ export class UserService extends DatabaseService {
      * @returns True if the username is available.
      */
     public async isUsernameAvailable(username: string):Promise<boolean> {
-        let usernameValRule: UserUsernameValidatorRule = new UserUsernameValidatorRule();
+        let usernameValRule: UsernameValidatorRule = new UsernameValidatorRule();
 
         if(username == null){
             throw new NullArgumentError('username');

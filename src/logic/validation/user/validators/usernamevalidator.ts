@@ -1,5 +1,5 @@
 import { Validator } from "../../validator";
-import { UserUsernameValidatorRule } from "../rules/userusernamevalidatorrule";
+import { UsernameValidatorRule } from "../rules/usernamevalidatorrule";
 
 /**
  * Validator for validating a username of a user.
@@ -7,6 +7,6 @@ import { UserUsernameValidatorRule } from "../rules/userusernamevalidatorrule";
 export class UsernameValidator extends Validator<string> {
     constructor() {
         super();
-        this.rules.push(new UserUsernameValidatorRule());
+        this.rules.push(new UsernameValidatorRule());
     }
 }
