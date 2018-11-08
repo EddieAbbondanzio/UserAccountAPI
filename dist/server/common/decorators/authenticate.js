@@ -10,13 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const HttpStatusCode = require("http-status-codes");
 const servererrorinfo_1 = require("../servererrorinfo");
-const servicelocator_1 = require("../../../logic/common/servicelocator");
-const servicetype_1 = require("../../../logic/common/servicetype");
 const servererrorcode_1 = require("../servererrorcode");
 const invalidoperation_1 = require("../../../common/error/types/invalidoperation");
 const errorhandler_1 = require("../../../common/error/errorhandler");
 const authenticationerror_1 = require("../../../common/error/types/authenticationerror");
 const expressutils_1 = require("../../../util/expressutils");
+const ioccontainer_1 = require("../../ioccontainer");
+const ioctypes_1 = require("../../../common/ioc/ioctypes");
 /**
  * Decorator to restrict access to a API endpoint. If no JWT is
  * found on the incoming request then it is rejected with a status of 401.
@@ -38,13 +38,13 @@ function authenticate() {
                 }
                 //Is the token even valid?
                 try {
-                    let tokenService = servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.Token);
+                    let tokenService = ioccontainer_1.IocContainer.instance.get(ioctypes_1.IOC_TYPES.TokenService);
                     if (tokenService == null) {
                         throw new invalidoperation_1.InvalidOperationError('Cannot authenticate a user with no token service');
                     }
                     let accessToken = yield tokenService.authenticateToken(bearerToken);
                     //Catch will take over if the payload was bad.
-                    let user = yield servicelocator_1.ServiceLocator.get(servicetype_1.ServiceType.User).findById(accessToken.userId);
+                    let user = yield ioccontainer_1.IocContainer.instance.get(ioctypes_1.IOC_TYPES.UserService).findById(accessToken.userId);
                     //Attach the user to the request then call the regular method.
                     req.user = user;
                     return method.call(this, req, res);

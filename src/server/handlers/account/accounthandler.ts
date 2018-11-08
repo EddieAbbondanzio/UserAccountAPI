@@ -2,7 +2,6 @@ import * as Express from 'express';
 import * as HttpStatusCodes from 'http-status-codes';
 import { IHandler } from "../../common/ihandler";
 import { ForgotUsernamePayload } from "./payloads/forgotusernamepayload";
-import { IAuthService } from "../../../logic/contract/services/iauthservice";
 import { IUserService } from "../../../logic/contract/services/iuserservice";
 import { ServerErrorCode } from "../../common/servererrorcode";
 import { ServerErrorInfo } from "../../common/servererrorinfo";
@@ -15,20 +14,25 @@ import { authenticate } from '../../common/decorators/authenticate';
 import { ErrorHandler } from '../../../common/error/errorhandler';
 import { AuthenticationError } from '../../../common/error/types/authenticationerror';
 import { UserUpdate } from './payloads/userupdate';
+import { IAccountService } from '../../../logic/contract/services/iaccountservice';
+import { inject, injectable } from 'inversify';
+import { IOC_TYPES } from '../../../common/ioc/ioctypes';
 
 /**
- * Handler for updating the user's own account.
+ * Network handler for managing incoming requests related
+ * to User accounts.
  */
+@injectable()
 export class AccountHandler implements IHandler {
-    /**
-     * The auth service from the BLL.
-     */
-    private authService: IAuthService;
-
     /**
      * The user service from the BLL.
      */
-    private userService: IUserService;
+    public userService: IUserService;
+
+    /**
+     * The Account service.
+     */
+    private accountService: IAccountService;
 
     /**
      * Handles all of the network stuff...
@@ -36,21 +40,22 @@ export class AccountHandler implements IHandler {
     private expressRouter: Express.Router;
 
     /**
-     * Create a new account handler.
-     * @param authService The authservice to use.
-     * @param userService The user service to use.
+     * Create a new AccountHandler. This manages all incoming
+     * requests to update a user's account, and builds responses.
+     * @param userService The service for working with users.
+     * @param accountService The service for updating accounts. 
      */
-    constructor(authService: IAuthService, userService: IUserService) {
-        this.authService = authService;
-        this.userService = userService;
+    constructor(@inject(IOC_TYPES.AuthService) userService: IUserService, 
+                @inject(IOC_TYPES.AccountService) accountService: IAccountService) {
+        this.userService    = userService;
+        this.accountService = accountService;
 
         this.expressRouter = Express.Router();
     }
 
     /**
-     * Initialize the handler for use.
-     * @param expressApp The express application to work with.
-     * 
+     * Initialize all of the routes for use.
+     * @param expressApp The running Express Application.
      */
     public initRoutes(expressApp: Express.Application): void {
         this.expressRouter.post('/forgotusername/', async (req, res) => { return this.forgotUsername(req, res); });
@@ -62,8 +67,8 @@ export class AccountHandler implements IHandler {
         this.expressRouter.put('/verifyemail/', async (req, res) => {return this.resendVerificationEmail(req, res); });
         this.expressRouter.post('/verifyemail/', async (req, res) => {return this.verifyEmail(req, res); });
 
-        this.expressRouter.post('/', async (req, res) => { return this.updateUser(req, res); });
-        this.expressRouter.delete('/', async (req, res) => { return this.deleteUser(req, res); });
+        this.expressRouter.post('/', async (req, res) => { return this.updateInfo(req, res); });
+        this.expressRouter.delete('/', async (req, res) => { return this.deleteAccount(req, res); });
 
         expressApp.use('/account/', this.expressRouter);
     }
@@ -75,29 +80,13 @@ export class AccountHandler implements IHandler {
      */
     @authenticate()
     @body(UserUpdate)
-    public async updateUser(request: Express.Request, response: Express.Response): Promise<void> {
+    public async updateInfo(request: Express.Request, response: Express.Response): Promise<void> {
         request.user.name = request.body.name;
         request.user.email = request.body.email;
 
         try {
-            await this.userService.update(request.user);
+            await this.accountService.updateInfo(request.user);
             response.sendStatus(HttpStatusCodes.OK);
-        }
-        catch (error) {
-            console.log(error);
-            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Handle an incoming request to delete a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    @authenticate()
-    public async deleteUser(request: Express.Request, response: Express.Response): Promise<void> {
-        try {
-            await this.userService.delete(request.user);
         }
         catch (error) {
             console.log(error);
@@ -113,7 +102,7 @@ export class AccountHandler implements IHandler {
     @body(ForgotUsernamePayload)
     public async forgotUsername(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.authService.emailUserTheirUsername(request.body.username);
+            await this.accountService.emailUserTheirUsername(request.body.username);
         }
         catch (error) {
             console.log('An error occured requesting a forgotten username: ', error);
@@ -132,7 +121,7 @@ export class AccountHandler implements IHandler {
     @body(ForgotPasswordPayload)
     public async forgotPassword(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.authService.emailUserResetToken(request.body.username);
+            await this.accountService.emailUserResetToken(request.body.username);
         }
         catch (error) {
             console.log('An error occured requesting a forgotten username: ', error);
@@ -152,7 +141,7 @@ export class AccountHandler implements IHandler {
     @body(PasswordUpdatePayload)
     public async updatePassword(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.authService.updatePassword(request.user, request.body.currentPassword, request.body.newPassword);
+            await this.accountService.updatePassword(request.user, request.body.currentPassword, request.body.newPassword);
             response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
@@ -180,7 +169,7 @@ export class AccountHandler implements IHandler {
     @body(PasswordResetPayload)
     public async resetPassword(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.authService.resetPassword(request.user, request.body.resetCode, request.body.newPassword);
+            await this.accountService.resetPassword(request.user, request.body.resetCode, request.body.newPassword);
             response.status(HttpStatusCodes.OK);
         }
         catch (error) {
@@ -209,7 +198,7 @@ export class AccountHandler implements IHandler {
     @body(EmailVerificationPayload)
     public async verifyEmail(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            let success: boolean = await this.authService.verifyUserEmail(request.user, request.body.verificationCode);
+            let success: boolean = await this.accountService.verifyUserEmail(request.user, request.body.verificationCode);
 
             if (success) {
                 response.sendStatus(HttpStatusCodes.OK);
@@ -235,7 +224,7 @@ export class AccountHandler implements IHandler {
     @authenticate()
     public async resendVerificationEmail(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.authService.resendVerificationEmail(request.user);
+            await this.accountService.resendVerificationEmail(request.user);
             response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
@@ -243,6 +232,22 @@ export class AccountHandler implements IHandler {
 
             response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
                 .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+        }
+    }
+    
+    /**
+     * Handle an incoming request to delete a user.
+     * @param request The incoming request to work with.
+     * @param response The outgoing response being built.
+     */
+    @authenticate()
+    private async deleteAccount(request: Express.Request, response: Express.Response): Promise<void> {
+        try {
+            await this.userService.delete(request.user);
+        }
+        catch(error){
+            console.log(error);
+            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         }
     }
 }

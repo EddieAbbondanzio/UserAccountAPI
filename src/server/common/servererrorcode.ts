@@ -28,5 +28,10 @@ export enum ServerErrorCode {
      * parameter.  
      */
     MissingBodyParameter = 5,
+    /**
+     * The request was bad, something went wrong say
+     * an invalid password when registering a user.
+     */
+    FailedRequest = 6,
 
 }

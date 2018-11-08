@@ -5,11 +5,14 @@ import { Config } from '../config/config';
 import bodyParser = require('body-parser');
 import * as HttpStatusCodes from 'http-status-codes';
 import { IAccountHandler } from './contract/iaccounthandler';
+import { inject, injectable } from 'inversify';
+import { IOC_TYPES } from '../common/ioc/ioctypes';
 
 /**
  * The HTTP server that handles incoming requests, and
  * builds responses to send back to them.
  */
+@injectable()
 export class Server {
     /**
      * The singleton instance of the server.
@@ -41,14 +44,18 @@ export class Server {
 
     /**
      * Create a new server.
+     * @param config The server's config.
      * @param userHandler The user handler.
      * @param authHandler The auth handler.
      * @param accountHandler The account handler.
      */
-    constructor( userHandler: IUserHandler, authHandler: IAuthHandler, accountHandler: IAccountHandler) {
+    constructor(@inject(IOC_TYPES.Config) config: Config,
+                @inject(IOC_TYPES.UserHandler) userHandler: IUserHandler, 
+                @inject(IOC_TYPES.AuthHandler) authHandler: IAuthHandler,
+                @inject(IOC_TYPES.AccountHandler) accountHandler: IAccountHandler) {
         this.express = Express();
-        this.express.listen(Config.current.port, () => {
-            console.log(`Listening on port ${Config.current.port}`)
+        this.express.listen(config.port, () => {
+            console.log(`Listening on port ${config}.port}`)
         })
 
         Server.instance = this;

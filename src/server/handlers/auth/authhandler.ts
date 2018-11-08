@@ -14,11 +14,14 @@ import { User } from '../../../logic/models/user';
 import { ValidateLoginPayload } from './payloads/validateloginpayload';
 import { LoginCredentialsPayload } from './payloads/logincredentialspayload';
 import { IUserService } from '../../../logic/contract/services/iuserservice';
+import { injectable, inject } from 'inversify';
+import { IOC_TYPES } from '../../../common/ioc/ioctypes';
 
 /**
  * Router responsible for handling all incoming 
  * requests related to authentication, and more.
  */
+@injectable()
 export class AuthHandler implements IHandler {
     /**
      * The auth service from the BLL.
@@ -40,7 +43,8 @@ export class AuthHandler implements IHandler {
      * @param authService The authservice to use.
      * @param userService The user service to use.
      */
-    constructor(authService: IAuthService, userService: IUserService) {
+    constructor(@inject(IOC_TYPES.AuthService) authService: IAuthService,
+                @inject(IOC_TYPES.UserService) userService: IUserService) {
         this.authService = authService;
         this.userService = userService;
 

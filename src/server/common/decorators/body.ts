@@ -2,7 +2,6 @@ import * as Express from 'express';
 import * as HttpStatusCode from 'http-status-codes';
 import { ServerErrorInfo } from '../servererrorinfo';
 import { ServerErrorCode } from '../servererrorcode';
-import { constants } from 'fs';
 import { BodyOptions } from './bodyoptions';
 
 /**

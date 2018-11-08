@@ -1,23 +1,29 @@
 import { ValidatorResult } from "../validation/validatorresult";
 import { User } from "../models/user";
-import { TextEmail } from "../email/types/textemail";
-import { ResetToken } from "../models/resettoken";
 import { ValidationError } from "../validation/validationerror";
-import { UserUpdateValidator } from "../validation/user/validators/userupdatevalidator";
 import { UserDeleteValidator } from "../validation/user/validators/userdeletevalidator";
 import { Database } from "../common/database";
 import { ServiceType } from "../common/servicetype";
 import { ArgumentError } from "../../common/error/types/argumenterror";
 import { StringUtils } from "../../util/stringutils";
 import { UsernameValidatorRule } from "../validation/user/rules/usernamevalidatorrule";
-import { ValidatorRuleResult } from "../validation/validatorruleresult";
 import { NullArgumentError } from "../../common/error/types/nullargumenterror";
 import { UsernameValidator } from "../validation/user/validators/usernamevalidator";
 import { DatabaseService } from "../common/databaseservice";
+import { UserRegistration } from "../common/userregistration";
+import { UserRegistrationValidator } from "../validation/user/validators/userregistrationvalidator";
+import { VerificationToken } from "../models/verificationtoken";
+import { IEmailSender } from "../email/iemailsender";
+import { ErrorHandler } from "../../common/error/errorhandler";
+import { QueryFailedError } from "typeorm";
+import { DuplicateError } from "../../common/error/types/duplicateerror";
+import { injectable, inject } from "inversify";
+import { IOC_TYPES } from "../../common/ioc/ioctypes";
 
 /**
  * The user service for retrieving users from the system.
  */
+@injectable()
 export class UserService extends DatabaseService {
     /**
      * The type of service it is.
@@ -25,24 +31,29 @@ export class UserService extends DatabaseService {
     readonly serviceType: ServiceType = ServiceType.User;
 
     /**
-     * The validator to validate a user being updated.
-     */
-    private userUpdateValidator: UserUpdateValidator;
-
-    /**
      * The validator to validate a user being deleted.
      */
     private userDeleteValidator: UserDeleteValidator;
 
     /**
+     * The validator to validate users being created.
+     */
+    private userRegistrationValidator: UserRegistrationValidator;
+
+    /**
+     * The service for sending emails.
+     */
+    private emailSender: IEmailSender;
+
+    /**
      * Create a new user service.
      * @param database The current database.
      */
-    constructor(database: Database) {
+    constructor(@inject(IOC_TYPES.Database) database: Database) {
         super(database);
         
-        this.userUpdateValidator = new UserUpdateValidator();
         this.userDeleteValidator = new UserDeleteValidator();
+        this.userRegistrationValidator = new UserRegistrationValidator();
     }
     
     /**
@@ -80,6 +91,43 @@ export class UserService extends DatabaseService {
         }
 
         return this.database.userRepo.isEmailInUse(email);
+    }
+
+    public async registerNewUser(registration: UserRegistration): Promise<User> {
+        if (registration == null) {
+            throw new NullArgumentError('registration');
+        }
+
+        //Is the user even valid?
+        let validatorResult: ValidatorResult = this.userRegistrationValidator.validate(registration);
+
+        if (!validatorResult.isValid) {
+            throw new ValidationError('Failed to register new user.', validatorResult);
+        }
+
+        //Generate the user
+        let user: User = await User.fromRegistration(registration);
+        let vToken: VerificationToken;
+
+        try { 
+            await this.database.userRepo.add(user);
+            return user;
+        }
+        catch (error) {
+            if (this.database.isInTransaction()) {
+                await this.database.rollbackTransaction();
+            }
+
+            new ErrorHandler(error)
+            .catch(QueryFailedError, (error: QueryFailedError) => {
+                if(error.message.includes('ER_DUP_ENTRY')) {
+                    throw new DuplicateError('Username is taken.');
+                }
+            })
+            .otherwiseRaise();
+
+            return null;
+        }
     }
 
     /**
@@ -122,24 +170,6 @@ export class UserService extends DatabaseService {
         }
 
         return this.database.userRepo.findByEmail(email, includeDeleted);
-    }
-
-    /**
-     * Update an existing user in the database.
-     * @param user The user to update
-     */
-    public async update(user: User): Promise<void> {
-        if(!user || isNaN(user.id)){
-            throw new ArgumentError('user');
-        }
-        
-        let validatorResult: ValidatorResult = this.userUpdateValidator.validate(user);
-
-        if(!validatorResult.isValid){
-            throw new ValidationError('Failed to update user.', validatorResult);
-        }
-        
-        await this.database.userRepo.update(user);
     }
 
     /**

@@ -1,11 +1,13 @@
 import { Database } from "./database";
 import { IService } from "./iservice";
 import { ServiceType } from "./servicetype";
+import { injectable } from "inversify";
 
 /**
  * A database service is one that interacts directly with
  * the database through the use of repositories.
  */
+@injectable()
 export abstract class DatabaseService implements IService {
     /**
      * The type of service.

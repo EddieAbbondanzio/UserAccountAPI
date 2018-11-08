@@ -9,11 +9,15 @@ import { AuthenticationError } from '../../common/error/types/authenticationerro
 import { ErrorHandler } from '../../common/error/errorhandler';
 import { UserLogin } from '../models/userlogin';
 import { AccessToken } from '../common/accesstoken';
+import { injectable, inject } from 'inversify';
+import { IOC_TYPES } from '../../common/ioc/ioctypes';
+import { Config } from '../../config/config';
 
 /**
  * Service to encode and validate payloads through the use
  * of Json Web Tokens.
  */
+@injectable()
 export class AccessTokenService implements IService {
     /**
      * Tokens are good for 6 months.
@@ -46,8 +50,8 @@ export class AccessTokenService implements IService {
      * Create a new token service.
      * @param signature The signature to use to sign tokens with.
      */
-    constructor(signature: string) {
-        if (signature == null) {
+    constructor(@inject(IOC_TYPES.Config) config: Config) {
+        if (config.tokenSignature == null) {
             throw new NullArgumentError('signature');
         }
 
@@ -60,7 +64,7 @@ export class AccessTokenService implements IService {
             algorithms: ['HS256']
         }
 
-        this.signature = signature;
+        this.signature = config.tokenSignature;
     }
 
     /**

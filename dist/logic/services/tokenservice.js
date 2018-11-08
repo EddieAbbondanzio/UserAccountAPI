@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,37 +20,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var AccessTokenService_1;
 const JsonWebToken = require("jsonwebtoken");
 const servicetype_1 = require("../common/servicetype");
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 const authenticationerror_1 = require("../../common/error/types/authenticationerror");
 const errorhandler_1 = require("../../common/error/errorhandler");
 const accesstoken_1 = require("../common/accesstoken");
+const inversify_1 = require("inversify");
+const ioctypes_1 = require("../../common/ioc/ioctypes");
+const config_1 = require("../../config/config");
 /**
  * Service to encode and validate payloads through the use
  * of Json Web Tokens.
  */
-class AccessTokenService {
+let AccessTokenService = AccessTokenService_1 = class AccessTokenService {
     /**
      * Create a new token service.
      * @param signature The signature to use to sign tokens with.
      */
-    constructor(signature) {
+    constructor(config) {
         /**
          * The type of service it is.
          */
         this.serviceType = servicetype_1.ServiceType.Token;
-        if (signature == null) {
+        if (config.tokenSignature == null) {
             throw new nullargumenterror_1.NullArgumentError('signature');
         }
         this.signOptions = {
             algorithm: 'HS256',
-            expiresIn: AccessTokenService.TOKEN_LIFESPAN
+            expiresIn: AccessTokenService_1.TOKEN_LIFESPAN
         };
         this.verifyOptions = {
             algorithms: ['HS256']
         };
-        this.signature = signature;
+        this.signature = config.tokenSignature;
     }
     /**
      * Issue a new access token using the user login provided.
@@ -100,10 +116,15 @@ class AccessTokenService {
             });
         });
     }
-}
+};
 /**
  * Tokens are good for 6 months.
  */
 AccessTokenService.TOKEN_LIFESPAN = 15780000;
+AccessTokenService = AccessTokenService_1 = __decorate([
+    inversify_1.injectable(),
+    __param(0, inversify_1.inject(ioctypes_1.IOC_TYPES.Config)),
+    __metadata("design:paramtypes", [config_1.Config])
+], AccessTokenService);
 exports.AccessTokenService = AccessTokenService;
 //# sourceMappingURL=tokenservice.js.map

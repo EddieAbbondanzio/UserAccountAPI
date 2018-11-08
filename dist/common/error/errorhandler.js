@@ -37,6 +37,9 @@ class ErrorHandler {
      * @param handler The handler to call if nothing else caught it.
      */
     otherwise(handler) {
+        if (!this.wasCaught) {
+            handler(this.error);
+        }
     }
     /**
      * If the error has not been caught yet, throw it

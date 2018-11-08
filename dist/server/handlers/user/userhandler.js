@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -24,24 +27,28 @@ const errorhandler_1 = require("../../../common/error/errorhandler");
 const validationerror_1 = require("../../../logic/validation/validationerror");
 const argumenterror_1 = require("../../../common/error/types/argumenterror");
 const servererrorinfo_1 = require("../../common/servererrorinfo");
-const authenticate_1 = require("../../common/decorators/authenticate");
 const servererrorcode_1 = require("../../common/servererrorcode");
 const body_1 = require("../../common/decorators/body");
-const userupdate_1 = require("../account/payloads/userupdate");
 const userregistration_1 = require("../../../logic/common/userregistration");
+const iaccountservice_1 = require("../../../logic/contract/services/iaccountservice");
+const duplicateerror_1 = require("../../../common/error/types/duplicateerror");
+const inversify_1 = require("inversify");
+const ioctypes_1 = require("../../../common/ioc/ioctypes");
 /**
  * Router responsible for handling all incoming
  * requests related to users.
  */
-class UserHandler {
+let UserHandler = class UserHandler {
     /**
      * Create a new user router.
      * @param authService The auth service to use.
      * @param userService The userservice to use.
+     * @param accountService The account service.
      */
-    constructor(authService, userService) {
+    constructor(authService, userService, accountService) {
         this.authService = authService;
         this.userService = userService;
+        this.accountService = accountService;
         this.expressRouter = Express.Router();
     }
     /**
@@ -51,8 +58,6 @@ class UserHandler {
     initRoutes(expressApp) {
         //Register, update, or delete user
         this.expressRouter.put('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.registerNewUser(req, res); }));
-        this.expressRouter.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateUser(req, res); }));
-        this.expressRouter.delete('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteUser(req, res); }));
         this.expressRouter.head('/:username', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.isUsernameAvailable(req, res); }));
         this.expressRouter.get('/:identifier', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.findUser(req, res); }));
         expressApp.use('/users/', this.expressRouter);
@@ -66,52 +71,32 @@ class UserHandler {
     registerNewUser(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(request.body);
-                //Create the user, then log them in.
-                let user = yield this.authService.registerNewUser(request.body);
+                //Create the user, then send their verification email.
+                let user = yield this.userService.registerNewUser(request.body);
+                yield this.accountService.sendVerificationEmail(user);
+                //Give them a log in, and send it off to them.
                 let token = yield this.authService.loginUser(user);
                 response.status(HttpStatusCodes.OK)
                     .json(token);
             }
             catch (error) {
-                console.log('An error occured registering a user: ', error);
-                response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-                    .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.Unknown));
-            }
-        });
-    }
-    /**
-     * Handle an incoming request to update a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    updateUser(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            request.user.name = request.body.name;
-            request.user.email = request.body.email;
-            try {
-                yield this.userService.update(request.user);
-                response.sendStatus(HttpStatusCodes.OK);
-            }
-            catch (error) {
-                console.log(error);
-                response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-            }
-        });
-    }
-    /**
-     * Handle an incoming request to delete a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    deleteUser(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.userService.delete(request.user);
-            }
-            catch (error) {
-                console.log(error);
-                response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+                new errorhandler_1.ErrorHandler(error)
+                    .catch(validationerror_1.ValidationError, (error) => {
+                    //Need to build a string of all the errors
+                    let errorMsg = error.validatorResult.errors.join('\n');
+                    //Fire it off to the client.
+                    response.status(HttpStatusCodes.BAD_REQUEST)
+                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.FailedRequest, errorMsg));
+                })
+                    .catch(duplicateerror_1.DuplicateError, (error) => {
+                    response.status(HttpStatusCodes.CONFLICT)
+                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.FailedRequest, 'Username is already taken'));
+                })
+                    .otherwise((error) => {
+                    console.log('An unknown error occured registering a user: ', error);
+                    response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.Unknown));
+                });
             }
         });
     }
@@ -193,25 +178,19 @@ class UserHandler {
             }
         });
     }
-}
+};
 __decorate([
     body_1.body(userregistration_1.UserRegistration),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserHandler.prototype, "registerNewUser", null);
-__decorate([
-    authenticate_1.authenticate(),
-    body_1.body(userupdate_1.UserUpdate),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserHandler.prototype, "updateUser", null);
-__decorate([
-    authenticate_1.authenticate(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserHandler.prototype, "deleteUser", null);
+UserHandler = __decorate([
+    inversify_1.injectable(),
+    __param(0, inversify_1.inject(ioctypes_1.IOC_TYPES.AuthService)),
+    __param(1, inversify_1.inject(ioctypes_1.IOC_TYPES.UserService)),
+    __param(2, inversify_1.inject(ioctypes_1.IOC_TYPES.AccountService)),
+    __metadata("design:paramtypes", [Object, Object, iaccountservice_1.IAccountService])
+], UserHandler);
 exports.UserHandler = UserHandler;
 //# sourceMappingURL=userhandler.js.map

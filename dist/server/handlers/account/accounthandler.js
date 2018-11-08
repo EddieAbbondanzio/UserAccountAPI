@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -31,24 +34,28 @@ const authenticate_1 = require("../../common/decorators/authenticate");
 const errorhandler_1 = require("../../../common/error/errorhandler");
 const authenticationerror_1 = require("../../../common/error/types/authenticationerror");
 const userupdate_1 = require("./payloads/userupdate");
+const iaccountservice_1 = require("../../../logic/contract/services/iaccountservice");
+const inversify_1 = require("inversify");
+const ioctypes_1 = require("../../../common/ioc/ioctypes");
 /**
- * Handler for updating the user's own account.
+ * Network handler for managing incoming requests related
+ * to User accounts.
  */
-class AccountHandler {
+let AccountHandler = class AccountHandler {
     /**
-     * Create a new account handler.
-     * @param authService The authservice to use.
-     * @param userService The user service to use.
+     * Create a new AccountHandler. This manages all incoming
+     * requests to update a user's account, and builds responses.
+     * @param userService The service for working with users.
+     * @param accountService The service for updating accounts.
      */
-    constructor(authService, userService) {
-        this.authService = authService;
+    constructor(userService, accountService) {
         this.userService = userService;
+        this.accountService = accountService;
         this.expressRouter = Express.Router();
     }
     /**
-     * Initialize the handler for use.
-     * @param expressApp The express application to work with.
-     *
+     * Initialize all of the routes for use.
+     * @param expressApp The running Express Application.
      */
     initRoutes(expressApp) {
         this.expressRouter.post('/forgotusername/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.forgotUsername(req, res); }));
@@ -57,8 +64,8 @@ class AccountHandler {
         this.expressRouter.put('/password/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updatePassword(req, res); }));
         this.expressRouter.put('/verifyemail/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.resendVerificationEmail(req, res); }));
         this.expressRouter.post('/verifyemail/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.verifyEmail(req, res); }));
-        this.expressRouter.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateUser(req, res); }));
-        this.expressRouter.delete('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteUser(req, res); }));
+        this.expressRouter.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.updateInfo(req, res); }));
+        this.expressRouter.delete('/', (req, res) => __awaiter(this, void 0, void 0, function* () { return this.deleteAccount(req, res); }));
         expressApp.use('/account/', this.expressRouter);
     }
     /**
@@ -66,29 +73,13 @@ class AccountHandler {
      * @param request The incoming request to work with.
      * @param response The outgoing response being built.
      */
-    updateUser(request, response) {
+    updateInfo(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             request.user.name = request.body.name;
             request.user.email = request.body.email;
             try {
-                yield this.userService.update(request.user);
+                yield this.accountService.updateInfo(request.user);
                 response.sendStatus(HttpStatusCodes.OK);
-            }
-            catch (error) {
-                console.log(error);
-                response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-            }
-        });
-    }
-    /**
-     * Handle an incoming request to delete a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    deleteUser(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.userService.delete(request.user);
             }
             catch (error) {
                 console.log(error);
@@ -104,7 +95,7 @@ class AccountHandler {
     forgotUsername(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.authService.emailUserTheirUsername(request.body.username);
+                yield this.accountService.emailUserTheirUsername(request.body.username);
             }
             catch (error) {
                 console.log('An error occured requesting a forgotten username: ', error);
@@ -122,7 +113,7 @@ class AccountHandler {
     forgotPassword(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.authService.emailUserResetToken(request.body.username);
+                yield this.accountService.emailUserResetToken(request.body.username);
             }
             catch (error) {
                 console.log('An error occured requesting a forgotten username: ', error);
@@ -140,7 +131,7 @@ class AccountHandler {
     updatePassword(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.authService.updatePassword(request.user, request.body.currentPassword, request.body.newPassword);
+                yield this.accountService.updatePassword(request.user, request.body.currentPassword, request.body.newPassword);
                 response.sendStatus(HttpStatusCodes.OK);
             }
             catch (error) {
@@ -166,7 +157,7 @@ class AccountHandler {
     resetPassword(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.authService.resetPassword(request.user, request.body.resetCode, request.body.newPassword);
+                yield this.accountService.resetPassword(request.user, request.body.resetCode, request.body.newPassword);
                 response.status(HttpStatusCodes.OK);
             }
             catch (error) {
@@ -192,7 +183,7 @@ class AccountHandler {
     verifyEmail(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let success = yield this.authService.verifyUserEmail(request.user, request.body.verificationCode);
+                let success = yield this.accountService.verifyUserEmail(request.user, request.body.verificationCode);
                 if (success) {
                     response.sendStatus(HttpStatusCodes.OK);
                 }
@@ -216,7 +207,7 @@ class AccountHandler {
     resendVerificationEmail(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.authService.resendVerificationEmail(request.user);
+                yield this.accountService.resendVerificationEmail(request.user);
                 response.sendStatus(HttpStatusCodes.OK);
             }
             catch (error) {
@@ -226,20 +217,30 @@ class AccountHandler {
             }
         });
     }
-}
+    /**
+     * Handle an incoming request to delete a user.
+     * @param request The incoming request to work with.
+     * @param response The outgoing response being built.
+     */
+    deleteAccount(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.userService.delete(request.user);
+            }
+            catch (error) {
+                console.log(error);
+                response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        });
+    }
+};
 __decorate([
     authenticate_1.authenticate(),
     body_1.body(userupdate_1.UserUpdate),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], AccountHandler.prototype, "updateUser", null);
-__decorate([
-    authenticate_1.authenticate(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], AccountHandler.prototype, "deleteUser", null);
+], AccountHandler.prototype, "updateInfo", null);
 __decorate([
     body_1.body(forgotusernamepayload_1.ForgotUsernamePayload),
     __metadata("design:type", Function),
@@ -279,5 +280,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AccountHandler.prototype, "resendVerificationEmail", null);
+__decorate([
+    authenticate_1.authenticate(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AccountHandler.prototype, "deleteAccount", null);
+AccountHandler = __decorate([
+    inversify_1.injectable(),
+    __param(0, inversify_1.inject(ioctypes_1.IOC_TYPES.AuthService)),
+    __param(1, inversify_1.inject(ioctypes_1.IOC_TYPES.AccountService)),
+    __metadata("design:paramtypes", [Object, iaccountservice_1.IAccountService])
+], AccountHandler);
 exports.AccountHandler = AccountHandler;
 //# sourceMappingURL=accounthandler.js.map

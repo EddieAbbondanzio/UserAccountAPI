@@ -6,10 +6,14 @@ import { IEmail } from "./types/iemail";
 import { EmailOptions } from "./emailoptions";
 import { TextEmail } from "./types/textemail";
 import { HtmlEmail } from "./types/htmlemail";
+import { injectable, inject } from "inversify";
+import { IOC_TYPES } from "../../common/ioc/ioctypes";
+import { Config } from "../../config/config";
 
 /**
  * Service for sending out emails.
  */
+@injectable()
 export class ZohoEmailService implements IEmailSender {
     /**
      * The email transporter for delivering emails.
@@ -25,8 +29,8 @@ export class ZohoEmailService implements IEmailSender {
      * Create a new email service
      * @param credentials The username and password to use.
      */
-    constructor(credentials: EmailCredentials){
-        this.credentials = credentials;
+    constructor(@inject(IOC_TYPES.Config) config: Config){
+        this.credentials = config.emailCredentials;
 
         this.transporter = NodeMailer.createTransport({
             host: 'smtp.zoho.com',
@@ -40,7 +44,7 @@ export class ZohoEmailService implements IEmailSender {
      * Send out an email.
      * @param email The email to send out.
      */
-    public async sendEmail(email: IEmail): Promise<boolean> {
+    public async sendEmail(email: IEmail): Promise<void> {
         //Service can only send emails from the email it has on file.
         if(email.sender != this.credentials.user){
             email.sender = this.credentials.user;
@@ -48,7 +52,7 @@ export class ZohoEmailService implements IEmailSender {
         
         let emailOptions: EmailOptions = email.getSendOptions();
 
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.transporter.sendMail(emailOptions, (error, info) => {
                 if(error){
                     reject(error);
@@ -68,7 +72,7 @@ export class ZohoEmailService implements IEmailSender {
      * @param body The body of the email.
      * @param isHtml If the body is in html.
      */
-    public async createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<boolean> {
+    public async createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<void> {
         let email: IEmail;
 
         if(isHtml){

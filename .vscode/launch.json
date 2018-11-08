@@ -13,11 +13,11 @@
             },
             "name": "DEBUG",
             "outFiles": ["${workspaceFolder}/dist"],
-            "preLaunchTask": "Transpile Typescript",
+            "preLaunchTask": "Build",
             "program": "${workspaceFolder}/dist/index.js",
             "request": "launch",
             "runtimeArgs": [
-                "--nolazy"
+                "--nolazy -e dev"
             ],
             "runtimeExecutable": null,
             "sourceMaps": true,

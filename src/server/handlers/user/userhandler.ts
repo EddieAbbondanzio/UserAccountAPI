@@ -4,24 +4,26 @@ import * as HttpStatusCodes from 'http-status-codes';
 import { IHandler } from "../../common/ihandler";
 import { StringUtils } from "../../../util/stringutils";
 import { User } from "../../../logic/models/user";
-import { UsernameValidatorRule } from "../../../logic/validation/user/rules/usernamevalidatorrule";
 import { ErrorHandler } from "../../../common/error/errorhandler";
 import { ValidationError } from "../../../logic/validation/validationerror";
 import { ArgumentError } from "../../../common/error/types/argumenterror";
 import { ServerErrorInfo } from "../../common/servererrorinfo";
-import { Config } from "../../../config/config";
-import { authenticate } from "../../common/decorators/authenticate";
 import { ServerErrorCode } from "../../common/servererrorcode";
 import { body } from "../../common/decorators/body";
-import { UserUpdate } from "../account/payloads/userupdate";
 import { UserRegistration } from "../../../logic/common/userregistration";
 import { AccessToken } from "../../../logic/common/accesstoken";
 import { IAuthService } from "../../../logic/contract/services/iauthservice";
+import { IAccountService } from "../../../logic/contract/services/iaccountservice";
+import { QueryFailedError } from "typeorm";
+import { DuplicateError } from "../../../common/error/types/duplicateerror";
+import { injectable, inject } from "inversify";
+import { IOC_TYPES } from "../../../common/ioc/ioctypes";
 
 /**
  * Router responsible for handling all incoming
  * requests related to users.
  */
+@injectable()
 export class UserHandler implements IHandler {
     /**
      * The auth service from the BLL.
@@ -34,6 +36,12 @@ export class UserHandler implements IHandler {
     private userService: IUserService;
 
     /**
+     * Service for managing account info from
+     * the BLL.
+     */
+    private accountService: IAccountService;
+
+    /**
      * The underlying express router.
      */
     private expressRouter: Express.Router;
@@ -42,10 +50,14 @@ export class UserHandler implements IHandler {
      * Create a new user router.
      * @param authService The auth service to use.
      * @param userService The userservice to use.
+     * @param accountService The account service.
      */
-    constructor(authService: IAuthService, userService: IUserService) {
+    constructor(@inject(IOC_TYPES.AuthService) authService: IAuthService, 
+                @inject(IOC_TYPES.UserService) userService: IUserService,
+                @inject(IOC_TYPES.AccountService) accountService: IAccountService) {
         this.authService = authService;
         this.userService = userService;
+        this.accountService = accountService;
 
         this.expressRouter = Express.Router();
     }
@@ -57,8 +69,6 @@ export class UserHandler implements IHandler {
     public initRoutes(expressApp: Express.Application): void {
         //Register, update, or delete user
         this.expressRouter.put('/', async (req, res) => { return this.registerNewUser(req, res); });
-        this.expressRouter.post('/', async (req, res) => { return this.updateUser(req, res); });
-        this.expressRouter.delete('/', async (req, res) => { return this.deleteUser(req, res); });
         this.expressRouter.head('/:username', async (req, res) => { return this.isUsernameAvailable(req, res); });
         this.expressRouter.get('/:identifier', async (req, res) => { return this.findUser(req, res); });
 
@@ -74,57 +84,36 @@ export class UserHandler implements IHandler {
     @body(UserRegistration)
     public async registerNewUser(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            console.log(request.body);
-
-            //Create the user, then log them in.
-            let user: User = await this.authService.registerNewUser(request.body);
+            //Create the user, then send their verification email.
+            let user: User = await this.userService.registerNewUser(request.body);
+            await this.accountService.sendVerificationEmail(user)
+            
+            //Give them a log in, and send it off to them.
             let token: AccessToken = await this.authService.loginUser(user);
 
             response.status(HttpStatusCodes.OK)
                 .json(token);
         }
         catch (error) {
-            console.log('An error occured registering a user: ', error);
+            new ErrorHandler(error)
+            .catch(ValidationError, (error: ValidationError) => {
+                //Need to build a string of all the errors
+                let errorMsg: string = error.validatorResult.errors.join('\n');
 
-            response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-                .json(new ServerErrorInfo(ServerErrorCode.Unknown));
-        }
-    }
+                //Fire it off to the client.
+                response.status(HttpStatusCodes.BAD_REQUEST)
+                .json(new ServerErrorInfo(ServerErrorCode.FailedRequest, errorMsg));
+            })
+            .catch(DuplicateError, (error: DuplicateError) => {
+                response.status(HttpStatusCodes.CONFLICT)
+                .json(new ServerErrorInfo(ServerErrorCode.FailedRequest, 'Username is already taken'));
+            })
+            .otherwise((error: Error) => {
+                console.log('An unknown error occured registering a user: ', error);
 
-    /**
-     * Handle an incoming request to update a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    @authenticate()
-    @body(UserUpdate)
-    private async updateUser(request: Express.Request, response: Express.Response): Promise<void> {
-        request.user.name  = request.body.name;
-        request.user.email = request.body.email;
-
-        try {
-            await this.userService.update(request.user);
-            response.sendStatus(HttpStatusCodes.OK);
-        }
-        catch(error){ 
-            console.log(error);
-            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Handle an incoming request to delete a user.
-     * @param request The incoming request to work with.
-     * @param response The outgoing response being built.
-     */
-    @authenticate()
-    private async deleteUser(request: Express.Request, response: Express.Response): Promise<void> {
-        try {
-            await this.userService.delete(request.user);
-        }
-        catch(error){
-            console.log(error);
-            response.sendStatus(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+                response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+                    .json(new ServerErrorInfo(ServerErrorCode.Unknown));
+            });
         }
     }
 

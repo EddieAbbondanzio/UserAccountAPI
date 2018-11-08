@@ -2,7 +2,6 @@ import * as Express from 'express';
 import * as HttpStatusCode from 'http-status-codes';
 import { ServerErrorInfo } from '../servererrorinfo';
 import { User } from '../../../logic/models/user';
-import { ServiceLocator } from '../../../logic/common/servicelocator';
 import { ServiceType } from '../../../logic/common/servicetype';
 import { IUserService } from '../../../logic/contract/services/iuserservice';
 import { ServerErrorCode } from '../servererrorcode';
@@ -12,6 +11,8 @@ import { AccessToken } from '../../../logic/common/accesstoken';
 import { ErrorHandler } from '../../../common/error/errorhandler';
 import { AuthenticationError } from '../../../common/error/types/authenticationerror';
 import { ExpressUtils } from '../../../util/expressutils';
+import { IocContainer } from '../../ioccontainer';
+import { IOC_TYPES } from '../../../common/ioc/ioctypes';
 
 
 /**
@@ -37,7 +38,7 @@ export function authenticate() {
     
             //Is the token even valid?
             try {
-                let tokenService: IAccessTokenService = ServiceLocator.get(ServiceType.Token);
+                let tokenService: IAccessTokenService = IocContainer.instance.get(IOC_TYPES.TokenService);
 
                 if(tokenService == null){
                     throw new InvalidOperationError('Cannot authenticate a user with no token service');
@@ -46,7 +47,7 @@ export function authenticate() {
                 let accessToken: AccessToken = await tokenService.authenticateToken(bearerToken);
 
                 //Catch will take over if the payload was bad.
-                let user: User = await ServiceLocator.get<IUserService>(ServiceType.User).findById(accessToken.userId);
+                let user: User = await IocContainer.instance.get<IUserService>(IOC_TYPES.UserService).findById(accessToken.userId);
     
                 //Attach the user to the request then call the regular method.
                 req.user = user;

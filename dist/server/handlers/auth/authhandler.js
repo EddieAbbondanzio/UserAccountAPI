@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -28,11 +31,13 @@ const authenticate_1 = require("../../common/decorators/authenticate");
 const body_1 = require("../../common/decorators/body");
 const validateloginpayload_1 = require("./payloads/validateloginpayload");
 const logincredentialspayload_1 = require("./payloads/logincredentialspayload");
+const inversify_1 = require("inversify");
+const ioctypes_1 = require("../../../common/ioc/ioctypes");
 /**
  * Router responsible for handling all incoming
  * requests related to authentication, and more.
  */
-class AuthHandler {
+let AuthHandler = class AuthHandler {
     /**
      * Create a new auth handler.
      * @param authService The authservice to use.
@@ -148,7 +153,7 @@ class AuthHandler {
             }
         });
     }
-}
+};
 __decorate([
     body_1.body(logincredentialspayload_1.LoginCredentialsPayload, { optional: true }),
     __metadata("design:type", Function),
@@ -167,5 +172,11 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthHandler.prototype, "validateUserLogin", null);
+AuthHandler = __decorate([
+    inversify_1.injectable(),
+    __param(0, inversify_1.inject(ioctypes_1.IOC_TYPES.AuthService)),
+    __param(1, inversify_1.inject(ioctypes_1.IOC_TYPES.UserService)),
+    __metadata("design:paramtypes", [Object, Object])
+], AuthHandler);
 exports.AuthHandler = AuthHandler;
 //# sourceMappingURL=authhandler.js.map

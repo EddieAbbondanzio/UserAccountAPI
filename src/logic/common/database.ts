@@ -3,11 +3,13 @@ import { IUserRepository } from "../contract/repositories/iuserrepository";
 import { IUserLoginRepository } from "../contract/repositories/iuserloginrepository";
 import { IResetTokenRepository } from "../contract/repositories/iresettokenrepository";
 import { IVerificationTokenRepository } from "../contract/repositories/iverificationtokenrepository";
+import { injectable } from "inversify";
 
 /**
  * The data persistance container. This should be able to store and retrieve
  * models that are stored in it at any time.
  */
+@injectable()
 export abstract class Database {
     /**
      * The singleton database reference.

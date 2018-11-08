@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,9 +20,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const user_1 = require("../models/user");
 const validationerror_1 = require("../validation/validationerror");
-const userupdatevalidator_1 = require("../validation/user/validators/userupdatevalidator");
 const userdeletevalidator_1 = require("../validation/user/validators/userdeletevalidator");
+const database_1 = require("../common/database");
 const servicetype_1 = require("../common/servicetype");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const stringutils_1 = require("../../util/stringutils");
@@ -18,10 +31,16 @@ const usernamevalidatorrule_1 = require("../validation/user/rules/usernamevalida
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
 const usernamevalidator_1 = require("../validation/user/validators/usernamevalidator");
 const databaseservice_1 = require("../common/databaseservice");
+const userregistrationvalidator_1 = require("../validation/user/validators/userregistrationvalidator");
+const errorhandler_1 = require("../../common/error/errorhandler");
+const typeorm_1 = require("typeorm");
+const duplicateerror_1 = require("../../common/error/types/duplicateerror");
+const inversify_1 = require("inversify");
+const ioctypes_1 = require("../../common/ioc/ioctypes");
 /**
  * The user service for retrieving users from the system.
  */
-class UserService extends databaseservice_1.DatabaseService {
+let UserService = class UserService extends databaseservice_1.DatabaseService {
     /**
      * Create a new user service.
      * @param database The current database.
@@ -32,8 +51,8 @@ class UserService extends databaseservice_1.DatabaseService {
          * The type of service it is.
          */
         this.serviceType = servicetype_1.ServiceType.User;
-        this.userUpdateValidator = new userupdatevalidator_1.UserUpdateValidator();
         this.userDeleteValidator = new userdeletevalidator_1.UserDeleteValidator();
+        this.userRegistrationValidator = new userregistrationvalidator_1.UserRegistrationValidator();
     }
     /**
      * Checks if a username is available for taking.s
@@ -69,6 +88,38 @@ class UserService extends databaseservice_1.DatabaseService {
                 throw new nullargumenterror_1.NullArgumentError('email');
             }
             return this.database.userRepo.isEmailInUse(email);
+        });
+    }
+    registerNewUser(registration) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (registration == null) {
+                throw new nullargumenterror_1.NullArgumentError('registration');
+            }
+            //Is the user even valid?
+            let validatorResult = this.userRegistrationValidator.validate(registration);
+            if (!validatorResult.isValid) {
+                throw new validationerror_1.ValidationError('Failed to register new user.', validatorResult);
+            }
+            //Generate the user
+            let user = yield user_1.User.fromRegistration(registration);
+            let vToken;
+            try {
+                yield this.database.userRepo.add(user);
+                return user;
+            }
+            catch (error) {
+                if (this.database.isInTransaction()) {
+                    yield this.database.rollbackTransaction();
+                }
+                new errorhandler_1.ErrorHandler(error)
+                    .catch(typeorm_1.QueryFailedError, (error) => {
+                    if (error.message.includes('ER_DUP_ENTRY')) {
+                        throw new duplicateerror_1.DuplicateError('Username is taken.');
+                    }
+                })
+                    .otherwiseRaise();
+                return null;
+            }
         });
     }
     /**
@@ -114,22 +165,6 @@ class UserService extends databaseservice_1.DatabaseService {
         });
     }
     /**
-     * Update an existing user in the database.
-     * @param user The user to update
-     */
-    update(user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!user || isNaN(user.id)) {
-                throw new argumenterror_1.ArgumentError('user');
-            }
-            let validatorResult = this.userUpdateValidator.validate(user);
-            if (!validatorResult.isValid) {
-                throw new validationerror_1.ValidationError('Failed to update user.', validatorResult);
-            }
-            yield this.database.userRepo.update(user);
-        });
-    }
-    /**
      * Delete a user from the database
      * @param user The user to delete
      */
@@ -145,6 +180,11 @@ class UserService extends databaseservice_1.DatabaseService {
             yield this.database.userRepo.delete(user);
         });
     }
-}
+};
+UserService = __decorate([
+    inversify_1.injectable(),
+    __param(0, inversify_1.inject(ioctypes_1.IOC_TYPES.Database)),
+    __metadata("design:paramtypes", [database_1.Database])
+], UserService);
 exports.UserService = UserService;
 //# sourceMappingURL=userservice.js.map

@@ -30,5 +30,10 @@ var ServerErrorCode;
      * parameter.
      */
     ServerErrorCode[ServerErrorCode["MissingBodyParameter"] = 5] = "MissingBodyParameter";
+    /**
+     * The request was bad, something went wrong say
+     * an invalid password when registering a user.
+     */
+    ServerErrorCode[ServerErrorCode["FailedRequest"] = 6] = "FailedRequest";
 })(ServerErrorCode = exports.ServerErrorCode || (exports.ServerErrorCode = {}));
 //# sourceMappingURL=servererrorcode.js.map

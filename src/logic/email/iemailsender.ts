@@ -9,7 +9,7 @@ export interface IEmailSender {
      * @param email The email to send.
      * @returns True if no errors.
      */
-    sendEmail(email: IEmail):Promise<boolean>;
+    sendEmail(email: IEmail):Promise<void>;
 
     /**
      * Create a new email for sending out. This prepopulates
@@ -20,5 +20,5 @@ export interface IEmailSender {
      * @param isHtml If the body is html encoded.
      * @returns True if no errors.
      */
-    createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<boolean>;
+    createAndSendEmail(reciever?: string, subject?: string, body?: string, isHtml?: boolean):Promise<void>;
 }

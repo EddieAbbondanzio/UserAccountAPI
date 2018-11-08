@@ -1,17 +1,14 @@
 import { DatabaseConfig } from "./databaseconfig";
 import { ConfigType } from "./configtype";
 import { EmailCredentials } from "../logic/email/emailcredentials";
+import { injectable } from "inversify";
 
 /**
  * Configuration settings for the app. This contains the
  * database credentials, JWT key, and more.
  */
+@injectable()
 export class Config {
-    /**
-     * The current config to use.
-     */
-    public static current: Config;
-
     /**
      * The configuration type this is.
      */
@@ -43,8 +40,6 @@ export class Config {
      * Create a new config setup.
      */
     constructor() {
-        Config.current = this;
-
         this.emailCredentials = new EmailCredentials();
         this.database         = new DatabaseConfig();
     }

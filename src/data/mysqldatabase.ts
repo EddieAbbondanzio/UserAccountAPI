@@ -10,11 +10,13 @@ import { IUserLoginRepository } from '../logic/contract/repositories/iuserloginr
 import { IResetTokenRepository } from '../logic/contract/repositories/iresettokenrepository';
 import { IVerificationTokenRepository } from '../logic/contract/repositories/iverificationtokenrepository';
 import { InvalidOperationError } from '../common/error/types/invalidoperation';
+import { injectable } from 'inversify';
 
 /**
  * Database implementation of the data access layer. This implementation
  * uses TypeORM to manage the mysql database.
  */
+@injectable()
 export class MySqlDatabase extends Database {
     /**
      * The repository for users.

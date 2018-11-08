@@ -50,7 +50,9 @@ export class ErrorHandler<T extends Error> {
      * @param handler The handler to call if nothing else caught it.
      */
     public otherwise(handler: (err: Error) => void): void {
-
+        if(!this.wasCaught){
+            handler(this.error);
+        }
     }
 
     /**
