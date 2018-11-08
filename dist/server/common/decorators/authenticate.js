@@ -42,12 +42,20 @@ function authenticate() {
                     if (tokenService == null) {
                         throw new invalidoperation_1.InvalidOperationError('Cannot authenticate a user with no token service');
                     }
+                    //Is the token valid?
                     let accessToken = yield tokenService.authenticateToken(bearerToken);
                     //Catch will take over if the payload was bad.
                     let user = yield ioccontainer_1.IocContainer.instance.get(ioctypes_1.IOC_TYPES.UserService).findById(accessToken.userId);
-                    //Attach the user to the request then call the regular method.
-                    req.user = user;
-                    return method.call(this, req, res);
+                    //Is there a valid login in the DB for it?
+                    let isValidLogin = yield ioccontainer_1.IocContainer.instance.get(ioctypes_1.IOC_TYPES.AuthService).validateLogin(user, accessToken.loginCode);
+                    if (!isValidLogin) {
+                        res.sendStatus(HttpStatusCode.UNAUTHORIZED);
+                    }
+                    else {
+                        //Attach the user to the request then call the regular method.
+                        req.user = user;
+                        return method.call(this, req, res);
+                    }
                 }
                 catch (error) {
                     new errorhandler_1.ErrorHandler(error)

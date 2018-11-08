@@ -8,11 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ioccontainer_1 = require("./server/ioccontainer");
 const confighandler_1 = require("./config/confighandler");
 const configtype_1 = require("./config/configtype");
 const configtypeutils_1 = require("./config/configtypeutils");
 const Minimist = require("minimist");
-const ioccontainer_1 = require("./server/ioccontainer");
 const ioctypes_1 = require("./common/ioc/ioctypes");
 /**
  * Initialize the application for use. This first starts

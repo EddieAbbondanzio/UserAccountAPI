@@ -10,7 +10,7 @@ export interface IUserLoginRepository {
      * @param user The user to look for a login for.
      * @returns The login found (or null).
      */
-    findByUser(user: User): Promise<UserLogin>;
+    findByUser(user: User|number): Promise<UserLogin>;
 
     /**
      * Add a new user login to the database.

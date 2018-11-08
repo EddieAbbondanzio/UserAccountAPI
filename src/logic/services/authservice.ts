@@ -82,7 +82,10 @@ export class AuthService extends DatabaseService {
         let accessToken: AccessToken = await this.tokenService.authenticateToken(bearerToken);
         let user: User = await this.database.userRepo.findById(accessToken.userId);
 
-        return this.loginUser(user);
+        //Try to find the login in the DB. This is how we can invalidate JWTs
+        let userLogin: UserLogin = await this.database.loginRepo.findByUser(accessToken.userId)
+
+        return userLogin == null ? null : this.loginUser(user);
     }
 
     /**

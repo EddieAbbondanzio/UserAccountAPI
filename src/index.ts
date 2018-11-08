@@ -1,3 +1,4 @@
+import { IocContainer } from './server/ioccontainer';
 import { Config } from './config/config';
 import { ConfigHandler } from './config/confighandler';
 import { ConfigType } from './config/configtype';
@@ -5,7 +6,6 @@ import { ConfigTypeUtils } from './config/configtypeutils';
 import * as Minimist from 'minimist';
 import { Database } from './logic/common/database';
 import { Server } from './server/server';
-import { IocContainer } from './server/ioccontainer';
 import { IOC_TYPES } from './common/ioc/ioctypes';
 
 /**

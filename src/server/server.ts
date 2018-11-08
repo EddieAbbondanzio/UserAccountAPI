@@ -55,7 +55,7 @@ export class Server {
                 @inject(IOC_TYPES.AccountHandler) accountHandler: IAccountHandler) {
         this.express = Express();
         this.express.listen(config.port, () => {
-            console.log(`Listening on port ${config}.port}`)
+            console.log(`Listening on port ${config.port}`)
         })
 
         Server.instance = this;

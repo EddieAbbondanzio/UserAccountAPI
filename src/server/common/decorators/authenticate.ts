@@ -13,6 +13,8 @@ import { AuthenticationError } from '../../../common/error/types/authenticatione
 import { ExpressUtils } from '../../../util/expressutils';
 import { IocContainer } from '../../ioccontainer';
 import { IOC_TYPES } from '../../../common/ioc/ioctypes';
+import { UserLogin } from '../../../logic/models/userlogin';
+import { IAuthService } from '../../../logic/contract/services/iauthservice';
 
 
 /**
@@ -44,14 +46,23 @@ export function authenticate() {
                     throw new InvalidOperationError('Cannot authenticate a user with no token service');
                 }
 
+                //Is the token valid?
                 let accessToken: AccessToken = await tokenService.authenticateToken(bearerToken);
 
                 //Catch will take over if the payload was bad.
                 let user: User = await IocContainer.instance.get<IUserService>(IOC_TYPES.UserService).findById(accessToken.userId);
     
-                //Attach the user to the request then call the regular method.
-                req.user = user;
-                return method.call(this, req, res);
+                //Is there a valid login in the DB for it?
+                let isValidLogin: boolean = await IocContainer.instance.get<IAuthService>(IOC_TYPES.AuthService).validateLogin(user, accessToken.loginCode);
+
+                if(!isValidLogin){
+                    res.sendStatus(HttpStatusCode.UNAUTHORIZED);
+                }
+                else {
+                    //Attach the user to the request then call the regular method.
+                    req.user = user;
+                    return method.call(this, req, res);
+                }
             }
             catch (error) {
                 new ErrorHandler(error)

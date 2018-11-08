@@ -33,7 +33,7 @@ let UserLogin = UserLogin_1 = class UserLogin {
 /**
  * The ideal code length for the unique code.
  */
-UserLogin.CODE_LENGTH = 16;
+UserLogin.CODE_LENGTH = 24;
 __decorate([
     typeorm_1.JoinColumn(),
     typeorm_1.OneToOne(type => user_1.User, { primary: true }),

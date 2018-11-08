@@ -95,7 +95,8 @@ let AccountHandler = class AccountHandler {
     forgotUsername(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.accountService.emailUserTheirUsername(request.body.username);
+                yield this.accountService.emailUserTheirUsername(request.body.email);
+                response.sendStatus(HttpStatusCodes.OK);
             }
             catch (error) {
                 console.log('An error occured requesting a forgotten username: ', error);
@@ -114,6 +115,7 @@ let AccountHandler = class AccountHandler {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.accountService.emailUserResetToken(request.body.username);
+                response.sendStatus(HttpStatusCodes.OK);
             }
             catch (error) {
                 console.log('An error occured requesting a forgotten username: ', error);

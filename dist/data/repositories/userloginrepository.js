@@ -15,6 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
+const user_1 = require("../../logic/models/user");
 const userlogin_1 = require("../../logic/models/userlogin");
 const argumenterror_1 = require("../../common/error/types/argumenterror");
 const nullargumenterror_1 = require("../../common/error/types/nullargumenterror");
@@ -35,13 +36,21 @@ let UserLoginRepository = class UserLoginRepository extends typeorm_1.AbstractRe
             if (user == null) {
                 throw new nullargumenterror_1.NullArgumentError('user');
             }
-            else if (isNaN(user.id)) {
-                throw new argumenterror_1.ArgumentError('user', 'does not have an id');
+            if (user instanceof user_1.User) {
+                if (isNaN(user.id)) {
+                    throw new argumenterror_1.ArgumentError('user', 'does not have an id');
+                }
+                return this.repository.createQueryBuilder('login')
+                    .leftJoinAndSelect('login.user', 'user')
+                    .where('login.userId = :id', user)
+                    .getOne();
             }
-            return this.repository.createQueryBuilder('login')
-                .leftJoinAndSelect('login.user', 'user')
-                .where('login.userId = :id', user)
-                .getOne();
+            else {
+                return this.repository.createQueryBuilder('login')
+                    .leftJoinAndSelect('login.user', 'user')
+                    .where('login.userId = :id', { id: user })
+                    .getOne();
+            }
         });
     }
     /**

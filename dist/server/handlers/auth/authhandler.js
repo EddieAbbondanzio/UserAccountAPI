@@ -90,6 +90,9 @@ let AuthHandler = class AuthHandler {
                     }
                     accessToken = yield this.authService.loginUserViaCredentials(username, password);
                 }
+                //Send back the access token
+                response.status(HttpStatusCodes.OK)
+                    .json(accessToken);
             }
             catch (error) {
                 new errorhandler_1.ErrorHandler(error)
@@ -115,7 +118,7 @@ let AuthHandler = class AuthHandler {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.authService.logoutUser(request.user);
-                response.status(HttpStatusCodes.OK);
+                response.sendStatus(HttpStatusCodes.OK);
             }
             catch (error) {
                 console.log('An error occured logging out a user: ', error);
@@ -134,8 +137,9 @@ let AuthHandler = class AuthHandler {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let user = yield this.userService.findByUsername(request.body.username);
-                if (user = null) {
+                if (user == null) {
                     response.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+                    return;
                 }
                 let isValid = yield this.authService.validateLogin(user, request.body.loginCode);
                 if (isValid) {

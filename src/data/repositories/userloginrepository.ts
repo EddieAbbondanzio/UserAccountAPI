@@ -18,18 +18,27 @@ export class UserLoginRepository extends AbstractRepository<UserLogin> implement
      * @param user The user to look for a login for.
      * @returns The login found (or null).
      */
-    public async findByUser(user: User): Promise<UserLogin> {
+    public async findByUser(user: User|number): Promise<UserLogin> {
         if(user == null) {
             throw new NullArgumentError('user');
         }
-        else if(isNaN(user.id)){
-            throw new ArgumentError('user', 'does not have an id');
-        }
 
-        return this.repository.createQueryBuilder('login')
-        .leftJoinAndSelect('login.user', 'user')
-        .where('login.userId = :id', user)
-        .getOne();
+        if(user instanceof User) {
+            if(isNaN(user.id)){
+                throw new ArgumentError('user', 'does not have an id');
+            }
+
+            return this.repository.createQueryBuilder('login')
+            .leftJoinAndSelect('login.user', 'user')
+            .where('login.userId = :id', user)
+            .getOne();
+        }
+        else {
+            return this.repository.createQueryBuilder('login')
+            .leftJoinAndSelect('login.user', 'user')
+            .where('login.userId = :id', {id: user})
+            .getOne();
+        }
     }
 
     /**

@@ -33,7 +33,7 @@ let Server = Server_1 = class Server {
     constructor(config, userHandler, authHandler, accountHandler) {
         this.express = Express();
         this.express.listen(config.port, () => {
-            console.log(`Listening on port ${config}.port}`);
+            console.log(`Listening on port ${config.port}`);
         });
         Server_1.instance = this;
         this.userHandler = userHandler;

@@ -12,7 +12,7 @@ export class UserLogin {
     /**
      * The ideal code length for the unique code.
      */
-    public static CODE_LENGTH: number = 16;
+    public static CODE_LENGTH: number = 24;
 
     /**
      * The user that this login belongs to. A user may

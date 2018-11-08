@@ -121,7 +121,7 @@ export class UserService extends DatabaseService {
             new ErrorHandler(error)
             .catch(QueryFailedError, (error: QueryFailedError) => {
                 if(error.message.includes('ER_DUP_ENTRY')) {
-                    throw new DuplicateError('Username is taken.');
+                    throw new DuplicateError('Username or email is already in use.');
                 }
             })
             .otherwiseRaise();

@@ -98,6 +98,10 @@ export class AuthHandler implements IHandler {
 
                 accessToken = await this.authService.loginUserViaCredentials(username, password);
             }
+
+            //Send back the access token
+            response.status(HttpStatusCodes.OK)
+            .json(accessToken);
         }
         catch (error) {
             new ErrorHandler(error)
@@ -124,7 +128,7 @@ export class AuthHandler implements IHandler {
     public async logoutUser(request: Express.Request, response: Express.Response): Promise<void> {
         try {
             await this.authService.logoutUser(request.user);
-            response.status(HttpStatusCodes.OK);
+            response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
             console.log('An error occured logging out a user: ', error);
@@ -145,8 +149,9 @@ export class AuthHandler implements IHandler {
         try {
             let user: User = await this.userService.findByUsername(request.body.username);
 
-            if(user = null){
+            if(user == null){
                 response.sendStatus(HttpStatusCodes.UNAUTHORIZED);
+                return;
             }
 
             let isValid: boolean = await this.authService.validateLogin(user, request.body.loginCode);

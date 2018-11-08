@@ -90,7 +90,7 @@ let UserHandler = class UserHandler {
                 })
                     .catch(duplicateerror_1.DuplicateError, (error) => {
                     response.status(HttpStatusCodes.CONFLICT)
-                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.FailedRequest, 'Username is already taken'));
+                        .json(new servererrorinfo_1.ServerErrorInfo(servererrorcode_1.ServerErrorCode.FailedRequest, 'Username or email is already in use.'));
                 })
                     .otherwise((error) => {
                     console.log('An unknown error occured registering a user: ', error);
@@ -147,18 +147,18 @@ let UserHandler = class UserHandler {
                 //Is it a user id?
                 if (stringutils_1.StringUtils.isNumeric(identifier)) {
                     let id = parseInt(identifier, 10);
-                    let user = yield this.userService.findById(id);
+                    user = yield this.userService.findById(id);
                 }
                 //Is it a username?
                 else if (stringutils_1.StringUtils.isAlphanumeric(identifier)) {
-                    let user = yield this.userService.findByUsername(identifier);
+                    user = yield this.userService.findByUsername(identifier);
                 }
                 //Is it an email?
                 else if (stringutils_1.StringUtils.isEmail(identifier)) {
-                    let user = yield this.userService.findByEmail(identifier);
+                    user = yield this.userService.findByEmail(identifier);
                 }
                 if (user != null) {
-                    response.send({
+                    response.status(HttpStatusCodes.OK).json({
                         id: user.id,
                         username: user.username,
                         stats: user.stats

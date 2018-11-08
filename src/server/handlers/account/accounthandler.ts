@@ -102,7 +102,8 @@ export class AccountHandler implements IHandler {
     @body(ForgotUsernamePayload)
     public async forgotUsername(request: Express.Request, response: Express.Response): Promise<void> {
         try {
-            await this.accountService.emailUserTheirUsername(request.body.username);
+            await this.accountService.emailUserTheirUsername(request.body.email);
+            response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
             console.log('An error occured requesting a forgotten username: ', error);
@@ -122,6 +123,7 @@ export class AccountHandler implements IHandler {
     public async forgotPassword(request: Express.Request, response: Express.Response): Promise<void> {
         try {
             await this.accountService.emailUserResetToken(request.body.username);
+            response.sendStatus(HttpStatusCodes.OK);
         }
         catch (error) {
             console.log('An error occured requesting a forgotten username: ', error);

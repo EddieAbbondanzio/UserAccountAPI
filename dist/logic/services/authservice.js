@@ -85,7 +85,9 @@ let AuthService = class AuthService extends databaseservice_1.DatabaseService {
             //Authenticate the token, then pull in the user.
             let accessToken = yield this.tokenService.authenticateToken(bearerToken);
             let user = yield this.database.userRepo.findById(accessToken.userId);
-            return this.loginUser(user);
+            //Try to find the login in the DB. This is how we can invalidate JWTs
+            let userLogin = yield this.database.loginRepo.findByUser(accessToken.userId);
+            return userLogin == null ? null : this.loginUser(user);
         });
     }
     /**

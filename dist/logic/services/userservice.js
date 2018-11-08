@@ -114,7 +114,7 @@ let UserService = class UserService extends databaseservice_1.DatabaseService {
                 new errorhandler_1.ErrorHandler(error)
                     .catch(typeorm_1.QueryFailedError, (error) => {
                     if (error.message.includes('ER_DUP_ENTRY')) {
-                        throw new duplicateerror_1.DuplicateError('Username is taken.');
+                        throw new duplicateerror_1.DuplicateError('Username or email is already in use.');
                     }
                 })
                     .otherwiseRaise();
