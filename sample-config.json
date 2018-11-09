@@ -1,0 +1,45 @@
+{
+    "development": {
+        "tokenSignature": "This should be a very long random string. Ideally 1024 chars plus",
+        "email": {
+            "username": "youremail@domain.com",
+            "password": "emailpassword"
+        },
+        "port": 3000,
+        "database": {
+            "connectionType": "mysql",
+            "host": "192.168.1.117",
+            "port": 3306,
+            "username": "dbuser",
+            "password": "dbpassword",
+            "database": "dev",
+            "autoSchemaSync": true,
+            "entities": "dist/logic/models/**/*.js",
+            "subscribers": "dist/subscriber/**/*.js",
+            "migrations": "dist/migration/**/*.js"
+        }
+    },
+    "test": {
+        "tokenSignature": "This should be a very long random string. Ideally 1024 chars plus",
+        "email": {
+            "username": "youremail@domain.com",
+            "password": "emailpassword"
+        },
+        "port": 3000,
+        "database": {
+            "connectionType": "mysql",
+            "host": "192.168.1.117",
+            "port": 3306,
+            "username": "dbuser",
+            "password": "dbpassword",
+            "database": "test",
+            "autoSchemaSync": true,
+            "entities": "src/logic/models/**/*.ts",
+            "subscribers": "src/subscriber/**/*.ts",
+            "migrations": "src/migration/**/*.ts"
+        }
+    },
+    "production": {
+
+    }
+}
